@@ -104,7 +104,6 @@ class PermintaanResource extends Resource
 {
     $query = parent::getEloquentQuery();
 
-    // Jika role user yang login adalah 'user' (bukan admin), 
     // maka dia hanya bisa melihat datanya sendiri.
     if (Auth::user()->role === 'user') {
         $query->where('user_id', Auth::id());
@@ -139,52 +138,52 @@ class PermintaanResource extends Resource
                     ->label('Filter per Bidang'),
             ])
            ->actions([
-                    Action::make('approve')
-                    ->visible(fn () => auth()->user()->role === 'admin')
-                    ->label('Approve')
-                    ->color('success')
-                    ->icon('heroicon-o-check-circle')
-                    ->requiresConfirmation()
-                    ->modalHeading('Approve Permintaan')
-                    ->action(function ($record) {
+    Action::make('approve')
+        ->visible(fn () => auth()->user()->role === 'admin')
+        ->label('Approve')
+        ->color('success')
+        ->icon('heroicon-o-check-circle')
+        ->requiresConfirmation()
+        ->modalHeading('Approve Permintaan')
+        ->action(function ($record) {
 
-                        DB::transaction(function () use ($record) {
+            DB::transaction(function () use ($record) {
+                    $record->load('detailPermintaans', 'user');
 
-                            // pastikan ada detail
-                            if ($record->detailPermintaans->isEmpty()) {
-                                return;
-                            }
+                if ($record->detailPermintaans->isEmpty()) {
+                    throw new \Exception('Detail permintaan kosong');
+                }
 
-                            foreach ($record->detailPermintaans as $detail) {
+                foreach ($record->detailPermintaans as $detail) {
 
-                                DetailTerverifikasi::create([
-                                    'detail_id' => $detail->id,
-                                    'barang_id' => $detail->barang_id,
-                                    'jumlah'    => $detail->jumlah,
-                                    'biaya'     => $detail->biaya,
-                                ]);
+                    // INSERT ke detail_terverifikasis
+                    DetailTerverifikasi::create([
+                        'detail_id' => $detail->id,
+                        'barang_id' => $detail->barang_id,
+                        'jumlah'    => $detail->jumlah,
+                        'biaya'     => $detail->biaya,
+                    ]);
 
-                                $stokGudang = Gudang::firstOrCreate(
-                                    [
-                                        'barang_id' => $detail->barang_id,
-                                        'bagian_id' => $record->user->bagian_id,
-                                    ],
-                                    ['stok' => 0]
-                                );
+                    // Update stok gudang
+                    $stokGudang = Gudang::firstOrCreate(
+                        [
+                            'barang_id' => $detail->barang_id,
+                            'bagian_id' => $record->user->bagian_id,
+                        ],
+                        ['stok' => 0]
+                    );
+                    $stokGudang->increment('stok', $detail->jumlah);
+                }
+                $record->delete();
+            });
 
-                                $stokGudang->increment('stok', $detail->jumlah);
-                            }
+            Notification::make()
+                ->title('Permintaan berhasil di-approve')
+                ->success()
+                ->send();
+        }),
+])
 
-                            // hapus permintaan + detail (cascade)
-                            $record->delete();
-                        });
-
-                        Notification::make()
-                            ->title('Permintaan berhasil di-approve')
-                            ->success()
-                            ->send();
-                    }),
-            ])
 
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
