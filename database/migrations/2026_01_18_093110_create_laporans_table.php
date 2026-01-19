@@ -17,7 +17,6 @@ return new class extends Migration
             $table->unsignedBigInteger('bagian_id')->index('bagian_id');
             $table->unsignedBigInteger('detail_verif_id')->index('detail_verif_id');
             $table->year('tahun_anggaran');
-            $table->integer('total_biaya');
             $table->timestamps();
         });
     }

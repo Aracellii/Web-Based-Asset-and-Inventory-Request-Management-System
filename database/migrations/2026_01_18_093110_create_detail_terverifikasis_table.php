@@ -16,7 +16,6 @@ return new class extends Migration
             $table->unsignedBigInteger('detail_id')->index('detail_id');
             $table->unsignedBigInteger('barang_id')->index('barang_id');
             $table->integer('jumlah');
-            $table->integer('biaya');
             $table->timestamps();
         });
     }
