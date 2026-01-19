@@ -1,0 +1,209 @@
+<?php
+
+namespace App\Filament\Resources;
+use Illuminate\Support\Facades\DB;
+use App\Models\DetailTerverifikasi;
+use App\Models\Gudang;
+use Filament\Notifications\Notification;
+use Filament\Tables\Actions\Action;
+use App\Filament\Resources\PermintaanResource\Pages;
+use App\Models\Permintaan;
+use App\Models\Barang;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+class PermintaanResource extends Resource
+{
+    protected static ?string $model = Permintaan::class;
+    protected static ?string $modelLabel = 'Permintaan';
+
+    protected static ?string $pluralModelLabel = 'Permintaan';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\Section::make('Informasi Utama')
+                    ->schema([
+                        Forms\Components\Select::make('user_id')
+                            ->relationship('user', 'name')
+                            ->required()
+                            ->default(auth()->id())
+                            ->searchable(),
+                        Forms\Components\DatePicker::make('tanggal_permintaan')
+                            ->required()
+                            ->default(now()),
+                    ])->columns(2),
+
+                Forms\Components\Section::make('Daftar Barang')
+                    ->schema([
+                        Forms\Components\Repeater::make('detailPermintaans')
+                            ->relationship() // Menghubungkan ke tabel detail_permintaans
+                            ->schema([
+                                Forms\Components\Select::make('barang_id')
+                                    ->label('Barang')
+                                    ->relationship('barang', 'nama_barang')
+                                    ->required()
+                                    ->searchable()
+                                    ->preload()
+                                    // FITUR TULIS MANUAL: Menambah barang baru jika belum ada di database
+                                    ->createOptionForm([
+                                        Forms\Components\TextInput::make('nama_barang')
+                                            ->required()
+                                            ->unique('barangs', 'nama_barang'),
+                                        Forms\Components\TextInput::make('harga_satuan')
+                                            ->numeric()
+                                            ->prefix('Rp')
+                                            ->required(),
+                                    ])
+                                    ->createOptionUsing(function (array $data) {
+                                        return Barang::create($data)->id;
+                                    })
+                                    // Otomatis isi biaya saat barang dipilih
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        $barang = Barang::find($state);
+                                        if ($barang) {
+                                            $set('biaya', $barang->harga_satuan);
+                                        }
+                                    }),
+
+                                Forms\Components\TextInput::make('jumlah')
+                                    ->numeric()
+                                    ->required()
+                                    ->default(1)
+                                    ->minValue(1)
+                                    ->reactive()
+                                    // Hitung total biaya (jumlah x harga) secara real-time
+                                    ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                        $barangId = $get('barang_id');
+                                        $barang = Barang::find($barangId);
+                                        if ($barang) {
+                                            $set('biaya', $state * $barang->harga_satuan);
+                                        }
+                                    }),
+
+                                Forms\Components\TextInput::make('biaya')
+                                    ->label('Total Biaya')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->required()
+                                    ->helperText('Otomatis terisi, atau manual bila perlu'),
+                            ])
+                            ->columns(3)
+                            ->createItemButtonLabel('Tambah Baris Barang')
+                    ])
+            ]);
+    }
+    public static function getEloquentQuery(): Builder
+{
+    $query = parent::getEloquentQuery();
+
+    // Jika role user yang login adalah 'user' (bukan admin), 
+    // maka dia hanya bisa melihat datanya sendiri.
+    if (Auth::user()->role === 'user') {
+        $query->where('user_id', Auth::id());
+    }
+
+    return $query;
+}
+
+    public static function table(Table $table): Table
+    {
+        return $table
+        
+            ->columns([
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Peminta')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('tanggal_permintaan')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('detail_permintaans_count')
+                    ->label('Jumlah Item')
+                    ->counts('detailPermintaans'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('bagian')
+                    ->relationship('user.bagian', 'nama_bagian') 
+                    ->label('Filter per Bidang'),
+            ])
+           ->actions([
+                    Action::make('approve')
+                    ->visible(fn () => auth()->user()->role === 'admin')
+                    ->label('Approve')
+                    ->color('success')
+                    ->icon('heroicon-o-check-circle')
+                    ->requiresConfirmation()
+                    ->modalHeading('Approve Permintaan')
+                    ->action(function ($record) {
+
+                        DB::transaction(function () use ($record) {
+
+                            // pastikan ada detail
+                            if ($record->detailPermintaans->isEmpty()) {
+                                return;
+                            }
+
+                            foreach ($record->detailPermintaans as $detail) {
+
+                                DetailTerverifikasi::create([
+                                    'detail_id' => $detail->id,
+                                    'barang_id' => $detail->barang_id,
+                                    'jumlah'    => $detail->jumlah,
+                                    'biaya'     => $detail->biaya,
+                                ]);
+
+                                $stokGudang = Gudang::firstOrCreate(
+                                    [
+                                        'barang_id' => $detail->barang_id,
+                                        'bagian_id' => $record->user->bagian_id,
+                                    ],
+                                    ['stok' => 0]
+                                );
+
+                                $stokGudang->increment('stok', $detail->jumlah);
+                            }
+
+                            // hapus permintaan + detail (cascade)
+                            $record->delete();
+                        });
+
+                        Notification::make()
+                            ->title('Permintaan berhasil di-approve')
+                            ->success()
+                            ->send();
+                    }),
+            ])
+
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListPermintaans::route('/'),
+            'create' => Pages\CreatePermintaan::route('/create'),
+            'edit' => Pages\EditPermintaan::route('/{record}/edit'),
+        ];
+    }
+}
