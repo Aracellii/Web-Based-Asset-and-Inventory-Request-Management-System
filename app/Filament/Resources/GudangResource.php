@@ -16,6 +16,7 @@ class GudangResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
     protected static ?string $navigationLabel = 'Stok Gudang';
     protected static ?string $modelLabel = 'Stok Barang';
+    protected static ?string $pluralModelLabel = 'Stok Barang';
 
     public static function form(Form $form): Form
     {
@@ -26,6 +27,14 @@ class GudangResource extends Resource
                         Forms\Components\Select::make('barang_id')
                             ->relationship('barang', 'nama_barang')
                             ->searchable()
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('nama_barang')
+                                    ->required()
+                                    ->unique('barangs', 'nama_barang'),
+                                Forms\Components\TextInput::make('harga_satuan')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->required(),])
                             ->preload()
                             ->required(),
                         Forms\Components\Select::make('bagian_id')
@@ -71,10 +80,8 @@ class GudangResource extends Resource
                 ->filters([
                 Tables\Filters\SelectFilter::make('bagian_id')
                 ->relationship('bagian', 'nama_bagian')
-                ->label('Filter per Bidang')
-               
+                ->label('Filter per Bidang')             
              ])
-
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
