@@ -60,22 +60,13 @@ class PermintaanResource extends Resource
                                         Forms\Components\TextInput::make('nama_barang')
                                             ->required()
                                             ->unique('barangs', 'nama_barang'),
-                                        Forms\Components\TextInput::make('harga_satuan')
-                                            ->numeric()
-                                            ->prefix('Rp')
+                                        Forms\Components\TextInput::make('id')
                                             ->required(),
                                     ])
                                     ->createOptionUsing(function (array $data) {
                                         return Barang::create($data)->id;
-                                    })
-                                    // Otomatis isi biaya
-                                    ->reactive()
-                                    ->afterStateUpdated(function ($state, callable $set) {
-                                        $barang = Barang::find($state);
-                                        if ($barang) {
-                                            $set('biaya', $barang->harga_satuan);
-                                        }
-                                    }),
+                                    }),                                   
+                                
 
                                 Forms\Components\TextInput::make('jumlah')
                                     ->numeric()
@@ -92,12 +83,7 @@ class PermintaanResource extends Resource
                                         }
                                     }),
 
-                                Forms\Components\TextInput::make('biaya')
-                                    ->label('Total Biaya')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->required()
-                                    ->helperText('Otomatis terisi, atau manual bila perlu'),
+                               
                             ])
                             ->columns(3)
                             ->createItemButtonLabel('Tambah Baris Barang')
@@ -133,22 +119,16 @@ class PermintaanResource extends Resource
                                         Forms\Components\TextInput::make('nama_barang')
                                             ->required()
                                             ->unique('barangs', 'nama_barang'),
-                                        Forms\Components\TextInput::make('harga_satuan')
-                                            ->numeric()
-                                            ->prefix('Rp')
+                                            
+                                        Forms\Components\TextInput::make('id')
                                             ->required(),
                                     ])
                                     ->createOptionUsing(function (array $data) {
                                         return Barang::create($data)->id;
                                     })
                                     // Otomatis isi biaya
-                                    ->reactive()
-                                    ->afterStateUpdated(function ($state, callable $set) {
-                                        $barang = Barang::find($state);
-                                        if ($barang) {
-                                            $set('biaya', $barang->harga_satuan);
-                                        }
-                                    }),
+                                    ->reactive(),
+                                   
 
                                 Forms\Components\TextInput::make('jumlah')
                                     ->numeric()
@@ -165,14 +145,9 @@ class PermintaanResource extends Resource
                                         }
                                     }),
 
-                                Forms\Components\TextInput::make('biaya')
-                                    ->label('Total Biaya')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->required()
-                                    ->helperText('Otomatis terisi, atau manual bila perlu'),
+                              
                             ])
-                            ->columns(3)
+                            ->columns(2)
                             ->createItemButtonLabel('Tambah Baris Barang')
                     ])
             ]);
@@ -240,7 +215,6 @@ class PermintaanResource extends Resource
                         'detail_id' => $detail->id,
                         'barang_id' => $detail->barang_id,
                         'jumlah'    => $detail->jumlah,
-                        'biaya'     => $detail->biaya,
                     ]);
                     $detail->update([
                     'approved' => 'ya',]);

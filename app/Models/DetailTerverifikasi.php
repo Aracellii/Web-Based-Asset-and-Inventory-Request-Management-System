@@ -14,6 +14,5 @@ class DetailTerverifikasi extends Model
         'detail_id', 
         'barang_id',
         'jumlah',
-        'biaya',
     ];
 }
