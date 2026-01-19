@@ -102,7 +102,7 @@ class GudangResource extends Resource
 
     // Jika yang login bukan admin 
     if (Auth::user()->role !== 'admin') {
-        //pisahkan perbagian
+        //perbagian
         $query->where('bagian_id', Auth::user()->bagian_id);
     }
 
