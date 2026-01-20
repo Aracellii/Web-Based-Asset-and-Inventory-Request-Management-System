@@ -16,4 +16,10 @@ class ListPermintaans extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            \App\Filament\Resources\PermintaanResource\Widgets\ListPermintaanTable::class,
+        ];
+    }
 }
