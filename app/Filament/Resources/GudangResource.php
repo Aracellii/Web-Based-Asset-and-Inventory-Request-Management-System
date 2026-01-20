@@ -50,7 +50,6 @@ public static function form(Form $form): Form
                                 ->unique('barangs', 'nama_barang'),
                                 Forms\Components\TextInput::make('id')
                                 ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
-
                                 ->label('Kode Barang')
                                 ->placeholder('Masukkan Kode Barang')
                                 ->required()
@@ -58,12 +57,10 @@ public static function form(Form $form): Form
                         ])
                         ->createOptionUsing(function (array $data) {
                             return \Illuminate\Support\Facades\DB::transaction(function () use ($data) {
-                                // Gunakan create untuk membuat barang baru
                                 $barang = \App\Models\Barang::create([
                                     'id' => $data['id'],
                                     'nama_barang' => $data['nama_barang'],
                                 ]);
-
                                 $bagians = \App\Models\Bagian::all();
 
                                 foreach ($bagians as $bagian) {
@@ -81,10 +78,7 @@ public static function form(Form $form): Form
                                 return $data['id']; 
                             });
                         }),
-                    Forms\Components\Select::make('bagian_id')
-                        ->relationship('bagian', 'nama_bagian')
-                        ->required()
-                        ->searchable(),
+                   
                     Forms\Components\TextInput::make('stok')
                         ->label('Jumlah Stok Sekarang')
                         ->numeric()
