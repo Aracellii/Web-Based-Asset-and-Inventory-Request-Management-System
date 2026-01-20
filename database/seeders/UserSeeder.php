@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
             'name' => 'Finance Admin',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('12345678'),
-            'role' => 'admin_keuangan',
+            'role' => 'keuangan',
             'bagian_id' => 1,
         ]);
 
@@ -26,7 +26,7 @@ class UserSeeder extends Seeder
             'name' => 'Admin Gudang General Administration',
             'email' => 'gudangTU@gmail.com',
             'password' => Hash::make('12345678'),
-            'role' => 'admin_gudang',
+            'role' => 'admin',
             'bagian_id' => 1,
         ]);
 
@@ -42,7 +42,7 @@ class UserSeeder extends Seeder
             'name' => 'Admin Gudang Survey and Mapping',
             'email' => 'gudangSP@gmail.com',
             'password' => Hash::make('12345678'),
-            'role' => 'admin_gudang',
+            'role' => 'admin',
             'bagian_id' => 2,
         ]);
 
@@ -58,7 +58,7 @@ class UserSeeder extends Seeder
             'name' => 'Admin Gudang Rights Determination and Registration',
             'email' => 'gudangPHP@gmail.com',
             'password' => Hash::make('12345678'),
-            'role' => 'admin_gudang',
+            'role' => 'admin',
             'bagian_id' => 3,
         ]);
 
@@ -74,7 +74,7 @@ class UserSeeder extends Seeder
             'name' => 'Admin Gudang Planning and Empowerment',
             'email' => 'gudangPP@gmail.com',
             'password' => Hash::make('12345678'),
-            'role' => 'admin_gudang',
+            'role' => 'admin',
             'bagian_id' => 4,
         ]);
 
@@ -90,7 +90,7 @@ class UserSeeder extends Seeder
             'name' => 'Admin Gudang Land Procurement and Development',
             'email' => 'gudangPTP@gmail.com',
             'password' => Hash::make('12345678'),
-            'role' => 'admin_gudang',
+            'role' => 'admin',
             'bagian_id' => 5,
         ]);
 
@@ -106,7 +106,7 @@ class UserSeeder extends Seeder
             'name' => 'Admin Gudang Dispute Control and Handling',
             'email' => 'gudangPPS@gmail.com',
             'password' => Hash::make('12345678'),
-            'role' => 'admin_gudang',
+            'role' => 'admin',
             'bagian_id' => 6,
         ]);
 
