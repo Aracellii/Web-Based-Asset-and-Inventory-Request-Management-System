@@ -14,61 +14,20 @@ class GudangSeeder extends Seeder
      */
     public function run(): void
     {
-        $data = [
-            ['bagian_id' => 1, 'barang_id' => 1, 'stok' => 5],
-            ['bagian_id' => 1, 'barang_id' => 2, 'stok' => 15],
-            ['bagian_id' => 1, 'barang_id' => 3, 'stok' => 30],
-            ['bagian_id' => 1, 'barang_id' => 4, 'stok' => 30],
-            ['bagian_id' => 1, 'barang_id' => 5, 'stok' => 30],
-            ['bagian_id' => 1, 'barang_id' => 6, 'stok' => 30],
-            ['bagian_id' => 1, 'barang_id' => 7, 'stok' => 30],
-            ['bagian_id' => 1, 'barang_id' => 8, 'stok' => 30],
+        $data = [];
+        $stok_per_barang = [1 => 5, 2 => 15, 3 => 30, 4 => 30, 5 => 30, 6 => 30, 7 => 30, 8 => 30];
 
-            ['bagian_id' => 2, 'barang_id' => 1, 'stok' => 5],
-            ['bagian_id' => 2, 'barang_id' => 2, 'stok' => 15],
-            ['bagian_id' => 2, 'barang_id' => 3, 'stok' => 30],
-            ['bagian_id' => 2, 'barang_id' => 4, 'stok' => 30],
-            ['bagian_id' => 2, 'barang_id' => 5, 'stok' => 30],
-            ['bagian_id' => 2, 'barang_id' => 6, 'stok' => 30],
-            ['bagian_id' => 2, 'barang_id' => 7, 'stok' => 30],
-            ['bagian_id' => 2, 'barang_id' => 8, 'stok' => 30],
-
-            ['bagian_id' => 3, 'barang_id' => 1, 'stok' => 5],
-            ['bagian_id' => 3, 'barang_id' => 2, 'stok' => 15],
-            ['bagian_id' => 3, 'barang_id' => 3, 'stok' => 30],
-            ['bagian_id' => 3, 'barang_id' => 4, 'stok' => 30],
-            ['bagian_id' => 3, 'barang_id' => 5, 'stok' => 30],
-            ['bagian_id' => 3, 'barang_id' => 6, 'stok' => 30],
-            ['bagian_id' => 3, 'barang_id' => 7, 'stok' => 30],
-            ['bagian_id' => 3, 'barang_id' => 8, 'stok' => 30],
-            
-            ['bagian_id' => 4, 'barang_id' => 1, 'stok' => 5],
-            ['bagian_id' => 4, 'barang_id' => 2, 'stok' => 15],
-            ['bagian_id' => 4, 'barang_id' => 3, 'stok' => 30],
-            ['bagian_id' => 4, 'barang_id' => 4, 'stok' => 30],
-            ['bagian_id' => 4, 'barang_id' => 5, 'stok' => 30],
-            ['bagian_id' => 4, 'barang_id' => 6, 'stok' => 30],
-            ['bagian_id' => 4, 'barang_id' => 7, 'stok' => 30],
-            ['bagian_id' => 4, 'barang_id' => 8, 'stok' => 30],
-
-            ['bagian_id' => 5, 'barang_id' => 1, 'stok' => 5],
-            ['bagian_id' => 5, 'barang_id' => 2, 'stok' => 15],
-            ['bagian_id' => 5, 'barang_id' => 3, 'stok' => 30],
-            ['bagian_id' => 5, 'barang_id' => 4, 'stok' => 30],
-            ['bagian_id' => 5, 'barang_id' => 5, 'stok' => 30],
-            ['bagian_id' => 5, 'barang_id' => 6, 'stok' => 30],
-            ['bagian_id' => 5, 'barang_id' => 7, 'stok' => 30],
-            ['bagian_id' => 5, 'barang_id' => 8, 'stok' => 30],
-
-            ['bagian_id' => 6, 'barang_id' => 1, 'stok' => 5],
-            ['bagian_id' => 6, 'barang_id' => 2, 'stok' => 15],
-            ['bagian_id' => 6, 'barang_id' => 3, 'stok' => 30],
-            ['bagian_id' => 6, 'barang_id' => 4, 'stok' => 30],
-            ['bagian_id' => 6, 'barang_id' => 5, 'stok' => 30],
-            ['bagian_id' => 6, 'barang_id' => 6, 'stok' => 30],
-            ['bagian_id' => 6, 'barang_id' => 7, 'stok' => 30],
-            ['bagian_id' => 6, 'barang_id' => 8, 'stok' => 30],
-        ];
+        // Loop untuk bagian_id 1 sampai 6
+        foreach (range(1, 6) as $bagian_id) {
+            // Loop untuk barang_id 1 sampai 8
+            foreach ($stok_per_barang as $barang_id => $stok) {
+                $data[] = [
+                    'bagian_id' => $bagian_id,
+                    'barang_id' => $barang_id,
+                    'stok'      => $stok,
+                ];
+            }
+        }
 
         foreach ($data as $item) {
             Gudang::create($item);
