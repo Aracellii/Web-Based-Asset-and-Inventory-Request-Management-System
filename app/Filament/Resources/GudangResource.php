@@ -177,10 +177,10 @@ public static function form(Form $form): Form
 
     public static function getEloquentQuery(): Builder
     {
-        //Tampilkan Data Gudan
+        //Tampilkan Data Gudang
         $query = parent::getEloquentQuery();
 
-        // Filter berdasarkan Role
+        // Filter Role
         if (Auth::user()->role !== 'keuangan') {
             $query->where('bagian_id', Auth::user()->bagian_id);
         }
