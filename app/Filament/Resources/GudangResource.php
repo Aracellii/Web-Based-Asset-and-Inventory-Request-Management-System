@@ -22,41 +22,74 @@ class GudangResource extends Resource
     protected static ?string $modelLabel = 'Stok Barang';
     protected static ?string $pluralModelLabel = 'Stok Barang';
 
-    public static function form(Form $form): Form
+public static function form(Form $form): Form
 {
     return $form
         ->schema([
             Forms\Components\Section::make('Input Stok Gudang')
+                ->description('Pilih barang dan tentukan stok')
                 ->schema([    
                     Forms\Components\Select::make('barang_id')
+                        ->label('Nama Barang')
                         ->relationship('barang', 'nama_barang')
                         ->searchable()
                         ->preload()
                         ->required()
+                        ->editOptionForm([ // Opsional: Memungkinkan edit nama barang langsung
+                            Forms\Components\TextInput::make('nama_barang')
+                                ->required(),
+                        ])
                         ->createOptionForm([
                             Forms\Components\TextInput::make('nama_barang')
+                                ->label('Nama Barang Baru')
+                                ->placeholder('Contoh: Kertas A4')
                                 ->required()
                                 ->unique('barangs', 'nama_barang'),
-                            Forms\Components\TextInput::make('id')
+                                Forms\Components\TextInput::make('id')
+                                ->label('Kode Barang')
+                                ->placeholder('Masukkan Kode Barang')
                                 ->required()
                                 ->unique('barangs', 'id'),
                         ])
-                        ->createOptionUsing(fn (array $data) => 
-                            \App\Models\Barang::create($data)->id
-                        ),
+                        ->createOptionUsing(function (array $data) {
+                            return \Illuminate\Support\Facades\DB::transaction(function () use ($data) {
+                                // Gunakan create untuk membuat barang baru
+                                $barang = \App\Models\Barang::create([
+                                    'id' => $data['id'],
+                                    'nama_barang' => $data['nama_barang'],
+                                ]);
+
+                                $bagians = \App\Models\Bagian::all();
+
+                                foreach ($bagians as $bagian) {
+                                    \App\Models\Gudang::create([
+                                        // Gunakan $data['id'] langsung untuk memastikan nilai yang tepat terinput
+                                        'barang_id' => $data['id'], 
+                                        'bagian_id' => $bagian->id,
+                                        'stok'      => 0,
+                                    ]);
+                                }
+
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Barang Berhasil Dibuat')
+                                    ->success()
+                                    ->send();
+
+                                return $data['id']; 
+                            });
+                        }),
 
                     Forms\Components\Select::make('bagian_id')
                         ->relationship('bagian', 'nama_bagian')
-                        ->label('Bidang / Bagian')
-                        ->required(),
+                        ->required()
+                        ->searchable(),
 
                     Forms\Components\TextInput::make('stok')
-                        ->label('Jumlah Stok Awal')
+                        ->label('Jumlah Stok Sekarang')
                         ->numeric()
-                        ->minValue(0)
+                        ->default(0)
                         ->required(),
-                ])
-                ->columns(2),
+                ])->columns(2), 
         ]);
 }
 
@@ -134,17 +167,6 @@ class GudangResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('export_selected_pdf')
-                        ->label('Export Data Terpilih')
-                        ->icon('heroicon-o-printer')
-                        ->color('danger')
-                        ->action(function (Collection $records) {
-                            $pdf = Pdf::loadView('pdf.stok-barang', [
-                                'records' => $records,
-                                'title' => 'Laporan Stok Barang Pilihan'
-                            ]);
-                            return response()->streamDownload(fn () => print($pdf->output()), 'stok-terpilih.pdf');
-                        }),
                     Tables\Actions\DeleteBulkAction::make()
                         ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin'])),
                 ]),
