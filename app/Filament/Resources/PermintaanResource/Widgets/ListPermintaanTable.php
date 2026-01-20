@@ -125,12 +125,15 @@ class ListPermintaanTable extends BaseWidget
                             ->title('Permintaan berhasil di-approve')
                             ->success()
                             ->send();
+
+                        return redirect(request()->header('Referer'));
                     }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->successRedirectUrl(fn() => static::getUrl('index'));
     }
 }
