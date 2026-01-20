@@ -45,7 +45,7 @@ public static function form(Form $form): Form
                             Forms\Components\TextInput::make('nama_barang')
                                 ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
                                 ->label('Nama Barang Baru')
-                                ->placeholder('Contoh: Kertas A4')
+                                ->placeholder('Masukan Nama Barang')
                                 ->required()
                                 ->unique('barangs', 'nama_barang'),
                                 Forms\Components\TextInput::make('id')
@@ -78,12 +78,13 @@ public static function form(Form $form): Form
                                 return $data['id']; 
                             });
                         }),
-                   
+
                     Forms\Components\TextInput::make('stok')
                         ->label('Jumlah Stok Sekarang')
                         ->numeric()
                         ->default(0)
                         ->required(),
+                        
                 ])->columns(2), 
         ]);
 }
@@ -177,10 +178,10 @@ public static function form(Form $form): Form
 
     public static function getEloquentQuery(): Builder
     {
-        //Tampilkan Data Gudang
+        //Tampilkan Data Gudan
         $query = parent::getEloquentQuery();
 
-        // Filter Role
+        // Filter berdasarkan Role
         if (Auth::user()->role !== 'keuangan') {
             $query->where('bagian_id', Auth::user()->bagian_id);
         }
