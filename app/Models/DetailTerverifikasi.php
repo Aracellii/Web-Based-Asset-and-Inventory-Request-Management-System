@@ -11,9 +11,9 @@ class DetailTerverifikasi extends Model
     protected $table = 'detail_terverifikasis'; 
 
     protected $fillable = [
+        'permintaan_id',
         'bagian_id', 
         'barang_id',
         'jumlah',
-        'detail_id',
     ];
 }

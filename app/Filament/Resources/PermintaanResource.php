@@ -150,16 +150,6 @@ class PermintaanResource extends Resource
         }
     }
 
-    // public static function getEloquentQuery(): Builder
-    // {
-    //     $query = parent::getEloquentQuery();
-    //     $query->where('approved', 'pending');
-    //     if (Auth::user()->role === 'user') {
-    //         $query->where('user_id', Auth::id());
-    //     }
-    //     return $query;
-    // }
-
     public static function table(Table $table): Table
     {
         return $table
@@ -175,10 +165,12 @@ class PermintaanResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tanggal_permintaan')
                     ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('detail_permintaans_count')
-                    ->label('Jumlah Item')
-                    ->counts('detailPermintaans'),
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('barang.kode_barang')
+                    ->label('Kode Barang')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

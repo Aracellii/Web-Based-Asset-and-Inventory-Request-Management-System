@@ -50,9 +50,10 @@ class ListPermintaanTable extends BaseWidget
                 Tables\Columns\TextColumn::make('tanggal_permintaan')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('detail_permintaans_count')
-                    ->label('Jumlah Item')
-                    ->counts('detailPermintaans'),
+                Tables\Columns\TextColumn::make('barang.kode_barang')
+                    ->label('Kode Barang')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -96,7 +97,8 @@ class ListPermintaanTable extends BaseWidget
                             foreach ($record->detailPermintaans as $detail) {
                                 // INSERT detail_terverifikasis
                                 DetailTerverifikasi::create([
-                                    'detail_id' => $detail->id,
+                                    'permintaan_id' => $detail->permintaan_id,
+                                    'bagian_id'    => $detail->bagian_id,
                                     'barang_id' => $detail->barang_id,
                                     'jumlah'    => $detail->jumlah,
                                 ]);
