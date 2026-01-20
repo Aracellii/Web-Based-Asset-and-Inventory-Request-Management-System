@@ -24,130 +24,78 @@ class PermintaanResource extends Resource
 
     public static function form(Form $form): Form
     {
-        if (Auth::user()->role === 'user') {
+        return $form
+            ->schema([
+                Forms\Components\Section::make('Informasi Utama')
+                    ->schema([
+                        Forms\Components\Select::make('user_id')
+                            ->relationship('user', 'name')
+                            ->required()
+                            ->default(auth()->id())
+                            ->searchable()
+                            ->live(),
+                        Forms\Components\DatePicker::make('tanggal_permintaan')
+                            ->required()
+                            ->default(now()),
+                    ])->columns(2),
 
-            return $form
-                ->schema([
-                    Forms\Components\Section::make('Informasi Utama')
-                        ->schema([
-                            Forms\Components\Select::make('user_id')
-                                ->relationship('user', 'name')
-                                ->required()
-                                ->default(auth()->id())
-                                ->searchable(),
-                            Forms\Components\DatePicker::make('tanggal_permintaan')
-                                ->required()
-                                ->default(now()),
-                        ])->columns(2),
-
-                    Forms\Components\Section::make('Daftar Barang')
-                        ->schema([
-                            Forms\Components\Repeater::make('detailPermintaans')
-                                ->relationship() // Menghubungkan ke tabel detail_permintaans
-                                ->schema([
-                                    Forms\Components\Select::make('barang_id')
-                                        ->label('Barang')
-                                        ->relationship('barang', 'nama_barang')
-                                        ->required()
-                                        ->searchable()
-                                        ->preload()
-                                        //Tulis Manual
-                                        ->createOptionForm([
-                                            Forms\Components\TextInput::make('nama_barang')
-                                                ->required()
-                                                ->unique('barangs', 'nama_barang'),
-                                            Forms\Components\TextInput::make('id')
-                                                ->required(),
-                                        ])
-                                        ->createOptionUsing(function (array $data) {
-                                            return Barang::create($data)->id;
-                                        }),
-
-
-                                    Forms\Components\TextInput::make('jumlah')
-                                        ->numeric()
-                                        ->required()
-                                        ->default(1)
-                                        ->minValue(1)
-                                        ->reactive()
-                                        // Hitung 
-                                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                            $barangId = $get('barang_id');
-                                            $barang = Barang::find($barangId);
-                                            if ($barang) {
-                                                $set('biaya', $state * $barang->harga_satuan);
-                                            }
-                                        }),
+                Forms\Components\Section::make('Daftar Barang')
+                    ->schema([
+                        Forms\Components\Repeater::make('detailPermintaans')
+                            ->relationship() // Menghubungkan ke tabel detail_permintaans
+                            ->schema([
+                                Forms\Components\Select::make('barang_id')
+                                    ->label('Barang')
+                                    ->relationship('barang', 'nama_barang')
+                                    ->required()
+                                    ->searchable()
+                                    ->preload()
+                                    //Tulis Manual
+                                    ->createOptionForm([
+                                        Forms\Components\TextInput::make('nama_barang')
+                                            ->required()
+                                            ->unique('barangs', 'nama_barang'),
+                                        Forms\Components\TextInput::make('id')
+                                            ->required(),
+                                    ])
+                                    ->createOptionUsing(function (array $data) {
+                                        return Barang::create($data)->id;
+                                    }),
 
 
-                                ])
-                                ->columns(3)
-                                ->createItemButtonLabel('Tambah Baris Barang')
-                        ])
-                ]);
-        } else {
-            return $form
-                ->schema([
-                    Forms\Components\Section::make('Informasi Utama')
-                        ->schema([
-                            Forms\Components\Select::make('user_id')
-                                ->relationship('user', 'name')
-                                ->required()
-                                ->searchable(),
-                            Forms\Components\DatePicker::make('tanggal_permintaan')
-                                ->required()
-                                ->default(now()),
-                        ])->columns(2),
-
-                    Forms\Components\Section::make('Daftar Barang')
-                        ->schema([
-                            Forms\Components\Repeater::make('detailPermintaans')
-                                ->relationship() // Menghubungkan ke tabel detail_permintaans
-                                ->schema([
-                                    Forms\Components\Select::make('barang_id')
-                                        ->label('Barang')
-                                        ->relationship('barang', 'nama_barang')
-                                        ->required()
-                                        ->searchable()
-                                        ->preload()
-                                        //Tulis Manual
-                                        ->createOptionForm([
-                                            Forms\Components\TextInput::make('nama_barang')
-                                                ->required()
-                                                ->unique('barangs', 'nama_barang'),
-
-                                            Forms\Components\TextInput::make('id')
-                                                ->required(),
-                                        ])
-                                        ->createOptionUsing(function (array $data) {
-                                            return Barang::create($data)->id;
-                                        })
-                                        // Otomatis isi biaya
-                                        ->reactive(),
+                                Forms\Components\TextInput::make('jumlah')
+                                    ->numeric()
+                                    ->required()
+                                    ->default(1)
+                                    ->minValue(1)
+                                    ->reactive()
+                                    // Hitung 
+                                    ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                        $barangId = $get('barang_id');
+                                        $barang = Barang::find($barangId);
+                                        if ($barang) {
+                                            $set('biaya', $state * $barang->harga_satuan);
+                                        }
+                                    }),
+                                Forms\Components\Hidden::make('bagian_id')
+                                    ->default(function (callable $get) {
+                                        // Ambil user_id dari komponen di luar repeater
+                                        $userId = $get('../../user_id');
+                                        if ($userId) {
+                                            // Cari user tersebut dan ambil bagian_id-nya
+                                            return \App\Models\User::find($userId)?->bagian_id;
+                                        }
+                                        // Fallback ke user yang sedang login jika belum pilih user
+                                        return auth()->user()->bagian_id;
+                                    })
+                                    ->dehydrated(true),
 
 
-                                    Forms\Components\TextInput::make('jumlah')
-                                        ->numeric()
-                                        ->required()
-                                        ->default(1)
-                                        ->minValue(1)
-                                        ->reactive()
-                                        // Hitung 
-                                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                            $barangId = $get('barang_id');
-                                            $barang = Barang::find($barangId);
-                                            if ($barang) {
-                                                $set('biaya', $state * $barang->harga_satuan);
-                                            }
-                                        }),
-
-
-                                ])
-                                ->columns(2)
-                                ->createItemButtonLabel('Tambah Baris Barang')
-                        ])
-                ]);
-        }
+                            ])
+                            ->columns(3)
+                            ->createItemButtonLabel('Tambah Baris Barang')
+                    ])
+            ]);
     }
 
     public static function table(Table $table): Table

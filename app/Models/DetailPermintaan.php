@@ -13,6 +13,7 @@ class DetailPermintaan extends Model
         'permintaan_id',
         'barang_id',
         'jumlah',
+        'bagian_id',
     ];
 
     public function barang(): BelongsTo
