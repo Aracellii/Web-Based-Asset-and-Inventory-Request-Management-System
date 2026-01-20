@@ -1,7 +1,7 @@
 <?php
+
 namespace App\Filament\Resources;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
+
 use App\Filament\Resources\GudangResource\Pages;
 use App\Models\Gudang;
 use Filament\Forms;
@@ -9,6 +9,10 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Collection;
 
 class GudangResource extends Resource
 {
@@ -27,21 +31,11 @@ class GudangResource extends Resource
                         Forms\Components\Select::make('barang_id')
                             ->relationship('barang', 'nama_barang')
                             ->searchable()
-                            ->createOptionForm([
-                                Forms\Components\TextInput::make('nama_barang')
-                                    ->required()
-                                    ->unique('barangs', 'nama_barang'),
-                                Forms\Components\TextInput::make('harga_satuan')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->required(),])
                             ->preload()
                             ->required(),
                         Forms\Components\Select::make('bagian_id')
                             ->relationship('bagian', 'nama_bagian')
                             ->label('Bidang / Bagian')
-                            ->searchable()
-                            ->preload()
                             ->required(),
                         Forms\Components\TextInput::make('stok')
                             ->numeric()
@@ -61,13 +55,12 @@ class GudangResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('bagian.nama_bagian')
                     ->label('Bidang / Bagian')
-                    ->sortable()
-                    ->searchable(),
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('stok')
                     ->label('Jumlah Stok')
                     ->sortable()
                     ->badge()
-                    ->color(fn (int $state): string => match (true) {
+                    ->color(fn(int $state): string => match (true) {
                         $state <= 5 => 'danger',
                         $state <= 20 => 'warning',
                         default => 'success',
@@ -77,15 +70,83 @@ class GudangResource extends Resource
                     ->dateTime()
                     ->sortable(),
             ])
-                ->filters([
+            ->headerActions([
+
+                Tables\Actions\Action::make('export_pdf')
+                    ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
+                    ->label('Export PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('danger')
+                    //Form untuk tanggal
+                    ->form([
+                        Forms\Components\DatePicker::make('tanggal_laporan')
+                            ->label('Pilih Tanggal Laporan')
+                            ->default(now())
+                            ->required(),
+
+                        Forms\Components\TextInput::make('custom_title')
+                            ->label('Judul Laporan')
+                            ->default('Laporan Stok Barang Gudang'),
+                    ])
+
+                    ->action(function (Table $table, array $data) {
+                        $records = $table->getLivewire()->getFilteredTableQuery()->get();
+                        
+                        $pdf = Pdf::loadView('pdf.stok-barang', [
+                            'records' => $records,
+                            'title'   => $data['custom_title'],
+                            'tanggal' => $data['tanggal_laporan'], // Kirim ke view
+                        ]);
+
+                        $filename = 'stok-barang-' . $data['tanggal_laporan'] . '.pdf';
+                        return response()->streamDownload(fn () => print($pdf->output()), $filename);
+                        
+                    }),
+                    
+            ])
+            ->filters([
                 Tables\Filters\SelectFilter::make('bagian_id')
-                ->relationship('bagian', 'nama_bagian')
-                ->label('Filter per Bidang')             
-             ])
+                    ->relationship('bagian', 'nama_bagian')
+                    ->label('Filter per Bidang'),
+                    
+            ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin'])),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin'])),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('export_selected_pdf')
+                        ->label('Export Data Terpilih')
+                        ->icon('heroicon-o-printer')
+                        ->color('danger')
+                        ->action(function (Collection $records) {
+                            $pdf = Pdf::loadView('pdf.stok-barang', [
+                                'records' => $records,
+                                'title' => 'Laporan Stok Barang Pilihan'
+                            ]);
+                            return response()->streamDownload(fn () => print($pdf->output()), 'stok-terpilih.pdf');
+                        }),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin'])),
+                ]),
+                
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        //Tampilkan Data Gudan
+        $query = parent::getEloquentQuery();
+
+        // Filter berdasarkan Role
+        if (Auth::user()->role !== 'keuangan') {
+            $query->where('bagian_id', Auth::user()->bagian_id);
+        }
+
+        return $query;
     }
 
     public static function getPages(): array
@@ -96,16 +157,9 @@ class GudangResource extends Resource
             'edit' => Pages\EditGudang::route('/{record}/edit'),
         ];
     }
-    public static function getEloquentQuery(): Builder
-{
-    $query = parent::getEloquentQuery();
 
-    // Jika yang login bukan admin 
-    if (Auth::user()->role !== 'admin') {
-        //perbagian
-        $query->where('bagian_id', Auth::user()->bagian_id);
+    public static function canCreate(): bool
+    {
+        return in_array(auth()->user()?->role, ['keuangan', 'admin']);
     }
-
-    return $query;
-}
 }
