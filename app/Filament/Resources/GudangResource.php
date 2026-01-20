@@ -27,6 +27,7 @@ public static function form(Form $form): Form
     return $form
         ->schema([
             Forms\Components\Section::make('Input Stok Gudang')
+                ->disabled(fn ($context) => $context === 'edit' && auth()->user()?->role === 'user')
                 ->description('Pilih barang dan tentukan stok')
                 ->schema([    
                     Forms\Components\Select::make('barang_id')
@@ -34,6 +35,7 @@ public static function form(Form $form): Form
                         ->relationship('barang', 'nama_barang')
                         ->searchable()
                         ->preload()
+                        ->disabled(fn ($context) => $context === 'edit' && auth()->user()?->role === 'admin','user')
                         ->required()
                         ->editOptionForm([ 
                             Forms\Components\TextInput::make('nama_barang')
@@ -41,11 +43,14 @@ public static function form(Form $form): Form
                         ])
                         ->createOptionForm([
                             Forms\Components\TextInput::make('nama_barang')
+                                ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
                                 ->label('Nama Barang Baru')
                                 ->placeholder('Contoh: Kertas A4')
                                 ->required()
                                 ->unique('barangs', 'nama_barang'),
                                 Forms\Components\TextInput::make('id')
+                                ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
+
                                 ->label('Kode Barang')
                                 ->placeholder('Masukkan Kode Barang')
                                 ->required()
