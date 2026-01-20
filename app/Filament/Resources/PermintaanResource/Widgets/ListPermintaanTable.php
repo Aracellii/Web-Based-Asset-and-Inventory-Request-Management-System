@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PermintaanResource\Widgets;
 
+use App\Models\Permintaan;
 use App\Models\DetailTerverifikasi;
 use App\Models\Gudang;
 use Filament\Tables;
@@ -16,19 +17,30 @@ use Illuminate\Support\Facades\Auth;
 
 class ListPermintaanTable extends BaseWidget
 {
+    // Widget ini HANYA muncul jika admin
+    public static function canView(): bool
+    {
+        return auth()->user()->role === 'admin';
+    }
     protected int | string | array $columnSpan = 'full';
     protected function getTableQuery(): Builder
     {
-        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+        $query = Permintaan::query();
         $query->where('approved', 'pending');
-        if (Auth::user()->role === 'user') {
-            $query->where('user_id', Auth::id());
+
+        // Filter berdasarkan role admin dan bagian yang sesuai
+        if ($user->role === 'admin') {
+            $query->whereHas('user', function ($q) use ($user) {
+                $q->where('users.bagian_id', $user->bagian_id);
+            });
         }
         return $query;
     }
     public function table(Table $table): Table
     {
         return $table
+            ->query($this->getTableQuery())
             ->heading('List Permintaan')
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
