@@ -35,7 +35,7 @@ public static function form(Form $form): Form
                         ->searchable()
                         ->preload()
                         ->required()
-                        ->editOptionForm([ // Opsional: Memungkinkan edit nama barang langsung
+                        ->editOptionForm([ 
                             Forms\Components\TextInput::make('nama_barang')
                                 ->required(),
                         ])
@@ -63,7 +63,6 @@ public static function form(Form $form): Form
 
                                 foreach ($bagians as $bagian) {
                                     \App\Models\Gudang::create([
-                                        // Gunakan $data['id'] langsung untuk memastikan nilai yang tepat terinput
                                         'barang_id' => $data['id'], 
                                         'bagian_id' => $bagian->id,
                                         'stok'      => 0,
