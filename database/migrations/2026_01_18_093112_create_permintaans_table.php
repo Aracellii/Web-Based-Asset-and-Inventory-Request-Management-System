@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('gudangs', function (Blueprint $table) {
+        Schema::create('permintaans', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('bagian_id')->index('bagian_id');
-            $table->unsignedBigInteger('barang_id')->index('barang_id');
-            $table->integer('jumlah_stok')->nullable()->default(0);
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->date('tanggal_permintaan');
+            $table->enum('approved', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamps();
+            
         });
     }
 
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('gudangs');
+        Schema::dropIfExists('permintaans');
     }
 };

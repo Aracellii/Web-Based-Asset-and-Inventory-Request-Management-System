@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique('email');
             $table->string('password');
-            $table->string('role', 99)->default('user');
-            $table->unsignedBigInteger('bagian_id')->nullable()->index('bagian_id');
+            $table->enum('role', ['admin_keuangan', 'user', 'admin_gudang'])->default('user');
+            $table->foreignId('bagian_id')->nullable()->constrained()->onDelete('set null');
             $table->rememberToken();
             $table->timestamps();
         });

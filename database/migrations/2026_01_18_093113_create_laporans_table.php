@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('laporans', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('barang_id')->index('barang_id');
-            $table->unsignedBigInteger('bagian_id')->index('bagian_id');
-            $table->unsignedBigInteger('detail_verif_id')->index('detail_verif_id');
+            $table->foreignId('bagian_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('barang_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('detail_verif_id')->nullable()->constrained('detail_terverifikasis')->onDelete('set null');
             $table->year('tahun_anggaran');
             $table->timestamps();
         });
