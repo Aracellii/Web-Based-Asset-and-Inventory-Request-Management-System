@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('detail_permintaans', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('permintaan_id')->index('permintaan_id');
-            $table->unsignedBigInteger('barang_id')->index('barang_id');
+            $table->foreignId('bagian_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('barang_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('permintaan_id')->nullable()->constrained()->onDelete('set null');
             $table->integer('jumlah');
             $table->timestamps();
         });

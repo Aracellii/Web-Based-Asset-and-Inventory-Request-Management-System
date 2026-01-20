@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('permintaans', function (Blueprint $table) {
+        Schema::create('gudangs', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id')->index('user_id');
-            $table->date('tanggal_permintaan');
+            $table->foreignId('bagian_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('barang_id')->nullable()->constrained()->onDelete('set null');
+            $table->integer('stok')->nullable()->default(0);
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('permintaans');
+        Schema::dropIfExists('gudangs');
     }
 };
