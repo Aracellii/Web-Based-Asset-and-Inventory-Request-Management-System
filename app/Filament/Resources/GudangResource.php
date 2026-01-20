@@ -23,27 +23,43 @@ class GudangResource extends Resource
     protected static ?string $pluralModelLabel = 'Stok Barang';
 
     public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Detail Stok')
-                    ->schema([
-                        Forms\Components\Select::make('barang_id')
-                            ->relationship('barang', 'nama_barang')
-                            ->searchable()
-                            ->preload()
-                            ->required(),
-                        Forms\Components\Select::make('bagian_id')
-                            ->relationship('bagian', 'nama_bagian')
-                            ->label('Bidang / Bagian')
-                            ->required(),
-                        Forms\Components\TextInput::make('stok')
-                            ->numeric()
-                            ->default(0)
-                            ->required(),
-                    ])->columns(2),
-            ]);
-    }
+{
+    return $form
+        ->schema([
+            Forms\Components\Section::make('Input Stok Gudang')
+                ->schema([
+                    Forms\Components\Select::make('barang_id')
+                        ->relationship('barang', 'nama_barang')
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->createOptionForm([
+                            Forms\Components\TextInput::make('nama_barang')
+                                ->required()
+                                ->unique('barangs', 'nama_barang'),
+                            Forms\Components\TextInput::make('id')
+                                ->required()
+                                ->unique('barangs', 'id'),
+                        ])
+                        ->createOptionUsing(fn (array $data) => 
+                            \App\Models\Barang::create($data)->id
+                        ),
+
+                    Forms\Components\Select::make('bagian_id')
+                        ->relationship('bagian', 'nama_bagian')
+                        ->label('Bidang / Bagian')
+                        ->required(),
+
+                    Forms\Components\TextInput::make('stok')
+                        ->label('Jumlah Stok Awal')
+                        ->numeric()
+                        ->minValue(0)
+                        ->required(),
+                ])
+                ->columns(2),
+        ]);
+}
+
 
     public static function table(Table $table): Table
     {
