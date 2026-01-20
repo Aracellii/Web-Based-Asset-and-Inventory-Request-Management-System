@@ -27,7 +27,7 @@ class GudangResource extends Resource
     return $form
         ->schema([
             Forms\Components\Section::make('Input Stok Gudang')
-                ->schema([
+                ->schema([    
                     Forms\Components\Select::make('barang_id')
                         ->relationship('barang', 'nama_barang')
                         ->searchable()
@@ -176,6 +176,6 @@ class GudangResource extends Resource
 
     public static function canCreate(): bool
     {
-        return in_array(auth()->user()?->role, ['keuangan', 'admin']);
+        return in_array(auth()->user()?->role, ['keuangan']);
     }
 }
