@@ -73,7 +73,6 @@ public static function form(Form $form): Form
                                         'stok'      => 0,
                                     ]);
                                 }
-
                                 \Filament\Notifications\Notification::make()
                                     ->title('Barang Berhasil Dibuat')
                                     ->success()
@@ -82,12 +81,10 @@ public static function form(Form $form): Form
                                 return $data['id']; 
                             });
                         }),
-
                     Forms\Components\Select::make('bagian_id')
                         ->relationship('bagian', 'nama_bagian')
                         ->required()
                         ->searchable(),
-
                     Forms\Components\TextInput::make('stok')
                         ->label('Jumlah Stok Sekarang')
                         ->numeric()
@@ -136,25 +133,31 @@ public static function form(Form $form): Form
                             ->label('Pilih Tanggal Laporan')
                             ->default(now())
                             ->required(),
-
                         Forms\Components\TextInput::make('custom_title')
                             ->label('Judul Laporan')
                             ->default('Laporan Stok Barang Gudang'),
                     ])
 
-                    ->action(function (Table $table, array $data) {
-                        $records = $table->getLivewire()->getFilteredTableQuery()->get();
-                        
-                        $pdf = Pdf::loadView('pdf.stok-barang', [
-                            'records' => $records,
-                            'title'   => $data['custom_title'],
-                            'tanggal' => $data['tanggal_laporan'], // Kirim ke view
-                        ]);
+                  ->action(function (Table $table, array $data) {
 
-                        $filename = 'stok-barang-' . $data['tanggal_laporan'] . '.pdf';
-                        return response()->streamDownload(fn () => print($pdf->output()), $filename);
-                        
-                    }),
+                    $records = $table->getLivewire()
+                        ->getFilteredTableQuery()
+                        ->with(['barang', 'bagian'])
+                        ->get()
+                        ->groupBy(fn ($item) => $item->bagian->nama_bagian ?? 'Tanpa Bagian');
+
+                    $pdf = Pdf::loadView('pdf.stok-barang', [
+                        'groupedRecords' => $records,
+                        'title'          => $data['custom_title'],
+                        'tanggal'        => $data['tanggal_laporan'],
+                    ]);
+                    $filename = 'stok-barang-' . $data['tanggal_laporan'] . '.pdf';
+                    return response()->streamDownload(
+                        fn () => print($pdf->output()),
+                        $filename
+                    );
+                })
+
                     
             ])
             ->filters([

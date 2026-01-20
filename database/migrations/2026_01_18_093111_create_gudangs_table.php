@@ -6,23 +6,27 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('gudangs', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->foreignId('bagian_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('barang_id')->nullable()->constrained()->onDelete('set null');
-            $table->integer('stok')->nullable()->default(0);
+            $table->id();
+
+            $table->foreignId('barang_id')
+                ->constrained('barangs')
+                ->cascadeOnDelete();
+
+            $table->foreignId('bagian_id')
+                ->constrained('bagians')
+                ->cascadeOnDelete();
+
+            $table->integer('stok')->default(0);
             $table->timestamps();
+
+            // 🔒 KUNCI ANTI DOUBLE
+            $table->unique(['barang_id', 'bagian_id']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('gudangs');
