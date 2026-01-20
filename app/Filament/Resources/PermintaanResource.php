@@ -194,7 +194,7 @@ class PermintaanResource extends Resource
 
            ->actions([
             Action::make('approve')
-            ->visible(fn () => auth()->user()->role === 'admin')
+            ->visible(fn () => auth()->user()->role === 'keuangan')
             ->label('Approve')
             ->color('success')
             ->icon('heroicon-o-check-circle')
