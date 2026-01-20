@@ -133,7 +133,6 @@ class ListPermintaanTable extends BaseWidget
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->successRedirectUrl(fn() => static::getUrl('index'));
+            ]);
     }
 }
