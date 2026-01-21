@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PermintaanResource\Pages;
 use App\Models\Permintaan;
 use App\Models\Barang;
+use App\Models\DetailPermintaan;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -33,10 +34,13 @@ class PermintaanResource extends Resource
                             ->required()
                             ->default(auth()->id())
                             ->searchable()
-                            ->live(),
+                            ->disabled()
+                            ->dehydrated(),
                         Forms\Components\DatePicker::make('tanggal_permintaan')
                             ->required()
-                            ->default(now()),
+                            ->default(now())
+                            ->disabled()
+                            ->dehydrated(),
                     ])->columns(2),
 
                 Forms\Components\Section::make('Daftar Barang')
@@ -90,27 +94,36 @@ class PermintaanResource extends Resource
         return $table
             ->heading('Permintaan Saya')
             ->query(
-                // Filter supaya hanya muncul milik saya
-                Permintaan::query()->where('user_id', auth()->id())
+                DetailPermintaan::query()->whereHas('permintaan', function ($q) {
+                    $q->where('user_id', Auth::id());
+                })
             )
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('permintaan.user.name')
                     ->label('Peminta')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('tanggal_permintaan')
+                Tables\Columns\TextColumn::make('permintaan.tanggal_permintaan')
                     ->date()
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('barang.nama_barang')
+                    ->label('Nama Barang')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('barang.kode_barang')
                     ->label('Kode Barang')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
+                Tables\Columns\TextColumn::make('jumlah')
+                    ->label('Jumlah')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('permintaan.created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('user.bagian.nama_bagian')
+                Tables\Columns\TextColumn::make('permintaan.user.bagian.nama_bagian')
                     ->label('Bidang')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('approved')
@@ -125,10 +138,16 @@ class PermintaanResource extends Resource
                     ->sortable()
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('bagian')
-                    ->relationship('user.bagian', 'nama_bagian')
+                Tables\Filters\SelectFilter::make('filter_bagian')
+                    ->relationship('permintaan.user.bagian', 'nama_bagian')
                     ->label('Filter per Bidang'),
-            ]);
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ])
+            ->emptyStateHeading('Tidak ada permintaan');;
     }
 
 
@@ -143,7 +162,7 @@ class PermintaanResource extends Resource
         return [
             'index' => Pages\ListPermintaans::route('/'),
             'create' => Pages\CreatePermintaan::route('/create'),
-            // 'edit' => Pages\EditPermintaan::route('/{record}/edit'),
+            'edit' => Pages\EditPermintaan::route('/{record}/edit'),
         ];
     }
 }

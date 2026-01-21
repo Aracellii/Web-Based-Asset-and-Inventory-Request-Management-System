@@ -15,7 +15,8 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->foreignId('bagian_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('barang_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('permintaan_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('detail_permintaan_id')->nullable()->constrained()->onDelete('set null');
+            $table->enum('approved', ['pending', 'approved', 'rejected'])->default('pending');
             $table->integer('jumlah');
             $table->timestamps();
         });

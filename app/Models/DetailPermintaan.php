@@ -14,6 +14,7 @@ class DetailPermintaan extends Model
         'barang_id',
         'jumlah',
         'bagian_id',
+        'approved',
     ];
 
     public function barang(): BelongsTo
@@ -25,4 +26,10 @@ class DetailPermintaan extends Model
     {
         return $this->belongsTo(Permintaan::class, 'permintaan_id');
     }
+
+    public function gudang(): BelongsTo
+    {
+        return $this->belongsTo(Gudang::class, 'barang_id', 'barang_id')
+        ->where('bagian_id', $this->bagian_id);
+    }   
 }
