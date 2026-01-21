@@ -50,8 +50,6 @@ class PermintaanResource extends Resource
                                     ->required()
                                     ->searchable()
                                     ->preload(),
-
-
                                 Forms\Components\TextInput::make('jumlah')
                                     ->numeric()
                                     ->required()

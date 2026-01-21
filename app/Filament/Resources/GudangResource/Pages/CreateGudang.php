@@ -13,30 +13,36 @@ class CreateGudang extends CreateRecord
 {
     protected static string $resource = GudangResource::class;
 
-    protected function handleRecordCreation(array $data): Model
-    {
-        // Jika role KEUANGAN 
-        if (Auth::user()->role === 'keuangan') {
+  protected function handleRecordCreation(array $data): Model
+{
+    // ROLE KEUANGAN → TAMBAH STOK KE SEMUA BAGIAN
+    if (Auth::user()->role === 'keuangan') {
 
-            $bagians = Bagian::all();
+        $bagians = Bagian::all();
 
-            foreach ($bagians as $bagian) {
-                Gudang::updateOrCreate(
-                    [
-                        'barang_id' => $data['barang_id'],
-                        'bagian_id' => $bagian->id,
-                    ],
-                    [
-                        'stok' => $data['stok'],
-                    ]
-                );
-            }
+        foreach ($bagians as $bagian) {
 
-            return Gudang::where('barang_id', $data['barang_id'])->first();
+            $gudang = Gudang::firstOrCreate(
+                [
+                    'barang_id' => $data['barang_id'],
+                    'bagian_id' => $bagian->id,
+                ],
+                [
+                    'stok' => 0,
+                ]
+            );
+
+            // TAMBAH stok, bukan set ulang
+            $gudang->increment('stok', (int) $data['stok']);
         }
 
-        $data['bagian_id'] = Auth::user()->bagian_id;
-
-        return parent::handleRecordCreation($data);
+        return Gudang::where('barang_id', $data['barang_id'])->first();
     }
+
+    // ROLE SELAIN KEUANGAN → NORMAL
+    $data['bagian_id'] = Auth::user()->bagian_id;
+
+    return parent::handleRecordCreation($data);
+}
+
 }
