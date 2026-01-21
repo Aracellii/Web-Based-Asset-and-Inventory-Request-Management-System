@@ -101,6 +101,10 @@ public static function form(Form $form): Form
                     ->label('Nama Barang')
                     ->sortable()
                     ->searchable(),
+                 Tables\Columns\TextColumn::make('barang.id')
+                    ->label('Kode Barang'   )
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('bagian.nama_bagian')
                     ->label('Bidang / Bagian')
                     ->sortable(),
