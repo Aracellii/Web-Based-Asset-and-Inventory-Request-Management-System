@@ -43,41 +43,44 @@ public static function form(Form $form): Form
                         ])
                         ->createOptionForm([
                             Forms\Components\TextInput::make('nama_barang')
-                                ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
                                 ->label('Nama Barang Baru')
                                 ->placeholder('Masukan Nama Barang')
                                 ->required()
                                 ->unique('barangs', 'nama_barang'),
                                 Forms\Components\TextInput::make('id')
-                                ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
                                 ->label('Kode Barang')
                                 ->placeholder('Masukkan Kode Barang')
                                 ->required()
                                 ->unique('barangs', 'id'),
                         ])
-                        ->createOptionUsing(function (array $data) {
-                            return \Illuminate\Support\Facades\DB::transaction(function () use ($data) {
-                                $barang = \App\Models\Barang::create([
-                                    'id' => $data['id'],
-                                    'nama_barang' => $data['nama_barang'],
+                       ->createOptionUsing(function (array $data) {
+                        return \Illuminate\Support\Facades\DB::transaction(function () use ($data) {
+
+                            $barang = \App\Models\Barang::create([
+                                'id'          => $data['id'],
+                                'kode_barang' => $data['id'],
+                                'nama_barang' => $data['nama_barang'],
+                            ]);
+
+                            $bagians = \App\Models\Bagian::all();
+
+                            foreach ($bagians as $bagian) {
+                                \App\Models\Gudang::create([
+                                    'barang_id' => $barang->id,
+                                    'bagian_id' => $bagian->id,
+                                    'stok'      => 0,
                                 ]);
-                                $bagians = \App\Models\Bagian::all();
+                            }
 
-                                foreach ($bagians as $bagian) {
-                                    \App\Models\Gudang::create([
-                                        'barang_id' => $data['id'], 
-                                        'bagian_id' => $bagian->id,
-                                        'stok'      => 0,
-                                    ]);
-                                }
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Barang Berhasil Dibuat')
-                                    ->success()
-                                    ->send();
+                            \Filament\Notifications\Notification::make()
+                                ->title('Barang Berhasil Dibuat')
+                                ->success()
+                                ->send();
 
-                                return $data['id']; 
-                            });
-                        }),
+                            return $barang->id; // penting untuk Select
+                        });
+                    }),
+
 
                     Forms\Components\TextInput::make('stok')
                         ->label('Jumlah Stok Sekarang')
@@ -178,7 +181,7 @@ public static function form(Form $form): Form
 
     public static function getEloquentQuery(): Builder
     {
-        //Tampilkan Data Gudan
+        //Tampilkan Data Gudang
         $query = parent::getEloquentQuery();
 
         // Filter berdasarkan Role

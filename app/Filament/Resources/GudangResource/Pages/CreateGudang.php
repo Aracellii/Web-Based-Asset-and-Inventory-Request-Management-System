@@ -3,10 +3,11 @@
 namespace App\Filament\Resources\GudangResource\Pages;
 
 use App\Filament\Resources\GudangResource;
-use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Bagian;
 use App\Models\Gudang;
+use Illuminate\Database\Eloquent\Model;
 
 class CreateGudang extends CreateRecord
 {
@@ -14,14 +15,28 @@ class CreateGudang extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        return Gudang::updateOrCreate(
-            [
-                'barang_id' => $data['barang_id'],
-                'bagian_id' => $data['bagian_id'],
-            ],
-            [
-                'stok' => $data['stok'],
-            ]
-        );
+        // Jika role KEUANGAN 
+        if (Auth::user()->role === 'keuangan') {
+
+            $bagians = Bagian::all();
+
+            foreach ($bagians as $bagian) {
+                Gudang::updateOrCreate(
+                    [
+                        'barang_id' => $data['barang_id'],
+                        'bagian_id' => $bagian->id,
+                    ],
+                    [
+                        'stok' => $data['stok'],
+                    ]
+                );
+            }
+
+            return Gudang::where('barang_id', $data['barang_id'])->first();
+        }
+
+        $data['bagian_id'] = Auth::user()->bagian_id;
+
+        return parent::handleRecordCreation($data);
     }
 }
