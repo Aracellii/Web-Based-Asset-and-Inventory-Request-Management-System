@@ -32,10 +32,10 @@ class Permintaan extends Model
      return $this->hasOneThrough(
         Bagian::class, 
         User::class, 
-        'id',         // Foreign key di tabel users (user.id)
-        'id',         // Foreign key di tabel bagians (bagian.id)
-        'user_id',    // Local key di tabel permintaans
-        'bagian_id'   // Local key di tabel users
+        'id',       
+        'id',        
+        'user_id',    
+        'bagian_id'   
     );
 }
 }

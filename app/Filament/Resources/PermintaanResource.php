@@ -50,17 +50,8 @@ class PermintaanResource extends Resource
                                     ->required()
                                     ->searchable()
                                     ->preload()
-                                    //Tulis Manual
-                                    ->createOptionForm([
-                                        Forms\Components\TextInput::make('nama_barang')
-                                            ->required()
-                                            ->unique('barangs', 'nama_barang'),
-                                        Forms\Components\TextInput::make('id')
-                                            ->required(),
-                                    ])
-                                    ->createOptionUsing(function (array $data) {
-                                        return Barang::create($data)->id;
-                                    }),
+                                    //Tulis Manual 
+                                    ,
 
 
                                 Forms\Components\TextInput::make('jumlah')

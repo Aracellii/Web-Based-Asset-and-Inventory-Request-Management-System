@@ -17,9 +17,7 @@ class GudangSeeder extends Seeder
         $data = [];
         $stok_per_barang = [1 => 5, 2 => 15, 3 => 30, 4 => 30, 5 => 30, 6 => 30, 7 => 30, 8 => 30];
 
-        // Loop untuk bagian_id 1 sampai 6
         foreach (range(1, 6) as $bagian_id) {
-            // Loop untuk barang_id 1 sampai 8
             foreach ($stok_per_barang as $barang_id => $stok) {
                 $data[] = [
                     'bagian_id' => $bagian_id,
