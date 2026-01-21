@@ -38,7 +38,7 @@
 <body>
 
     <div class="header">
-        <h2>{{ $title }}</h2>
+        <h1>{{ $title }}</h1>
         <p>
             Tanggal Pembuatan Laporan :
             {{ \Carbon\Carbon::parse($tanggal)->locale('id')->translatedFormat('d F Y') }}
@@ -46,14 +46,15 @@
     </div>
 
     @foreach ($groupedRecords as $namaBagian => $records)
-        <div class="bagian-title">
-             {{ $namaBagian }}
-        </div>
 
         <table>
+         <caption><strong> <div class="bagian-title">
+             {{ $namaBagian }}
+        </div></strong></caption>
             <thead>
                 <tr>
                     <th>No</th>
+                    <th>Kode Barang</th>
                     <th>Nama Barang</th>
                     <th>Jumlah Stok</th>
                 </tr>
@@ -62,6 +63,7 @@
                 @foreach ($records as $index => $record)
                     <tr>
                         <td>{{ $index + 1 }}</td>
+                        <td>{{ $record->barang->kode_barang }}</td>
                         <td>{{ $record->barang->nama_barang }}</td>
                         <td>{{ $record->stok }}</td>
                     </tr>
