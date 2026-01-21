@@ -47,18 +47,17 @@ public static function form(Form $form): Form
                                 ->placeholder('Masukan Nama Barang')
                                 ->required()
                                 ->unique('barangs', 'nama_barang'),
-                                Forms\Components\TextInput::make('id')
+                                Forms\Components\TextInput::make('kode_barang')
                                 ->label('Kode Barang')
                                 ->placeholder('Masukkan Kode Barang')
                                 ->required()
-                                ->unique('barangs', 'id'),
+                                ->unique('barangs', 'kode_barang'),
                         ])
                        ->createOptionUsing(function (array $data) {
                         return \Illuminate\Support\Facades\DB::transaction(function () use ($data) {
 
                             $barang = \App\Models\Barang::create([
-                                'id'          => $data['id'],
-                                'kode_barang' => $data['id'],
+                                'kode_barang' => $data['kode_barang'],
                                 'nama_barang' => $data['nama_barang'],
                             ]);
 
@@ -97,12 +96,12 @@ public static function form(Form $form): Form
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('barang.nama_barang')
-                    ->label('Nama Barang')
+                Tables\Columns\TextColumn::make('barang.kode_barang')
+                    ->label('Kode Barang'   )
                     ->sortable()
                     ->searchable(),
-                 Tables\Columns\TextColumn::make('barang.id')
-                    ->label('Kode Barang'   )
+                Tables\Columns\TextColumn::make('barang.nama_barang')
+                    ->label('Nama Barang')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('bagian.nama_bagian')

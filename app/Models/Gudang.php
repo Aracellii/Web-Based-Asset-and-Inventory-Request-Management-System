@@ -12,6 +12,7 @@ class Gudang extends Model
         'barang_id',
         'bagian_id',
         'stok',
+        'kode_barang',
         
     ];
     public function barang()

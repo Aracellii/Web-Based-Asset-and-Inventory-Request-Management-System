@@ -15,13 +15,15 @@ class CreateGudang extends CreateRecord
 
   protected function handleRecordCreation(array $data): Model
 {
-    // ROLE KEUANGAN → TAMBAH STOK KE SEMUA BAGIAN
+    // ROLE KEUANGAN
     if (Auth::user()->role === 'keuangan') {
 
         $bagians = Bagian::all();
+        
+        // Fetch the barang record to get the kode_barang
+        $barang = \App\Models\Barang::find($data['barang_id']);
 
         foreach ($bagians as $bagian) {
-
             $gudang = Gudang::firstOrCreate(
                 [
                     'barang_id' => $data['barang_id'],
@@ -32,16 +34,14 @@ class CreateGudang extends CreateRecord
                 ]
             );
 
-            // TAMBAH stok, bukan set ulang
-            $gudang->increment('stok', (int) $data['stok']);
+            $gudang->increment('stok', (int) ($data['stok'] ?? 0));
         }
 
         return Gudang::where('barang_id', $data['barang_id'])->first();
     }
 
-    // ROLE SELAIN KEUANGAN → NORMAL
+    // Default logic for other roles...
     $data['bagian_id'] = Auth::user()->bagian_id;
-
     return parent::handleRecordCreation($data);
 }
 
