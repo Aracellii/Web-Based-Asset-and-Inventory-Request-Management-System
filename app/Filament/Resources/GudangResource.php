@@ -204,4 +204,12 @@ public static function form(Form $form): Form
     {
         return in_array(auth()->user()?->role, ['keuangan']);
     }
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return in_array(auth()->user()?->role, ['keuangan', 'admin']);
+    }
+     public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return in_array(auth()->user()?->role, ['keuangan', 'admin']);
+    }
 }
