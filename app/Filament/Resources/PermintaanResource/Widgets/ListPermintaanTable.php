@@ -125,6 +125,8 @@ class ListPermintaanTable extends BaseWidget
                             ->title('Permintaan berhasil di-approve')
                             ->success()
                             ->send();
+
+                        return redirect(request()->header('Referer'));
                     }),
             ])
             ->bulkActions([
