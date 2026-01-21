@@ -70,17 +70,14 @@ public static function form(Form $form): Form
                                     'stok'      => 0,
                                 ]);
                             }
-
                             \Filament\Notifications\Notification::make()
                                 ->title('Barang Berhasil Dibuat')
                                 ->success()
                                 ->send();
 
-                            return $barang->id; // penting untuk Select
+                            return $barang->id; 
                         });
                     }),
-
-
                     Forms\Components\TextInput::make('stok')
                         ->label('Jumlah Stok Sekarang')
                         ->numeric()
@@ -90,7 +87,6 @@ public static function form(Form $form): Form
                 ])->columns(2), 
         ]);
 }
-
 
     public static function table(Table $table): Table
     {
@@ -187,7 +183,7 @@ public static function form(Form $form): Form
         //Tampilkan Data Gudang
         $query = parent::getEloquentQuery();
 
-        // Filter berdasarkan Role
+        // Filter Role
         if (Auth::user()->role !== 'keuangan') {
             $query->where('bagian_id', Auth::user()->bagian_id);
         }
