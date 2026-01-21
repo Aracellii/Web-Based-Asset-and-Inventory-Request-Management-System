@@ -49,9 +49,7 @@ class PermintaanResource extends Resource
                                     ->relationship('barang', 'nama_barang')
                                     ->required()
                                     ->searchable()
-                                    ->preload()
-                                    //Tulis Manual 
-                                    ,
+                                    ->preload(),
 
 
                                 Forms\Components\TextInput::make('jumlah')
