@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\GudangResource\Pages;
 use App\Models\Gudang;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -11,7 +12,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Collection;
 
 class GudangResource extends Resource
@@ -167,12 +167,28 @@ public static function form(Form $form): Form
                 Tables\Actions\EditAction::make()
                     ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin'])),
                 Tables\Actions\DeleteAction::make()
-                    ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin'])),
+                    ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
+                    ->modalHeading('Reset stok gudang?')
+                    ->modalDescription('Aksi ini akan mengatur stok gudang yang dipilih menjadi 0. Data stok tidak akan dihapus dari sistem.')
+                    ->modalSubmitActionLabel('Reset stok')
+                    ->successNotificationTitle('Stok berhasil direset menjadi 0')
+                    ->using(function (Gudang $record): bool {
+                        return $record->update(['stok' => 0]);
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin'])),
+                        ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
+                        ->modalHeading('Reset stok gudang yang dipilih?')
+                        ->modalDescription('Aksi ini akan mengatur stok semua data gudang yang dipilih menjadi 0. Data stok tidak akan dihapus dari sistem.')
+                        ->modalSubmitActionLabel('Reset stok')
+                        ->successNotificationTitle('Stok terpilih berhasil direset menjadi 0')
+                        ->using(function (\Illuminate\Database\Eloquent\Collection $records): void {
+                            $records->each(function (Gudang $record): void {
+                                $record->update(['stok' => 0]);
+                            });
+                        }),
                 ]),
                 
             ]);

@@ -15,17 +15,12 @@ class Register extends BaseRegister
 {
     public function register(): ?RegistrationResponse
     {
-        // ... (kode rate limit tetap sama)
 
         $data = $this->form->getState();
 
-        // 1. AKTIFKAN KEMBALI baris ini agar user punya role dan bisa liat data
         $data['role'] = 'user'; 
 
-        // 2. Pastikan model User diisi dengan data dari form (termasuk bagian_id)
         $user = $this->getUserModel()::create($data);
-
-        // ... (kode event dan login tetap sama)
 
         return app(RegistrationResponse::class);
     }
