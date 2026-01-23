@@ -132,15 +132,17 @@ class BarangResource extends Resource
                               ->havingRaw('SUM(stok) <= 0');
                         })
                     ),
+                Tables\Filters\Filter::make('stok_ada')
+                    ->label('Barang tersedia')
+                    ->query(fn (Builder $query): Builder => 
+                        $query->whereHas('gudangs', function ($q) {
+                            $q->select('barang_id')
+                              ->groupBy('barang_id')
+                              ->havingRaw('SUM(stok) > 0');
+                        })
+                    ),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
-                    ->modalContent(fn (Barang $record) => view('filament.resources.barang-resource.detail-stok', [
-                        'barang' => $record,
-                        'stokPerBidang' => Gudang::where('barang_id', $record->id)
-                            ->with('bagian')
-                            ->get(),
-                    ])),
                 Tables\Actions\EditAction::make()
                     ->visible(fn () => in_array(auth()->user()?->role, ['keuangan'])),
                 Tables\Actions\DeleteAction::make()
