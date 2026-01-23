@@ -150,7 +150,7 @@ class ListPermintaanTable extends BaseWidget
                         DB::transaction(function () use ($record) {
                             // INSERT detail_terverifikasis
                             DetailTerverifikasi::create([
-                                'detail_permintaan_id' => $record->detail_permintaan_id,
+                                'detail_permintaan_id' => $record->id,
                                 'bagian_id'    => $record->bagian_id,
                                 'barang_id' => $record->barang_id,
                                 'jumlah'    => $record->jumlah,
