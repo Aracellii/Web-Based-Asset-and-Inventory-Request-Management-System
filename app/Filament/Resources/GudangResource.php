@@ -169,7 +169,7 @@ public static function form(Form $form): Form
                 Tables\Actions\DeleteAction::make()
                     ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
                     ->modalHeading('Reset stok gudang?')
-                    ->modalDescription('Stok akan dikosongkan.')
+                    ->modalDescription('Stok akan d.')
                     ->modalSubmitActionLabel('Reset stok')
                     ->successNotificationTitle('Stok berhasil direset menjadi 0')
                     ->using(function (Gudang $record): bool {

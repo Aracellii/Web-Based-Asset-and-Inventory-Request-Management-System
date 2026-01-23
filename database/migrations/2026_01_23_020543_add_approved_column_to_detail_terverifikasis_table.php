@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('detail_permintaans', function (Blueprint $table) {
+        Schema::table('detail_terverifikasis', function (Blueprint $table) {
             //
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('detail_permintaans', function (Blueprint $table) {
+        Schema::table('detail_terverifikasis', function (Blueprint $table) {
             //
         });
     }
