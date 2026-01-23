@@ -141,6 +141,13 @@ class PermintaanResource extends Resource
                 Tables\Filters\SelectFilter::make('filter_bagian')
                     ->relationship('permintaan.user.bagian', 'nama_bagian')
                     ->label('Filter per Bidang'),
+                Tables\Filters\SelectFilter::make('approved')
+                    ->options([
+                        'pending' => 'Pending',
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                    ])
+                    ->label('Filter Status'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

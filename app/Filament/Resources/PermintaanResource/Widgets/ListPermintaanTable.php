@@ -13,7 +13,7 @@ use Filament\Notifications\Notification;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
+
 
 
 class ListPermintaanTable extends BaseWidget
@@ -85,6 +85,13 @@ class ListPermintaanTable extends BaseWidget
                 Tables\Filters\SelectFilter::make('filter_bagian')
                     ->relationship('permintaan.user.bagian', 'nama_bagian')
                     ->label('Filter per Bidang'),
+                Tables\Filters\SelectFilter::make('approved')
+                    ->options([
+                        'pending' => 'Pending',
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                    ])
+                    ->label('Filter Status'),
             ])
             ->actions([
                 Action::make('approve')
@@ -125,7 +132,6 @@ class ListPermintaanTable extends BaseWidget
                                     ->title('Permintaan berhasil di-approve')
                                     ->success()
                                     ->send();
-
                             }
                         });
                         $livewire->dispatch('refreshPermintaanSaya'); //refresh widget setelah approve agar status terupdate
