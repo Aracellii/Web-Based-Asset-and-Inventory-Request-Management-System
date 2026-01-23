@@ -169,7 +169,7 @@ public static function form(Form $form): Form
                 Tables\Actions\DeleteAction::make()
                     ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
                     ->modalHeading('Reset stok gudang?')
-                    ->modalDescription('Aksi ini akan mengatur stok gudang yang dipilih menjadi 0. Data stok tidak akan dihapus dari sistem.')
+                    ->modalDescription('Data stok yang dipilih menjadi 0. Data barang tidak akan dihapus dari sistem.')
                     ->modalSubmitActionLabel('Reset stok')
                     ->successNotificationTitle('Stok berhasil direset menjadi 0')
                     ->using(function (Gudang $record): bool {
@@ -181,7 +181,7 @@ public static function form(Form $form): Form
                     Tables\Actions\DeleteBulkAction::make()
                         ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
                         ->modalHeading('Reset stok gudang yang dipilih?')
-                        ->modalDescription('Aksi ini akan mengatur stok semua data gudang yang dipilih menjadi 0. Data stok tidak akan dihapus dari sistem.')
+                        ->modalDescription('Data stok yang dipilih menjadi 0. Data barang tidak akan dihapus dari sistem.')
                         ->modalSubmitActionLabel('Reset stok')
                         ->successNotificationTitle('Stok terpilih berhasil direset menjadi 0')
                         ->using(function (\Illuminate\Database\Eloquent\Collection $records): void {
