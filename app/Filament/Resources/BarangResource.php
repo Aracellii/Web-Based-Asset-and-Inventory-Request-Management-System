@@ -124,12 +124,12 @@ class BarangResource extends Resource
             ])
             ->filters([
                 Tables\Filters\Filter::make('stok_rendah')
-                    ->label('Stok Rendah (< 5)')
+                    ->label('Barang kosong')
                     ->query(fn (Builder $query): Builder => 
                         $query->whereHas('gudangs', function ($q) {
                             $q->select('barang_id')
                               ->groupBy('barang_id')
-                              ->havingRaw('SUM(stok) <= 5');
+                              ->havingRaw('SUM(stok) <= 0');
                         })
                     ),
             ])
