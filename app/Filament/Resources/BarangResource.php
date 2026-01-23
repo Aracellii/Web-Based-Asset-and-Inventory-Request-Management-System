@@ -103,18 +103,7 @@ class BarangResource extends Resource
         return $table
             ->columns($columns)
             ->defaultSort('nama_barang', 'asc')
-            ->filters([
-                Tables\Filters\Filter::make('stok_kosong')
-                    ->label('Stok Kosong')
-                    ->query(function (Builder $query): Builder {
-                        return $query->whereIn('id', function ($subQuery) {
-                            $subQuery->select('barang_id')
-                                ->from('gudangs')
-                                ->where('stok', 0);
-                        });
-                    }),
-               
-            ])
+            
             ->actions([
                 Tables\Actions\ViewAction::make()
                     ->label('Lihat Detail'),
