@@ -15,7 +15,6 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             $table->date('tanggal_permintaan');
-            $table->enum('approved', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamps();
             
         });

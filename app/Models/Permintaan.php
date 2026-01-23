@@ -12,8 +12,7 @@ class Permintaan extends Model
 
     protected $fillable = [
         'user_id',
-        'tanggal_permintaan',
-        'approved'
+        'tanggal_permintaan'
     ];
 
     public function user(): BelongsTo

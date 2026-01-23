@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PermintaanResource\Widgets;
 
+use App\Models\DetailPermintaan;
 use App\Models\Permintaan;
 use App\Models\DetailTerverifikasi;
 use App\Models\Gudang;
@@ -26,12 +27,12 @@ class ListPermintaanTable extends BaseWidget
     protected function getTableQuery(): Builder
     {
         $user = auth()->user();
-        $query = Permintaan::query();
+        $query = DetailPermintaan::query();
         $query->where('approved', 'pending');
 
         // Filter berdasarkan role admin dan bagian yang sesuai
         if ($user->role === 'admin') {
-            $query->whereHas('user', function ($q) use ($user) {
+            $query->whereHas('permintaan.user', function ($q) use ($user) {
                 $q->where('users.bagian_id', $user->bagian_id);
             });
         }
@@ -43,22 +44,30 @@ class ListPermintaanTable extends BaseWidget
             ->query($this->getTableQuery())
             ->heading('List Permintaan')
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('permintaan_id')
+                    ->label('ID Permintaan')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('permintaan.user.name')
                     ->label('Peminta')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('tanggal_permintaan')
+                Tables\Columns\TextColumn::make('permintaan.tanggal_permintaan')
                     ->date()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('barang.nama_barang')
+                    ->label('Nama Barang')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('barang.kode_barang')
                     ->label('Kode Barang')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                Tables\Columns\TextColumn::make('jumlah')
+                    ->label('Jumlah')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('user.bagian.nama_bagian')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('permintaan.user.bagian.nama_bagian')
                     ->label('Bidang')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('approved')
@@ -73,8 +82,8 @@ class ListPermintaanTable extends BaseWidget
                     ->sortable()
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('bagian')
-                    ->relationship('user.bagian', 'nama_bagian')
+                Tables\Filters\SelectFilter::make('filter_bagian')
+                    ->relationship('permintaan.user.bagian', 'nama_bagian')
                     ->label('Filter per Bidang'),
             ])
             ->actions([
@@ -85,54 +94,76 @@ class ListPermintaanTable extends BaseWidget
                     ->icon('heroicon-o-check-circle')
                     ->requiresConfirmation()
                     ->modalHeading('Approve Permintaan')
-                    ->action(function ($record) {
 
+                    ->action(function ($record, $livewire) {
                         DB::transaction(function () use ($record) {
-                            $record->load('detailPermintaans', 'user');
-
-                            if ($record->detailPermintaans->isEmpty()) {
-                                throw new \Exception('Detail permintaan kosong');
-                            }
-
-                            foreach ($record->detailPermintaans as $detail) {
+                            $stokGudang = $record->gudang;
+                            if (!$stokGudang || $stokGudang->stok < $record->jumlah) {
+                                Notification::make()
+                                    ->title('Gagal Approve')
+                                    ->body($stokGudang ? 'Stok tidak mencukupi!' : 'Barang tidak terdaftar di gudang bagian ini.')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            } else {
                                 // INSERT detail_terverifikasis
                                 DetailTerverifikasi::create([
-                                    'permintaan_id' => $detail->permintaan_id,
-                                    'bagian_id'    => $detail->bagian_id,
-                                    'barang_id' => $detail->barang_id,
-                                    'jumlah'    => $detail->jumlah,
+                                    'detail_permintaan_id' => $record->id,
+                                    'bagian_id'    => $record->bagian_id,
+                                    'barang_id' => $record->barang_id,
+                                    'jumlah'    => $record->jumlah,
+                                    'approved'  => 'approved',
                                 ]);
-                                $detail->update([
+                                // UPDATE status approved di detail_permintaans
+                                $record->update([
                                     'approved' => 'approved',
                                 ]);
+                                // Kurangi stok di tabel gudangs
+                                $stokGudang->decrement('stok', $record->jumlah);
 
-                                // Update stok gudang
-                                $stokGudang = Gudang::firstOrCreate(
-                                    [
-                                        'barang_id' => $detail->barang_id,
-                                        'bagian_id' => $record->user->bagian_id,
-                                    ],
-                                    ['stok' => 0]
-                                );
-                                $stokGudang->increment('stok', $detail->jumlah);
+                                Notification::make()
+                                    ->title('Permintaan berhasil di-approve')
+                                    ->success()
+                                    ->send();
+
                             }
+                        });
+                        $livewire->dispatch('refreshPermintaanSaya'); //refresh widget setelah approve agar status terupdate
+
+                    }),
+
+                Action::make('reject')
+                    ->visible(fn() => auth()->user()->role === 'admin')
+                    ->label('Reject')
+                    ->color('danger')
+                    ->icon('heroicon-o-x-circle')
+                    ->requiresConfirmation()
+                    ->modalHeading('Reject Permintaan')
+
+                    ->action(function ($record, $livewire) {
+                        DB::transaction(function () use ($record) {
+                            // INSERT detail_terverifikasis
+                            DetailTerverifikasi::create([
+                                'detail_permintaan_id' => $record->detail_permintaan_id,
+                                'bagian_id'    => $record->bagian_id,
+                                'barang_id' => $record->barang_id,
+                                'jumlah'    => $record->jumlah,
+                                'approved'  => 'rejected',
+                            ]);
+
                             $record->update([
-                                'approved' => 'approved',
+                                'approved' => 'rejected',
                             ]);
                         });
 
                         Notification::make()
-                            ->title('Permintaan berhasil di-approve')
+                            ->title('Permintaan berhasil di-reject')
                             ->success()
                             ->send();
 
-                        return redirect(request()->header('Referer'));
+                        $livewire->dispatch('refreshPermintaanSaya'); //refresh widget setelah approve agar status terupdate
                     }),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->emptyStateHeading('Tidak ada permintaan');
     }
 }
