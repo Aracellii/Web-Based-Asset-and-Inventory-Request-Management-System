@@ -106,7 +106,8 @@ class PermintaanResource extends Resource
                 Tables\Columns\TextColumn::make('permintaan.tanggal_permintaan')
                     ->date()
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Tgl Permintaan'),
                 Tables\Columns\TextColumn::make('barang.nama_barang')
                     ->label('Nama Barang')
                     ->sortable()
@@ -138,9 +139,6 @@ class PermintaanResource extends Resource
                     ->sortable()
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('filter_bagian')
-                    ->relationship('permintaan.user.bagian', 'nama_bagian')
-                    ->label('Filter per Bidang'),
                 Tables\Filters\SelectFilter::make('approved')
                     ->options([
                         'pending' => 'Pending',
@@ -148,6 +146,9 @@ class PermintaanResource extends Resource
                         'rejected' => 'Rejected',
                     ])
                     ->label('Filter Status'),
+                Tables\Filters\SelectFilter::make('filter_bagian')
+                    ->relationship('permintaan.user.bagian', 'nama_bagian')
+                    ->label('Filter Bidang'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

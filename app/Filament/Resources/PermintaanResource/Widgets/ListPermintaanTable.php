@@ -13,6 +13,9 @@ use Filament\Notifications\Notification;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
+use Carbon\Carbon;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 
 
 
@@ -28,7 +31,7 @@ class ListPermintaanTable extends BaseWidget
     {
         $user = auth()->user();
         $query = DetailPermintaan::query();
-        $query->where('approved', 'pending');
+        // $query->where('approved', 'pending');
 
         // Filter berdasarkan role admin dan bagian yang sesuai
         if ($user->role === 'admin') {
@@ -53,8 +56,10 @@ class ListPermintaanTable extends BaseWidget
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('permintaan.tanggal_permintaan')
+                    ->label('Tgl Permintaan')
                     ->date()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('barang.nama_barang')
                     ->label('Nama Barang')
                     ->sortable()
@@ -81,10 +86,49 @@ class ListPermintaanTable extends BaseWidget
                     ->formatStateUsing(fn(string $state): string => ucfirst($state))
                     ->sortable()
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                Tables\Filters\SelectFilter::make('filter_bagian')
-                    ->relationship('permintaan.user.bagian', 'nama_bagian')
-                    ->label('Filter per Bidang'),
+
+                Tables\Filters\SelectFilter::make('created_at')
+                    ->label('Rentang Waktu')
+                    ->form([
+                        Select::make('rentang')
+                            ->label('Pilih Waktu')
+                            ->options([
+                                'all' => 'All',
+                                '7' => '7 Hari Terakhir',
+                                '30' => '30 Hari Terakhir',
+                                '60' => '60 Hari Terakhir',
+                                'this_year' => 'Tahun Ini',
+                            ])
+                            ->reactive()
+                            ->default('all'),
+                        
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!$data['rentang'] || $data['rentang'] === 'all') {
+                            return $query;
+                        }
+
+                        // Jika pilih Tahun Ini
+                        if ($data['rentang'] === 'this_year') {
+                            return $query->whereYear('created_at', Carbon::now()->year);
+                        }
+
+                        // Jika pilih rentang hari (7, 30, 60)
+                        return $query->where('created_at', '>=', Carbon::now()->subDays((int) $data['rentang']));
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (!$data['rentang'] || $data['rentang'] === 'all') {
+                            return null;
+                        }
+
+                        if ($data['rentang'] === 'this_year') {
+                            return 'Rentang: Tahun Ini (' . Carbon::now()->year . ')';
+                        }
+
+                        return 'Rentang: ' . $data['rentang'] . ' Hari Terakhir';
+                    }),
                 Tables\Filters\SelectFilter::make('approved')
                     ->options([
                         'pending' => 'Pending',
@@ -92,10 +136,14 @@ class ListPermintaanTable extends BaseWidget
                         'rejected' => 'Rejected',
                     ])
                     ->label('Filter Status'),
+
+                Tables\Filters\SelectFilter::make('filter_bagian')
+                    ->relationship('permintaan.user.bagian', 'nama_bagian')
+                    ->label('Filter Bidang'),
             ])
             ->actions([
                 Action::make('approve')
-                    ->visible(fn() => auth()->user()->role === 'admin')
+                    ->visible(fn($record) => auth()->user()->role === 'admin' && $record->approved === 'pending')
                     ->label('Approve')
                     ->color('success')
                     ->icon('heroicon-o-check-circle')
@@ -139,7 +187,7 @@ class ListPermintaanTable extends BaseWidget
                     }),
 
                 Action::make('reject')
-                    ->visible(fn() => auth()->user()->role === 'admin')
+                    ->visible(fn($record) => auth()->user()->role === 'admin' && $record->approved === 'pending')
                     ->label('Reject')
                     ->color('danger')
                     ->icon('heroicon-o-x-circle')
