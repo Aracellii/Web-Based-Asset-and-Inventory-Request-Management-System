@@ -68,7 +68,7 @@
 
     <div style="margin-top: 30px;">
         <p><strong>Total Jenis Barang:</strong> {{ $records->count() }} item</p>
-        <p><strong>Total Semua Stok:</strong> {{ $records->sum('total_stok') }} unit</p>
+        <p><strong>Total Semua Stok  :</strong> {{ $records->sum('total_stok') }} unit</p>
     </div>
 
 </body>
