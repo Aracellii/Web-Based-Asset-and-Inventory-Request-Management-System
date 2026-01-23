@@ -13,7 +13,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use Filament\Tables\Filters\Filter;
+use Carbon\Carbon;
+use Filament\Forms\Components\Select;
 
 class PermintaanResource extends Resource
 {
@@ -139,6 +140,46 @@ class PermintaanResource extends Resource
                     ->sortable()
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('created_at')
+                    ->label('Rentang Waktu')
+                    ->form([
+                        Select::make('rentang')
+                            ->label('Pilih Waktu')
+                            ->options([
+                                'all' => 'All',
+                                '7' => '7 Hari Terakhir',
+                                '30' => '30 Hari Terakhir',
+                                '60' => '60 Hari Terakhir',
+                                'this_year' => 'Tahun Ini',
+                            ])
+                            ->reactive()
+                            ->default('all'),
+
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!$data['rentang'] || $data['rentang'] === 'all') {
+                            return $query;
+                        }
+
+                        // Jika pilih Tahun Ini
+                        if ($data['rentang'] === 'this_year') {
+                            return $query->whereYear('created_at', Carbon::now()->year);
+                        }
+
+                        // Jika pilih rentang hari (7, 30, 60)
+                        return $query->where('created_at', '>=', Carbon::now()->subDays((int) $data['rentang']));
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (!$data['rentang'] || $data['rentang'] === 'all') {
+                            return null;
+                        }
+
+                        if ($data['rentang'] === 'this_year') {
+                            return 'Rentang: Tahun Ini (' . Carbon::now()->year . ')';
+                        }
+
+                        return 'Rentang: ' . $data['rentang'] . ' Hari Terakhir';
+                    }),
                 Tables\Filters\SelectFilter::make('approved')
                     ->options([
                         'pending' => 'Pending',

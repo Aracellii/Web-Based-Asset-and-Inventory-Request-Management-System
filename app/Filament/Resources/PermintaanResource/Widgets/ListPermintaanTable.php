@@ -3,9 +3,7 @@
 namespace App\Filament\Resources\PermintaanResource\Widgets;
 
 use App\Models\DetailPermintaan;
-use App\Models\Permintaan;
 use App\Models\DetailTerverifikasi;
-use App\Models\Gudang;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
@@ -14,7 +12,6 @@ use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 
 
