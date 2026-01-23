@@ -157,12 +157,12 @@ public static function form(Form $form): Form
 
                     
             ])
-            ->filters([
-                Tables\Filters\SelectFilter::make('bagian_id')
-                    ->relationship('bagian', 'nama_bagian')
-                    ->label('Filter per Bidang'),
-                    
-            ])
+          ->filters([
+            Tables\Filters\SelectFilter::make('bagian_id')
+                ->relationship('bagian', 'nama_bagian')
+                ->label('Filter per Bidang')
+                ->multiple(),
+        ])
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin'])),
