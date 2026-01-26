@@ -19,7 +19,6 @@ class Barang extends Model
     protected static function booted(): void
     {
         static::deleting(function (Barang $barang) {
-            // Catat log untuk setiap gudang sebelum stok di-reset
             $gudangs = Gudang::where('barang_id', $barang->id)->with('bagian')->get();
             
             foreach ($gudangs as $gudang) {
