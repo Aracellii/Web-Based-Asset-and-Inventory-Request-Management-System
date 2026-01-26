@@ -111,18 +111,17 @@ class BarangResource extends Resource
                     ->label('Hapus')
                     ->requiresConfirmation()
                     ->modalHeading('Hapus Barang')
-                    ->modalDescription('Apakah Anda yakin ingin menghapus barang ini? Barang ini akan dihapus secara permanen dari sistem')
+                    ->modalDescription('Apakah Anda yakin ingin menghapus barang ini? Semua stok bagian juga akan terhapus.')
                     ->modalSubmitActionLabel('Ya, Hapus'),
             ])
-           ->bulkActions([
-            Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make()
-                    ->label('Hapus Barang Terpilih'),])
-            ->label('Hapus Barang') 
-])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('Hapus Terpilih'),
+                ]),
+            ])
             ->emptyStateHeading('Belum ada barang')
             ->emptyStateDescription('')
-            
             ->emptyStateIcon('heroicon-o-cube');
     }
 
@@ -162,7 +161,7 @@ class BarangResource extends Resource
                         }
 
                         $entries[] = Infolists\Components\TextEntry::make('total_stok')
-                            ->label('Total')
+                            ->label('Total Keseluruhan')
                             ->state(Gudang::where('barang_id', $record->id)->sum('stok'))
                             ->badge()
                             ->color('primary')
