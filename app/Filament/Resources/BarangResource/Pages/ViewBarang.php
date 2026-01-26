@@ -10,11 +10,12 @@ class ViewBarang extends ViewRecord
 {
     protected static string $resource = BarangResource::class;
 
+    protected static ?string $title = 'Lihat Katalog Barang';
+
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make()
-                ->label('Edit Barang'),
+            //
         ];
     }
 }

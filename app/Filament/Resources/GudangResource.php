@@ -160,7 +160,9 @@ public static function form(Form $form): Form
             Tables\Filters\SelectFilter::make('bagian_id')
                 ->relationship('bagian', 'nama_bagian')
                 ->label('Filter per Bidang')
+                ->visible(fn () => auth()->user()?->role === 'keuangan')
                 ->multiple(),
+                
         ])
             ->actions([
                 Tables\Actions\EditAction::make()

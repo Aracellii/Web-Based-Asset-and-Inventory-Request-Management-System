@@ -14,6 +14,8 @@ class CreateGudang extends CreateRecord
 {
     protected static string $resource = GudangResource::class;
 
+    protected static ?string $title = 'Tambah Stok Barang';
+
     protected function handleRecordCreation(array $data): Model
     {
         // ROLE KEUANGAN
