@@ -166,6 +166,7 @@ public static function form(Form $form): Form
                 Tables\Actions\EditAction::make()
                     ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin'])),
                 Tables\Actions\DeleteAction::make()
+                    ->label('Kosongkan')
                     ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
                     ->modalHeading('Reset stok gudang?')
                     ->modalDescription('Stok akan dikosongkan')

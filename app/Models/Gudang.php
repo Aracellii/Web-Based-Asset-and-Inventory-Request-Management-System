@@ -21,7 +21,7 @@ class Gudang extends Model
             $stokLama = $gudang->getOriginal('stok');
             $stokBaru = $gudang->stok;
             $selisih = $stokBaru - $stokLama;
-
+    
             if ($selisih != 0) {
                 LogAktivitas::create([
                     'barang_id' => $gudang->barang_id,
