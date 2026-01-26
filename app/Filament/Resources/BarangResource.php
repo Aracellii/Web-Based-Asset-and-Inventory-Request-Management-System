@@ -68,8 +68,6 @@ class BarangResource extends Resource
                 ->wrap(),
         ];
 
-      
-
         // Tambahkan kolom total stok
         $columns[] = Tables\Columns\TextColumn::make('total_stok')
             ->label('Total Stok')
@@ -106,24 +104,25 @@ class BarangResource extends Resource
             
             ->actions([
                 Tables\Actions\ViewAction::make()
-                    ->label('Lihat Detail'),
+                    ->label('Detail'),
                 Tables\Actions\EditAction::make()
                     ->label('Edit'),
                 Tables\Actions\DeleteAction::make()
                     ->label('Hapus')
                     ->requiresConfirmation()
                     ->modalHeading('Hapus Barang')
-                    ->modalDescription('Apakah Anda yakin ingin menghapus barang ini? Semua stok bagian juga akan terhapus.')
+                    ->modalDescription('Apakah Anda yakin ingin menghapus barang ini? Barang ini akan dihapus secara permanen dari sistem')
                     ->modalSubmitActionLabel('Ya, Hapus'),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->label('Hapus Terpilih'),
-                ]),
-            ])
+           ->bulkActions([
+            Tables\Actions\BulkActionGroup::make([
+                Tables\Actions\DeleteBulkAction::make()
+                    ->label('Hapus Barang Terpilih'),])
+            ->label('Hapus Barang') 
+])
             ->emptyStateHeading('Belum ada barang')
             ->emptyStateDescription('')
+            
             ->emptyStateIcon('heroicon-o-cube');
     }
 
@@ -163,7 +162,7 @@ class BarangResource extends Resource
                         }
 
                         $entries[] = Infolists\Components\TextEntry::make('total_stok')
-                            ->label('Total Keseluruhan')
+                            ->label('Total')
                             ->state(Gudang::where('barang_id', $record->id)->sum('stok'))
                             ->badge()
                             ->color('primary')
@@ -191,13 +190,22 @@ class BarangResource extends Resource
         ];
     }
 
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
+    public static function getNavigationBadge(): ?string{
+            $count = \App\Models\Barang::whereIn('id', function ($query) {
+                $query->select('barang_id')
+                    ->from('gudangs')
+                    ->where('stok', 0);
+            })->count();    
+    
+            return $count > 0 ? (string)$count : null; }
 
     public static function getNavigationBadgeColor(): ?string
     {
-        return 'primary';
+        return 'danger';
     }
+    public static function canAccess(): bool
+{
+    return in_array(auth()->user()?->role, ['keuangan']);
+}
+
 }

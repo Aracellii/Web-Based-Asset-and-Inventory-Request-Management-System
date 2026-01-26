@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\GudangResource\Pages;
 
 use App\Filament\Resources\GudangResource;
+use App\Models\BarangMasuk;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Bagian;
@@ -13,36 +14,50 @@ class CreateGudang extends CreateRecord
 {
     protected static string $resource = GudangResource::class;
 
-  protected function handleRecordCreation(array $data): Model
-{
-    // ROLE KEUANGAN
-    if (Auth::user()->role === 'keuangan') {
+    protected static ?string $title = 'Tambah Stok Barang';
 
-        $bagians = Bagian::all();
-        
-        // Fetch the barang record to get the kode_barang
-        $barang = \App\Models\Barang::find($data['barang_id']);
+    protected function handleRecordCreation(array $data): Model
+    {
+        // ROLE KEUANGAN
+        if (Auth::user()->role === 'keuangan') {
 
-        foreach ($bagians as $bagian) {
-            $gudang = Gudang::firstOrCreate(
-                [
-                    'barang_id' => $data['barang_id'],
-                    'bagian_id' => $bagian->id,
-                ],
-                [
-                    'stok' => 0,
-                ]
-            );
+            $bagians = Bagian::all();
+            $stokInput = (int) ($data['stok'] ?? 0);
+            
+            // Fetch the barang record to get the kode_barang
+            $barang = \App\Models\Barang::find($data['barang_id']);
 
-            $gudang->increment('stok', (int) ($data['stok'] ?? 0));
+            foreach ($bagians as $bagian) {
+                $gudang = Gudang::firstOrCreate(
+                    [
+                        'barang_id' => $data['barang_id'],
+                        'bagian_id' => $bagian->id,
+                    ],
+                    [
+                        'stok' => 0,
+                    ]
+                );
+
+                // Cek apakah ada penambahan stok
+                if ($stokInput > 0) {
+                    $gudang->increment('stok', $stokInput);
+
+                    // Catat ke barang_masuks untuk setiap bagian
+                    BarangMasuk::create([
+                        'barang_id' => $data['barang_id'],
+                        'bagian_id' => $bagian->id,
+                        'user_id' => Auth::id(),
+                        'jumlah' => $stokInput,
+                        'tanggal_masuk' => now()->toDateString(),
+                    ]);
+                }
+            }
+
+            return Gudang::where('barang_id', $data['barang_id'])->first();
         }
 
-        return Gudang::where('barang_id', $data['barang_id'])->first();
+        // Default logic for other roles...
+        $data['bagian_id'] = Auth::user()->bagian_id;
+        return parent::handleRecordCreation($data);
     }
-
-    // Default logic for other roles...
-    $data['bagian_id'] = Auth::user()->bagian_id;
-    return parent::handleRecordCreation($data);
-}
-
 }
