@@ -206,6 +206,27 @@ class PermintaanResource extends Resource
     {
         return [];
     }
+    public static function getNavigationBadge(): ?string
+    {
+        $user = auth()->user();
+
+        // Hitung detail permintaan yang statusnya pending
+        $count = \App\Models\DetailPermintaan::where('approved', 'pending')
+            ->when($user->role === 'admin', function ($query) use ($user) {
+                // Admin hanya melihat hitungan pending dari bagiannya sendiri
+                return $query->whereHas('permintaan.user', function ($q) use ($user) {
+                    $q->where('users.bagian_id', $user->bagian_id);
+                });
+            })
+            ->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning'; // Kuning untuk pending
+    }
 
     public static function getPages(): array
     {
