@@ -18,6 +18,7 @@ use Filament\Forms\Components\Select;
 
 class PermintaanResource extends Resource
 {
+    protected static ?int $navigationSort = 4;
     protected static ?string $model = Permintaan::class;
     protected static ?string $modelLabel = 'Permintaan';
 

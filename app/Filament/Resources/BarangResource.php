@@ -20,12 +20,11 @@ use Filament\Infolists\Infolist;
 class BarangResource extends Resource
 {
     protected static ?string $model = Barang::class;
-
+    protected static ?int $navigationSort = 3;
     protected static ?string $navigationIcon = 'heroicon-o-cube';
     protected static ?string $navigationLabel = 'Katalog Barang';
     protected static ?string $modelLabel = 'Barang';
     protected static ?string $pluralModelLabel = 'Katalog Barang';
-    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {

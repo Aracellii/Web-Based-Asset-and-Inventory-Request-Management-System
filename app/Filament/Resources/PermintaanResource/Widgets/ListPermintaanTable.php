@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 use Filament\Forms\Components\Select;
+use App\Models\Barang;
 
 
 class ListPermintaanTable extends BaseWidget
@@ -168,6 +169,7 @@ class ListPermintaanTable extends BaseWidget
                                 $record->update([
                                     'approved' => 'approved',
                                 ]);
+                                Barang::$logContext = 'Keluar'; //set context
                                 // Kurangi stok di tabel gudangs
                                 $stokGudang->stok -= $record->jumlah;
                                 $stokGudang->save();

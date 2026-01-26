@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Bagian;
 use App\Models\Gudang;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Barang;
 
 class CreateGudang extends CreateRecord
 {
@@ -34,6 +35,7 @@ class CreateGudang extends CreateRecord
 
                 // penambahan stok
                 if ($stokInput > 0) {
+                    Barang::$logContext = 'Masuk'; // set context
                     $gudang->stok += $stokInput;
                     $gudang->save();
                 }

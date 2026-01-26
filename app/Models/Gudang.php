@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Barang;
 
 class Gudang extends Model
 {
@@ -22,6 +23,10 @@ class Gudang extends Model
             $stokBaru = $gudang->stok;
             $selisih = $stokBaru - $stokLama;
 
+            // 1. Cek apakah ada context manual (masuk/keluar)
+            // 2. Jika tidak ada, maka otomatis dianggap 'Penyesuaian'
+            $tipeLog = Barang::$logContext ?? 'Penyesuaian';
+
             if ($selisih != 0) {
                 LogAktivitas::create([
                     'barang_id' => $gudang->barang_id,
@@ -31,11 +36,12 @@ class Gudang extends Model
                     'kode_barang_snapshot' => $gudang->barang->kode_barang ?? '',
                     'user_snapshot' => Auth::user()->name ?? 'System',
                     'nama_bagian_snapshot' => $gudang->bagian->nama_bagian ?? '',
-                    'tipe' => $selisih > 0 ? 'masuk' : 'keluar',
+                    'tipe' => $tipeLog,
                     'jumlah' => abs($selisih),
                     'stok_awal' => $stokLama,
                     'stok_akhir' => $stokBaru,
                 ]);
+                Barang::$logContext = null; // Reset context after use
             }
         });
     }
