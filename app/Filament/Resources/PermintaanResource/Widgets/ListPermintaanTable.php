@@ -15,7 +15,6 @@ use Carbon\Carbon;
 use Filament\Forms\Components\Select;
 
 
-
 class ListPermintaanTable extends BaseWidget
 {
     // Widget ini HANYA muncul jika admin
@@ -99,7 +98,7 @@ class ListPermintaanTable extends BaseWidget
                             ])
                             ->reactive()
                             ->default('all'),
-                        
+
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (!$data['rentang'] || $data['rentang'] === 'all') {
@@ -170,7 +169,8 @@ class ListPermintaanTable extends BaseWidget
                                     'approved' => 'approved',
                                 ]);
                                 // Kurangi stok di tabel gudangs
-                                $stokGudang->decrement('stok', $record->jumlah);
+                                $stokGudang->stok -= $record->jumlah;
+                                $stokGudang->save();
 
                                 Notification::make()
                                     ->title('Permintaan berhasil di-approve')
