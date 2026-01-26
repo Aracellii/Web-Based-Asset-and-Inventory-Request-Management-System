@@ -82,6 +82,7 @@ public static function form(Form $form): Form
                         ->label('Jumlah Stok Sekarang')
                         ->numeric()
                         ->default(0)
+                        ->minValue(0)
                         ->required(),
                         
                 ])->columns(2), 
@@ -153,9 +154,7 @@ public static function form(Form $form): Form
                         fn () => print($pdf->output()),
                         $filename
                     );
-                })
-
-                    
+                })      
             ])
           ->filters([
             Tables\Filters\SelectFilter::make('bagian_id')
@@ -169,29 +168,29 @@ public static function form(Form $form): Form
                 Tables\Actions\DeleteAction::make()
                     ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
                     ->modalHeading('Reset stok gudang?')
-                    ->modalDescription('Stok akan d.')
+                    ->modalDescription('Stok akan dikosongkan')
                     ->modalSubmitActionLabel('Reset stok')
-                    ->successNotificationTitle('Stok berhasil direset menjadi 0')
+                    ->successNotificationTitle('Stok berhasil di reset')
                     ->using(function (Gudang $record): bool {
                         return $record->update(['stok' => 0]);
                     }),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
-                        ->modalHeading('Reset stok gudang yang dipilih?')
-                        ->modalDescription('Data stok yang dipilih menjadi 0. Data barang tidak akan dihapus dari sistem.')
-                        ->modalSubmitActionLabel('Reset stok')
-                        ->successNotificationTitle('Stok terpilih berhasil direset menjadi 0')
-                        ->using(function (\Illuminate\Database\Eloquent\Collection $records): void {
-                            $records->each(function (Gudang $record): void {
-                                $record->update(['stok' => 0]);
-                            });
-                        }),
-                ]),
-                
-            ]);
+            Tables\Actions\BulkActionGroup::make([
+                Tables\Actions\DeleteBulkAction::make()
+                    ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
+                    ->modalHeading('Reset stok gudang yang dipilih?')
+                    ->modalDescription('Stok akan di reset')
+                    ->modalSubmitActionLabel('Reset stok')
+                    ->successNotificationTitle('Stok terpilih berhasil di reset')
+                    ->using(function (\Illuminate\Database\Eloquent\Collection $records): void {
+                        $records->each(function (Gudang $record): void {
+                            $record->update(['stok' => 0]);
+                        });
+                    }),
+            ])
+            ->label('Kosongkan Stok Terpilih') 
+        ]);
     }
 
     public static function getEloquentQuery(): Builder
@@ -206,6 +205,15 @@ public static function form(Form $form): Form
 
         return $query;
     }
+     public static function getNavigationBadge(): ?string{
+            $count = \App\Models\Barang::whereIn('id', function ($query) {
+                $query->select('barang_id')
+                    ->from('gudangs')
+                    ->where('stok', 0);
+            })->count();    
+    
+            return $count > 0 ? (string)$count : null; }
+            
 
     public static function getPages(): array
     {
@@ -215,7 +223,9 @@ public static function form(Form $form): Form
             'edit' => Pages\EditGudang::route('/{record}/edit'),
         ];
     }
-
+    public static function getNavigationBadgeColor(): ?string{
+    return 'danger'; }
+    
     public static function canCreate(): bool
     {
         return in_array(auth()->user()?->role, ['keuangan']);
