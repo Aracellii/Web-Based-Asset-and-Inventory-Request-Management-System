@@ -46,8 +46,8 @@ class LogAktivitasResource extends Resource
 
                 Tables\Columns\TextColumn::make('nama_barang_snapshot')
                     ->label('Barang')
-                    ->searchable()
-                    ->description(fn($record) => "Kode: {$record->kode_barang_snapshot}"),
+                    ->description(fn($record) => "Kode: {$record->kode_barang_snapshot}")
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('nama_bagian_snapshot')
                     ->label('Bidang / Bagian')
@@ -67,8 +67,13 @@ class LogAktivitasResource extends Resource
                 Tables\Columns\TextColumn::make('jumlah')
                     ->label('Mutasi')
                     ->weight('bold')
-                    ->color(fn($record) => strtolower($record->tipe ?? '') === 'keluar' ? 'danger' : 'success')
-                    ->formatStateUsing(fn($record, $state) => (strtolower($record->tipe ?? '') === 'keluar' ? '-' : '+') . $state),
+                    ->color(function ($record) {
+                        return $record->stok_akhir < $record->stok_awal ? 'danger' : 'success';
+                    })
+                    ->formatStateUsing(function ($record, $state) {
+                        $simbol = $record->stok_akhir < $record->stok_awal ? '-' : '+';
+                        return "{$simbol} {$state}";
+                    }),
 
                 Tables\Columns\TextColumn::make('stok_awal')
                     ->label('Awal')
