@@ -34,15 +34,18 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->brandName('SIATK') // Mengganti tulisan "Laravel"
+            ->brandName('SIATK')
+            ->renderHook(
+                'panels::user-menu.before',
+                fn () => view('filament.components.realtime-clock'),
+            )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                \App\Filament\Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
                 StockMovementChart::class,
                 TopRequestedItemsChart::class,
             ])

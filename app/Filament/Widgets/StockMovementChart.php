@@ -3,9 +3,11 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Barang;
+use App\Models\Gudang;
 use App\Models\LogAktivitas;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class StockMovementChart extends ChartWidget
 {
@@ -23,7 +25,20 @@ class StockMovementChart extends ChartWidget
     {
         $filters = ['all' => 'Semua Barang'];
         
-        $barangs = Barang::orderBy('nama_barang')->get();
+        $user = Auth::user();
+        
+        // Jika bukan keuangan, hanya tampilkan barang yang ada di gudang bagian user
+        if ($user->role !== 'keuangan') {
+            $barangIds = Gudang::where('bagian_id', $user->bagian_id)
+                ->pluck('barang_id')
+                ->toArray();
+            
+            $barangs = Barang::whereIn('id', $barangIds)
+                ->orderBy('nama_barang')
+                ->get();
+        } else {
+            $barangs = Barang::orderBy('nama_barang')->get();
+        }
         
         foreach ($barangs as $barang) {
             $filters[(string) $barang->id] = $barang->nama_barang;
@@ -49,6 +64,17 @@ class StockMovementChart extends ChartWidget
         // Get the selected barang_id
         $barangId = ($this->filter !== 'all' && $this->filter !== null) ? (int) $this->filter : null;
 
+        // Get user's bagian for filtering
+        $user = Auth::user();
+        $gudangIds = null;
+        
+        // Jika bukan keuangan, filter berdasarkan gudang dari bagian user
+        if ($user->role !== 'keuangan') {
+            $gudangIds = Gudang::where('bagian_id', $user->bagian_id)
+                ->pluck('id')
+                ->toArray();
+        }
+
         while ($current <= $end) {
             $monthLabel = $current->translatedFormat('M Y');
             $months->push($monthLabel);
@@ -61,6 +87,12 @@ class StockMovementChart extends ChartWidget
             $keluarQuery = LogAktivitas::whereYear('created_at', $current->year)
                 ->whereMonth('created_at', $current->month)
                 ->whereColumn('stok_akhir', '<', 'stok_awal');
+
+            // Filter by gudang (bagian) if not keuangan
+            if ($gudangIds !== null) {
+                $masukQuery->whereIn('gudang_id', $gudangIds);
+                $keluarQuery->whereIn('gudang_id', $gudangIds);
+            }
 
             // Filter by barang if not 'all'
             if ($barangId !== null) {

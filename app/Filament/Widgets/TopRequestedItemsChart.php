@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class TopRequestedItemsChart extends ChartWidget
 {
-    protected static ?string $heading = 'Barang Terbanyak Diminta';
+    protected static ?string $heading = 'Barang Diminta';
     
     protected static ?int $sort = 3;
 
