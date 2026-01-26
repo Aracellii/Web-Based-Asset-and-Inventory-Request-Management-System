@@ -32,7 +32,7 @@ class CreateGudang extends CreateRecord
                     ]
                 );
 
-                // Cek apakah ada penambahan stok
+                // penambahan stok
                 if ($stokInput > 0) {
                     $gudang->stok += $stokInput;
                     $gudang->save();
@@ -41,8 +41,6 @@ class CreateGudang extends CreateRecord
 
             return Gudang::where('barang_id', $data['barang_id'])->first();
         }
-
-        // Default logic for other roles...
         $data['bagian_id'] = Auth::user()->bagian_id;
         return parent::handleRecordCreation($data);
     }

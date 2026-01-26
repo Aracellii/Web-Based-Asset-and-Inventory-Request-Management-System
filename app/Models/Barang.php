@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Auth;
 
 class Barang extends Model
 {
@@ -15,6 +14,20 @@ class Barang extends Model
         'kode_barang',
         'nama_barang',
     ];
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Barang $barang) {
+            $gudangs = Gudang::where('barang_id', $barang->id)->get();
+            
+            foreach ($gudangs as $gudang) {
+                if ($gudang->stok > 0) {
+                    $gudang->stok = 0;
+                    $gudang->save(); 
+                }
+            }
+        });
+    }
 
     public function gudangs()
     {
