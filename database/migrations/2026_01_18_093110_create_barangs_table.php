@@ -16,6 +16,9 @@ return new class extends Migration
             $table->string('kode_barang')->unique();
             $table->string('nama_barang');
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->unique(['kode_barang', 'deleted_at']);
         });
     }
 

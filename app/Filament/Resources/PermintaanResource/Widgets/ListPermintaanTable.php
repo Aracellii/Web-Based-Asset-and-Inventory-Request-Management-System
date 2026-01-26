@@ -28,7 +28,6 @@ class ListPermintaanTable extends BaseWidget
     {
         $user = auth()->user();
         $query = DetailPermintaan::query();
-        // $query->where('approved', 'pending');
 
         // Filter berdasarkan role admin dan bagian yang sesuai
         if ($user->role === 'admin') {
