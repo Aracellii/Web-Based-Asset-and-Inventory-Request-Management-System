@@ -76,11 +76,12 @@ class LogAktivitasResource extends Resource
                     }),
 
                 Tables\Columns\TextColumn::make('stok_awal')
-                    ->label('Awal')
-                    ->color('gray'),
+                    ->label('Stok Awal')
+                    ->color('gray')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('stok_akhir')
-                    ->label('Akhir')
+                    ->label('Stok Akhir')
                     ->weight('bold'),
 
                 Tables\Columns\TextColumn::make('user_snapshot')
