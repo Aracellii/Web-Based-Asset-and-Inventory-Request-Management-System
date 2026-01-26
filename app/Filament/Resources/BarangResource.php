@@ -111,7 +111,7 @@ class BarangResource extends Resource
                     ->label('Hapus')
                     ->requiresConfirmation()
                     ->modalHeading('Hapus Barang')
-                    ->modalDescription('Apakah Anda yakin ingin menghapus barang ini? Semua stok bagian juga akan terhapus.')
+                    ->modalDescription('Apakah Anda yakin ingin menghapus barang ini? Barang Ini akan dihapus secara permanen')
                     ->modalSubmitActionLabel('Ya, Hapus'),
             ])
             ->bulkActions([

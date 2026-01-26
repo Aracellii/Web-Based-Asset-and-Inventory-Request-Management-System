@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\GudangResource\Pages;
 
 use App\Filament\Resources\GudangResource;
-use App\Models\BarangMasuk;
+use App\Models\LogAktivitas;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Bagian;
@@ -38,15 +38,22 @@ class CreateGudang extends CreateRecord
 
                 // Cek apakah ada penambahan stok
                 if ($stokInput > 0) {
+                    $stokAwal = $gudang->stok;
                     $gudang->increment('stok', $stokInput);
 
-                    // Catat ke barang_masuks untuk setiap bagian
-                    BarangMasuk::create([
+                    // Catat ke log_aktivitas untuk setiap bagian
+                    LogAktivitas::create([
                         'barang_id' => $data['barang_id'],
-                        'bagian_id' => $bagian->id,
                         'user_id' => Auth::id(),
+                        'gudang_id' => $gudang->id,
+                        'nama_barang_snapshot' => $barang->nama_barang,
+                        'kode_barang_snapshot' => $barang->kode_barang,
+                        'user_snapshot' => Auth::user()->name,
+                        'nama_bagian_snapshot' => $bagian->nama_bagian,
+                        'tipe' => 'masuk',
                         'jumlah' => $stokInput,
-                        'tanggal_masuk' => now()->toDateString(),
+                        'stok_awal' => $stokAwal,
+                        'stok_akhir' => $stokAwal + $stokInput,
                     ]);
                 }
             }

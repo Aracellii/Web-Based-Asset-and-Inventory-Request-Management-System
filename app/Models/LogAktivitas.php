@@ -21,7 +21,6 @@ class LogAktivitas extends Model
         'jumlah',
         'stok_awal',
         'stok_akhir',
-        'keterangan',
     ];
 
     public function barang()

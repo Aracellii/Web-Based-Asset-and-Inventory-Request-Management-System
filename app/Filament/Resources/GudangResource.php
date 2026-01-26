@@ -197,7 +197,8 @@ public static function form(Form $form): Form
     {
         //Tampilkan Data Gudang
         $query = parent::getEloquentQuery();
-
+        // Filter hanya tampilkan gudang yang barangnya belum dihapus
+        $query->whereHas('barang');
         // Filter Role
         if (Auth::user()->role !== 'keuangan') {
             $query->where('bagian_id', Auth::user()->bagian_id);
@@ -215,7 +216,7 @@ public static function form(Form $form): Form
             return $count > 0 ? (string)$count : null; }
             
 
-            
+
     public static function getPages(): array
     {
         return [
