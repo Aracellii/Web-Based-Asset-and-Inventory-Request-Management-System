@@ -16,6 +16,7 @@ use Illuminate\Support\Collection;
 
 class GudangResource extends Resource
 {
+    protected static ?int $navigationSort = 2;
     protected static ?string $model = Gudang::class;
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
     protected static ?string $navigationLabel = 'Stok Gudang';

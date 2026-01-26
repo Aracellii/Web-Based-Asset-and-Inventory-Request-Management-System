@@ -18,6 +18,7 @@ use Filament\Forms\Components\Select;
 
 class PermintaanResource extends Resource
 {
+    protected static ?int $navigationSort = 4;
     protected static ?string $model = Permintaan::class;
     protected static ?string $modelLabel = 'Permintaan';
 
@@ -104,6 +105,10 @@ class PermintaanResource extends Resource
                     ->label('Peminta')
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('permintaan_id')
+                    ->label('ID Permintaan')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('permintaan.tanggal_permintaan')
                     ->date()
                     ->sortable()
@@ -121,10 +126,6 @@ class PermintaanResource extends Resource
                     ->label('Jumlah')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('permintaan.created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('permintaan.user.bagian.nama_bagian')
                     ->label('Bidang')
                     ->sortable(),
