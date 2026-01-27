@@ -9,4 +9,8 @@ use Filament\Resources\Pages\CreateRecord;
 class CreatePermintaan extends CreateRecord
 {
     protected static string $resource = PermintaanResource::class;
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 use Filament\Forms\Components\Select;
 use App\Models\Barang;
-use Filament\Resources\Components\Tab;
 
 
 class ListPermintaanTable extends BaseWidget
@@ -133,11 +132,14 @@ class ListPermintaanTable extends BaseWidget
                         'rejected' => 'Rejected',
                     ])
                     ->label('Filter Status')
-                    ->default('pending'),
+                    ->default(['pending'])
+                    ->multiple(true),
 
                 Tables\Filters\SelectFilter::make('filter_bagian')
                     ->relationship('permintaan.user.bagian', 'nama_bagian')
-                    ->label('Filter Bidang'),
+                    ->label('Filter Bidang')
+                    ->multiple(true)
+                    ->preload(),
             ])
             ->actions([
                 Action::make('approve')

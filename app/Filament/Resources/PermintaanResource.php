@@ -187,10 +187,13 @@ class PermintaanResource extends Resource
                         'approved' => 'Approved',
                         'rejected' => 'Rejected',
                     ])
-                    ->label('Filter Status'),
+                    ->label('Filter Status')
+                    ->multiple(true),
                 Tables\Filters\SelectFilter::make('filter_bagian')
                     ->relationship('permintaan.user.bagian', 'nama_bagian')
-                    ->label('Filter Bidang'),
+                    ->label('Filter Bidang')
+                    ->multiple(true)
+                    ->preload(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
