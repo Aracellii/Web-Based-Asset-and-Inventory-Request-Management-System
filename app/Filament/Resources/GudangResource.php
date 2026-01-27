@@ -92,8 +92,8 @@ public static function form(Form $form): Form
                         ->options(\App\Models\Bagian::pluck('nama_bagian', 'id'))
                         ->searchable()
                         ->preload()
-                        ->visible(fn () => auth()->user()?->role === 'keuangan')
-                        ->required(fn () => auth()->user()?->role === 'keuangan')
+                        ->visible(fn ($context) => $context === 'create' && auth()->user()?->role === 'keuangan')
+                        ->required(fn ($context) => $context === 'create' && auth()->user()?->role === 'keuangan')
                         ->helperText('Pilih satu atau lebih bagian untuk menambahkan stok'),
                         
                 ])->columns(2), 
