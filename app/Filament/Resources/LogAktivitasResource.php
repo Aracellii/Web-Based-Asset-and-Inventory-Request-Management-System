@@ -68,6 +68,10 @@ class LogAktivitasResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('index')
+                    ->label('No')
+                    ->rowIndex(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Waktu')
                     ->dateTime('d M Y, H:i')
