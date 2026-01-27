@@ -32,7 +32,7 @@ class StockMovementChart extends ChartWidget
         
         $user = Auth::user();
         
-        // Jika bukan keuangan, hanya tampilkan barang yang ada di gudang bagian user
+        // Tampilkan barang yang ada di gudang bagian user
         if ($user->role !== 'keuangan') {
             $barangIds = Gudang::where('bagian_id', $user->bagian_id)
                 ->pluck('barang_id')
@@ -59,11 +59,11 @@ class StockMovementChart extends ChartWidget
         $keluarData = collect();
         $stokBulananData = collect();
 
-        // Get date range for last 12 months 
+        // Ambil 12 bulan terakhir
         $startDate = Carbon::now()->subMonths(11)->startOfMonth();
         $endDate = Carbon::now()->endOfMonth();
 
-        // Calculate months between start and end
+        // Perhitungan bulan 
         $current = $startDate->copy()->startOfMonth();
         $end = $endDate->copy()->endOfMonth();
 
@@ -75,7 +75,7 @@ class StockMovementChart extends ChartWidget
         $gudangIds = null;
         $bagianId = null;
         
-        // Jika bukan keuangan, filter berdasarkan gudang dari bagian user
+        // filter berdasarkan gudang dari bagian user
         if ($user->role !== 'keuangan') {
             $bagianId = $user->bagian_id;
             $gudangIds = Gudang::where('bagian_id', $bagianId)
@@ -93,7 +93,7 @@ class StockMovementChart extends ChartWidget
         }
         $stokSekarang = $stokSekarangQuery->sum('stok');
 
-        // Kumpulkan data per bulan terlebih 
+        // Kumpulkan data per bulan 
         $monthsData = collect();
         while ($current <= $end) {
             $monthLabel = $current->translatedFormat('M Y');
@@ -107,13 +107,13 @@ class StockMovementChart extends ChartWidget
                 ->whereMonth('created_at', $current->month)
                 ->whereColumn('stok_akhir', '<', 'stok_awal');
 
-            // Filter by gudang (bagian) bukan keuangan
+            // Filter by gudang 
             if ($gudangIds !== null) {
                 $masukQuery->whereIn('gudang_id', $gudangIds);
                 $keluarQuery->whereIn('gudang_id', $gudangIds);
             }
 
-            // Filter by barang if not 'all'
+            // Filter by barang 
             if ($barangId !== null) {
                 $masukQuery->where('barang_id', $barangId);
                 $keluarQuery->where('barang_id', $barangId);
