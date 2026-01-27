@@ -7,6 +7,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Section;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class TopRequestedItemsChart extends ChartWidget
@@ -87,8 +88,15 @@ class TopRequestedItemsChart extends ChartWidget
 
     protected function getData(): array
     {
+        $user = Auth::user();
+        
         $query = DetailPermintaan::select('barang_id', DB::raw('SUM(jumlah) as total_diminta'))
             ->with('barang');
+
+        // Filter by bagian if not keuangan
+        if ($user->role !== 'keuangan') {
+            $query->where('bagian_id', $user->bagian_id);
+        }
 
         // Apply date filter
         $dateRange = $this->getDateRange();

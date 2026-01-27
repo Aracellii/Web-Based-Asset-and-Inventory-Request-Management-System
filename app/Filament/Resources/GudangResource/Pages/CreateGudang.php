@@ -19,14 +19,14 @@ class CreateGudang extends CreateRecord
         // ROLE KEUANGAN
         if (Auth::user()->role === 'keuangan') {
 
-            $bagians = Bagian::all();
+            $bagianIds = $data['bagian_ids'] ?? [];
             $stokInput = (int) ($data['stok'] ?? 0);
 
-            foreach ($bagians as $bagian) {
+            foreach ($bagianIds as $bagianId) {
                 $gudang = Gudang::firstOrCreate(
                     [
                         'barang_id' => $data['barang_id'],
-                        'bagian_id' => $bagian->id,
+                        'bagian_id' => $bagianId,
                     ],
                     [
                         'stok' => 0,

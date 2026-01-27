@@ -85,6 +85,16 @@ public static function form(Form $form): Form
                         ->default(0)
                         ->minValue(0)
                         ->required(),
+
+                    Forms\Components\Select::make('bagian_ids')
+                        ->label('Pilih Bagian')
+                        ->multiple()
+                        ->options(\App\Models\Bagian::pluck('nama_bagian', 'id'))
+                        ->searchable()
+                        ->preload()
+                        ->visible(fn () => auth()->user()?->role === 'keuangan')
+                        ->required(fn () => auth()->user()?->role === 'keuangan')
+                        ->helperText('Pilih satu atau lebih bagian untuk menambahkan stok'),
                         
                 ])->columns(2), 
         ]);
