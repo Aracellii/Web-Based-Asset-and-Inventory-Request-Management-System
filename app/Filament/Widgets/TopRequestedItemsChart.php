@@ -16,11 +16,16 @@ class TopRequestedItemsChart extends ChartWidget
     
     protected static ?int $sort = 3;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int | string | array $columnSpan = 1;
 
     protected static ?string $maxHeight = '350px';
 
     public ?string $filter = 'all_time';
+
+    public static function canView(): bool
+    {
+        return auth()->user()?->role !== 'user';
+    }
 
     public ?string $startDate = null;
     public ?string $endDate = null;

@@ -15,11 +15,16 @@ class StockMovementChart extends ChartWidget
     
     protected static ?int $sort = 2;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int | string | array $columnSpan = 1;
 
     protected static ?string $maxHeight = '300px';
 
     public ?string $filter = 'all';
+
+    public static function canView(): bool
+    {
+        return auth()->user()?->role !== 'user';
+    }
 
     protected function getFilters(): ?array
     {
@@ -52,34 +57,48 @@ class StockMovementChart extends ChartWidget
         $months = collect();
         $masukData = collect();
         $keluarData = collect();
+        $stokBulananData = collect();
 
-        // Get date range for last 6 months
-        $startDate = Carbon::now()->subMonths(5)->startOfMonth();
+        // Get date range for last 12 months 
+        $startDate = Carbon::now()->subMonths(11)->startOfMonth();
         $endDate = Carbon::now()->endOfMonth();
 
         // Calculate months between start and end
         $current = $startDate->copy()->startOfMonth();
         $end = $endDate->copy()->endOfMonth();
 
-        // Get the selected barang_id
+        // barang_id
         $barangId = ($this->filter !== 'all' && $this->filter !== null) ? (int) $this->filter : null;
 
-        // Get user's bagian for filtering
+        // Filter User Bagian
         $user = Auth::user();
         $gudangIds = null;
+        $bagianId = null;
         
         // Jika bukan keuangan, filter berdasarkan gudang dari bagian user
         if ($user->role !== 'keuangan') {
-            $gudangIds = Gudang::where('bagian_id', $user->bagian_id)
+            $bagianId = $user->bagian_id;
+            $gudangIds = Gudang::where('bagian_id', $bagianId)
                 ->pluck('id')
                 ->toArray();
         }
 
+        // Ambil stok saat ini dari tabel gudangs
+        $stokSekarangQuery = Gudang::query();
+        if ($bagianId !== null) {
+            $stokSekarangQuery->where('bagian_id', $bagianId);
+        }
+        if ($barangId !== null) {
+            $stokSekarangQuery->where('barang_id', $barangId);
+        }
+        $stokSekarang = $stokSekarangQuery->sum('stok');
+
+        // Kumpulkan data per bulan terlebih 
+        $monthsData = collect();
         while ($current <= $end) {
             $monthLabel = $current->translatedFormat('M Y');
-            $months->push($monthLabel);
-
-            // Build base query for this month
+            
+            // query bulan ini 
             $masukQuery = LogAktivitas::whereYear('created_at', $current->year)
                 ->whereMonth('created_at', $current->month)
                 ->whereColumn('stok_akhir', '>', 'stok_awal');
@@ -88,7 +107,7 @@ class StockMovementChart extends ChartWidget
                 ->whereMonth('created_at', $current->month)
                 ->whereColumn('stok_akhir', '<', 'stok_awal');
 
-            // Filter by gudang (bagian) if not keuangan
+            // Filter by gudang (bagian) bukan keuangan
             if ($gudangIds !== null) {
                 $masukQuery->whereIn('gudang_id', $gudangIds);
                 $keluarQuery->whereIn('gudang_id', $gudangIds);
@@ -100,16 +119,45 @@ class StockMovementChart extends ChartWidget
                 $keluarQuery->where('barang_id', $barangId);
             }
 
-            // Barang masuk = stok_akhir > stok_awal (termasuk penyesuaian yang menambah)
+            // Barang masuk = stok_akhir > stok_awal
             $masuk = $masukQuery->sum('jumlah');
 
-            // Barang keluar = stok_akhir < stok_awal (termasuk penyesuaian yang mengurangi)
+            // Barang keluar = stok_akhir < stok_awal
             $keluar = $keluarQuery->sum('jumlah');
 
-            $masukData->push($masuk);
-            $keluarData->push($keluar);
+            $monthsData->push([
+                'label' => $monthLabel,
+                'masuk' => $masuk,
+                'keluar' => $keluar,
+                'isCurrent' => $current->isSameMonth(Carbon::now()),
+            ]);
 
             $current->addMonth();
+        }
+
+        // Hitung stok mundur dari stok sekarang
+        $stokKumulatif = $stokSekarang;
+        $reversedMonths = $monthsData->reverse()->values();
+        $stokPerBulan = collect();
+
+        foreach ($reversedMonths as $index => $data) {
+            if ($index === 0) {
+                // Bulan terakhir (sekarang)
+                $stokPerBulan->prepend($stokKumulatif);
+            } else {
+                // Bulan sebelumnya: stok = stok bulan depan - masuk bulan depan + keluar bulan depan
+                $prevData = $reversedMonths[$index - 1];
+                $stokKumulatif = $stokKumulatif - $prevData['masuk'] + $prevData['keluar'];
+                $stokPerBulan->prepend($stokKumulatif);
+            }
+        }
+
+        // Susun data chart
+        foreach ($monthsData as $index => $data) {
+            $months->push($data['label']);
+            $masukData->push($data['masuk']);
+            $keluarData->push($data['keluar']);
+            $stokBulananData->push($stokPerBulan[$index]);
         }
 
         return [
@@ -129,6 +177,15 @@ class StockMovementChart extends ChartWidget
                     'backgroundColor' => 'rgba(239, 68, 68, 0.1)',
                     'fill' => true,
                     'tension' => 0.3,
+                ],
+                [
+                    'label' => 'Stok Tiap Bulan',
+                    'data' => $stokBulananData->toArray(),
+                    'borderColor' => 'rgb(59, 130, 246)',
+                    'backgroundColor' => 'rgba(59, 130, 246, 0.1)',
+                    'fill' => false,
+                    'tension' => 0.3,
+                    'borderDash' => [5, 5],
                 ],
             ],
             'labels' => $months->toArray(),
