@@ -28,6 +28,8 @@ class AdminActivityStats extends BaseWidget
         $user = auth()->user();
         $startOfMonth = Carbon::now()->startOfMonth();
         $endOfMonth = Carbon::now()->endOfMonth();
+        
+        Carbon::setLocale('id');
 
         // Hitung jumlah approve 
         $approveCount = LogAktivitas::where('user_id', $user->id)

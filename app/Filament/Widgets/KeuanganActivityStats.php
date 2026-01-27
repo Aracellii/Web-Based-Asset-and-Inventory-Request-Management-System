@@ -28,14 +28,16 @@ class KeuanganActivityStats extends BaseWidget
         $user = auth()->user();
         $startOfMonth = Carbon::now()->startOfMonth();
         $endOfMonth = Carbon::now()->endOfMonth();
+        
+        Carbon::setLocale('id');
 
-        // Hitung jumlah barang masuk bulan ini oleh user keuangan 
+        // Hitung jumlah barang masuk bulan ini 
         $masukCount = LogAktivitas::where('user_id', $user->id)
             ->where('tipe', 'Masuk')
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
             ->count();
 
-        // Hitung jumlah barang keluar bulan ini oleh keuangan yang login
+        // Hitung jumlah barang keluar bulan ini
         $keluarCount = LogAktivitas::where('user_id', $user->id)
             ->where('tipe', 'Keluar')
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
