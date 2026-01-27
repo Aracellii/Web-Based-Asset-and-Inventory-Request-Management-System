@@ -213,6 +213,10 @@ class PermintaanResource extends Resource
     {
         $user = auth()->user();
 
+        if($user->role != 'admin') {
+            return null;
+        }
+
         // Hitung detail permintaan yang statusnya pending
         $count = DetailPermintaan::where('approved', 'pending')
             ->when($user->role === 'admin', function ($query) use ($user) {
