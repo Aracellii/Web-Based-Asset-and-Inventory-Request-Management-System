@@ -173,7 +173,8 @@ class ListPermintaanTable extends BaseWidget
                                 $record->update([
                                     'approved' => 'approved',
                                 ]);
-                                Barang::$logContext = 'Keluar'; //set context
+                                //set keterangan ke "Pemakaian"
+                                $stokGudang->keteranganOtomatis = 'Pemakaian';
                                 // Kurangi stok di tabel gudangs
                                 $stokGudang->stok -= $record->jumlah;
                                 $stokGudang->save();

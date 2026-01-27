@@ -80,7 +80,7 @@ public static function form(Form $form): Form
                         });
                     }),
                     Forms\Components\TextInput::make('stok')
-                        ->label('Jumlah Stok Masuk')
+                        ->label('Jumlah Stok Terbaru')
                         ->numeric()
                         ->default(0)
                         ->minValue(0)

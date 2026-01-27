@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Barang extends Model
 {
     use SoftDeletes;
-    public static $logContext = null;
     protected $table = 'barangs';  
     protected $fillable = [
         'id',

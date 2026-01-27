@@ -88,11 +88,13 @@ class LogAktivitasResource extends Resource
                     ->color(fn(string $state): string => match (strtolower($state)) {
                         'masuk' => 'success',
                         'keluar' => 'danger',
-                        'penyesuaian' => 'warning',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn($state) => ucfirst($state)),
-
+                Tables\Columns\TextColumn::make('keterangan')
+                    ->label('Keterangan')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('jumlah')
                     ->label('Mutasi')
                     ->weight('bold')
@@ -123,7 +125,6 @@ class LogAktivitasResource extends Resource
                     ->options([
                         'masuk' => 'Masuk',
                         'keluar' => 'Keluar',
-                        'penyesuaian' => 'Penyesuaian',
                     ]),
             ]);
     }

@@ -35,7 +35,7 @@ class CreateGudang extends CreateRecord
 
                 // penambahan stok
                 if ($stokInput > 0) {
-                    Barang::$logContext = 'Masuk'; // set context
+                    $gudang->keteranganOtomatis = 'Pembelian';
                     $gudang->stok += $stokInput;
                     $gudang->save();
                 }

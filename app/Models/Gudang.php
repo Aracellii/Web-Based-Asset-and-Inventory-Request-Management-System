@@ -16,16 +16,13 @@ class Gudang extends Model
         'stok',
         'kode_barang',
     ];
+    public $keteranganOtomatis = 'Edit Stok';
     protected static function booted(): void
     {
         static::updating(function (Gudang $gudang) {
             $stokLama = $gudang->getOriginal('stok');
             $stokBaru = $gudang->stok;
             $selisih = $stokBaru - $stokLama;
-
-            // 1. Cek apakah ada context manual (masuk/keluar)
-            // 2. Jika tidak ada, maka otomatis dianggap 'Penyesuaian'
-            $tipeLog = Barang::$logContext ?? 'Penyesuaian';
 
             if ($selisih != 0) {
                 LogAktivitas::create([
@@ -36,12 +33,12 @@ class Gudang extends Model
                     'kode_barang_snapshot' => $gudang->barang->kode_barang ?? '',
                     'user_snapshot' => Auth::user()->name ?? 'System',
                     'nama_bagian_snapshot' => $gudang->bagian->nama_bagian ?? '',
-                    'tipe' => $tipeLog,
+                    'tipe' => $selisih > 0 ? 'Masuk' : 'Keluar',
+                    'keterangan' => $gudang->keteranganOtomatis,
                     'jumlah' => abs($selisih),
                     'stok_awal' => $stokLama,
                     'stok_akhir' => $stokBaru,
                 ]);
-                Barang::$logContext = null; // Reset context after use
             }
         });
     }
