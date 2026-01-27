@@ -54,6 +54,10 @@ class BarangResource extends Resource
         $bagians = Bagian::all();
 
         $columns = [
+            Tables\Columns\TextColumn::make('index')
+                ->label('No')
+                ->rowIndex(),
+
             Tables\Columns\TextColumn::make('kode_barang')
                 ->label('Kode Barang')
                 ->sortable()

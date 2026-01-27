@@ -19,7 +19,7 @@ class GudangResource extends Resource
     protected static ?int $navigationSort = 2;
     protected static ?string $model = Gudang::class;
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
-    protected static ?string $navigationLabel = 'Stok Gudang';
+    protected static ?string $navigationLabel = 'Stok Barang';
     protected static ?string $modelLabel = 'Stok Barang';
     protected static ?string $pluralModelLabel = 'Stok Barang';
 
@@ -104,6 +104,10 @@ public static function form(Form $form): Form
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('index')
+                    ->label('No')
+                    ->rowIndex(),
+
                 Tables\Columns\TextColumn::make('barang.kode_barang')
                     ->label('Kode Barang'   )
                     ->sortable()
