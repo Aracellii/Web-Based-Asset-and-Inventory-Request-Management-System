@@ -55,7 +55,8 @@ class LogAktivitasResource extends Resource
             return $query->whereIn('user_id', function ($q) use ($bagianId) {
                 $q->select('id')
                     ->from('users')
-                    ->where('bagian_id', $bagianId);
+                    ->where('bagian_id', $bagianId)
+                    ->where('role', '!=', 'keuangan');
             });
         }
 
