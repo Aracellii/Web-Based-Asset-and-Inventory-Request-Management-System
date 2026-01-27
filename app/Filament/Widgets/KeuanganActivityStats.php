@@ -7,7 +7,7 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Carbon;
 
-class AdminActivityStats extends BaseWidget
+class KeuanganActivityStats extends BaseWidget
 {
     protected static ?int $sort = 1;
 
@@ -20,7 +20,7 @@ class AdminActivityStats extends BaseWidget
 
     public static function canView(): bool
     {
-        return auth()->user()?->role === 'admin';
+        return auth()->user()?->role === 'keuangan';
     }
 
     protected function getStats(): array
@@ -29,30 +29,30 @@ class AdminActivityStats extends BaseWidget
         $startOfMonth = Carbon::now()->startOfMonth();
         $endOfMonth = Carbon::now()->endOfMonth();
 
-        // Hitung jumlah approve 
-        $approveCount = LogAktivitas::where('user_id', $user->id)
-            ->where('tipe', 'Keluar')
-            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
-            ->count();
-
-        // Hitung jumlah barang masuk bulan ini 
+        // Hitung jumlah barang masuk bulan ini oleh user keuangan 
         $masukCount = LogAktivitas::where('user_id', $user->id)
             ->where('tipe', 'Masuk')
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
             ->count();
 
-        return [
-            Stat::make('Approve Permintaan', $approveCount)
-                ->description('Bulan ' . Carbon::now()->translatedFormat('F Y'))
-                ->descriptionIcon('heroicon-m-check-circle')
-                ->color('success')
-                ->chart($this->getChartData('Keluar')),
+        // Hitung jumlah barang keluar bulan ini oleh keuangan yang login
+        $keluarCount = LogAktivitas::where('user_id', $user->id)
+            ->where('tipe', 'Keluar')
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->count();
 
+        return [
             Stat::make('Barang Masuk', $masukCount)
                 ->description('Bulan ' . Carbon::now()->translatedFormat('F Y'))
                 ->descriptionIcon('heroicon-m-arrow-down-tray')
-                ->color('info')
+                ->color('success')
                 ->chart($this->getChartData('Masuk')),
+
+            Stat::make('Barang Keluar', $keluarCount)
+                ->description('Bulan ' . Carbon::now()->translatedFormat('F Y'))
+                ->descriptionIcon('heroicon-m-arrow-up-tray')
+                ->color('danger')
+                ->chart($this->getChartData('Keluar')),
         ];
     }
 
@@ -61,7 +61,7 @@ class AdminActivityStats extends BaseWidget
         $user = auth()->user();
         $data = [];
 
-        // Ambil data 
+        // Ambil data 7 hari terakhir
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
             $count = LogAktivitas::where('user_id', $user->id)
