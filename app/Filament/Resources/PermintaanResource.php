@@ -213,18 +213,13 @@ class PermintaanResource extends Resource
     {
         $user = auth()->user();
 
-<<<<<<< Updated upstream
         if($user->role != 'admin') {
             return null;
         }
 
-        // Hitung detail permintaan yang statusnya pending
-=======
-        // Hitung detail permintaan yang pending
->>>>>>> Stashed changes
         $count = DetailPermintaan::where('approved', 'pending')
             ->when($user->role === 'admin', function ($query) use ($user) {
-                // Admin hanya melihat hitungan pending dari bagiannya sendiri
+                // Admin lihat pending
                 return $query->whereHas('permintaan.user', function ($q) use ($user) {
                     $q->where('users.bagian_id', $user->bagian_id);
                 });
