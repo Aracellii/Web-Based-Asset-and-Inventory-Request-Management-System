@@ -211,7 +211,7 @@ class PermintaanResource extends Resource
         $user = auth()->user();
 
         // Hitung detail permintaan yang statusnya pending
-        $count = \App\Models\DetailPermintaan::where('approved', 'pending')
+        $count = DetailPermintaan::where('approved', 'pending')
             ->when($user->role === 'admin', function ($query) use ($user) {
                 // Admin hanya melihat hitungan pending dari bagiannya sendiri
                 return $query->whereHas('permintaan.user', function ($q) use ($user) {

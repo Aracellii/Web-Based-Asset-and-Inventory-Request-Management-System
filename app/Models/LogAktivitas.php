@@ -27,4 +27,8 @@ class LogAktivitas extends Model
     {
         return $this->belongsTo(Barang::class)->withTrashed();
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
