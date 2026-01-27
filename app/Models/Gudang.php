@@ -16,7 +16,7 @@ class Gudang extends Model
         'stok',
         'kode_barang',
     ];
-    public $keteranganOtomatis = 'Edit Stok';
+    public $keteranganOtomatis = 'Penyesuaian Stok';
     protected static function booted(): void
     {
         static::updating(function (Gudang $gudang) {
