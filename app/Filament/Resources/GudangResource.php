@@ -36,55 +36,23 @@ class GudangResource extends Resource
                             ->relationship('barang', 'nama_barang')
                             ->searchable()
                             ->preload()
-                            ->disabled(fn($context) => $context === 'edit' && in_array(auth()->user()?->role, ['admin', 'user']))
-                            ->required()
-                            ->editOptionForm([
-                                Forms\Components\TextInput::make('nama_barang')
-                                    ->required(),
-                            ])
-                            ->createOptionForm([
-                                Forms\Components\TextInput::make('nama_barang')
-                                    ->label('Nama Barang Baru')
-                                    ->placeholder('Masukan Nama Barang')
-                                    ->required()
-                                    ->unique('barangs', 'nama_barang'),
-                                Forms\Components\TextInput::make('kode_barang')
-                                    ->label('Kode Barang')
-                                    ->placeholder('Masukkan Kode Barang')
-                                    ->required()
-                                    ->unique('barangs', 'kode_barang'),
-                            ])
-                            ->createOptionUsing(function (array $data) {
-                                return \Illuminate\Support\Facades\DB::transaction(function () use ($data) {
-
-                                    $barang = \App\Models\Barang::create([
-                                        'kode_barang' => $data['kode_barang'],
-                                        'nama_barang' => $data['nama_barang'],
-                                    ]);
-
-                                    $bagians = \App\Models\Bagian::all();
-
-                                    foreach ($bagians as $bagian) {
-                                        \App\Models\Gudang::create([
-                                            'barang_id' => $barang->id,
-                                            'bagian_id' => $bagian->id,
-                                            'stok'      => 0,
-                                        ]);
-                                    }
-                                    \Filament\Notifications\Notification::make()
-                                        ->title('Barang Berhasil Dibuat')
-                                        ->success()
-                                        ->send();
-
-                                    return $barang->id;
-                                });
-                            }),
+                            ->disabled(fn($context) => $context === 'edit')
+                            ->required(),
                         Forms\Components\TextInput::make('stok')
                             ->label('Jumlah Stok Terbaru')
                             ->numeric()
                             ->default(0)
                             ->minValue(0)
                             ->required(),
+
+                        Forms\Components\Select::make('bagian_id')
+                            ->label('Bagian')
+                            ->relationship('bagian', 'nama_bagian')
+                            ->searchable()
+                            ->preload()
+                            ->disabled(fn($context) => $context === 'edit')
+                            ->visible(fn($context) => $context === 'edit' || (auth()->user()?->role !== 'keuangan'))
+                            ->required(fn($context) => $context === 'edit' || (auth()->user()?->role !== 'keuangan')),
 
                         Forms\Components\Select::make('bagian_ids')
                             ->label('Pilih Bagian')
