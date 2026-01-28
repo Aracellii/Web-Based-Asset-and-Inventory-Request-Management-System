@@ -217,10 +217,9 @@ class PermintaanResource extends Resource
             return null;
         }
 
-        // Hitung detail permintaan yang statusnya pending
         $count = DetailPermintaan::where('approved', 'pending')
             ->when($user->role === 'admin', function ($query) use ($user) {
-                // Admin hanya melihat hitungan pending dari bagiannya sendiri
+                // Admin lihat pending
                 return $query->whereHas('permintaan.user', function ($q) use ($user) {
                     $q->where('users.bagian_id', $user->bagian_id);
                 });
@@ -232,7 +231,7 @@ class PermintaanResource extends Resource
 
     public static function getNavigationBadgeColor(): ?string
     {
-        return 'warning'; // Kuning untuk pending
+        return 'warning'; 
     }
 
     public static function getPages(): array

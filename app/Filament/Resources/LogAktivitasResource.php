@@ -4,10 +4,14 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\LogAktivitasResource\Pages;
 use App\Models\LogAktivitas;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
+use Carbon\Carbon;
 
 class LogAktivitasResource extends Resource
 {
@@ -35,19 +39,16 @@ class LogAktivitasResource extends Resource
     {
         $user = auth()->user();
 
-        // Gunakan static::getModel()::query() untuk memutus hubungan dengan parent jika perlu
         $query = static::getModel()::query();
 
-        // 1. Keuangan: Akses Mutlak
+        // 1. Keuangan
         if ($user->role === 'keuangan') {
             return $query;
         }
 
-        // 2. Admin Gudang: Ambil semua log milik user yang satu bagian dengannya
         if ($user->role === 'admin') {
             $bagianId = $user->bagian_id;
 
-            // Jika admin tidak punya bagian_id, jangan tampilkan data (safety first)
             if (!$bagianId) {
                 return $query->whereRaw('1 = 0');
             }
@@ -60,7 +61,6 @@ class LogAktivitasResource extends Resource
             });
         }
 
-        // 3. Staff / User Biasa: Hanya log miliknya sendiri
         return $query->where('user_id', $user->id);
     }
 
@@ -130,6 +130,97 @@ class LogAktivitasResource extends Resource
                         'masuk' => 'Masuk',
                         'keluar' => 'Keluar',
                     ]),
+            ])
+            ->headerActions([
+                Tables\Actions\Action::make('exportPdf')
+                    ->label('Export PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('danger')
+                    ->form([
+                        Forms\Components\TextInput::make('title')
+                            ->label('Judul Laporan')
+                            ->default('Laporan Log Aktivitas')
+                            ->required(),
+                        Forms\Components\DatePicker::make('tanggal_mulai')
+                            ->label('Tanggal Mulai')
+                            ->default(now()->startOfMonth())
+                            ->required(),
+                        Forms\Components\DatePicker::make('tanggal_akhir')
+                            ->label('Tanggal Akhir')
+                            ->default(now()->endOfMonth())
+                            ->required(),
+                        Forms\Components\DatePicker::make('tanggal_laporan')
+                            ->label('Tanggal Laporan')
+                            ->default(now())
+                            ->required(),
+                    ])
+                    ->action(function (array $data) {
+                        $records = static::getEloquentQuery()
+                            ->whereBetween('created_at', [
+                                Carbon::parse($data['tanggal_mulai'])->startOfDay(),
+                                Carbon::parse($data['tanggal_akhir'])->endOfDay()
+                            ])
+                            ->orderBy('nama_bagian_snapshot')
+                            ->orderBy('created_at', 'desc')
+                            ->get();
+
+                        $groupedRecords = $records->groupBy('nama_bagian_snapshot');
+
+                        $periode = Carbon::parse($data['tanggal_mulai'])->locale('id')->translatedFormat('d F Y') . ' - ' . Carbon::parse($data['tanggal_akhir'])->locale('id')->translatedFormat('d F Y');
+
+                        $pdf = Pdf::loadView('pdf.log-aktivitas', [
+                            'title' => $data['title'],
+                            'tanggal' => Carbon::parse($data['tanggal_laporan'])->locale('id')->translatedFormat('d F Y'),
+                            'periode' => $periode,
+                            'groupedRecords' => $groupedRecords,
+                        ])->setPaper('a4', 'landscape');
+
+                        return response()->streamDownload(function () use ($pdf) {
+                            echo $pdf->output();
+                        }, 'log-aktivitas-' . now()->format('Y-m-d') . '.pdf');
+                    }),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkAction::make('exportSelectedPdf')
+                    ->label('Export PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('danger')
+                    ->form([
+                        Forms\Components\TextInput::make('title')
+                            ->label('Judul Laporan')
+                            ->default('Laporan Log Aktivitas (Data Terpilih)')
+                            ->required(),
+                        Forms\Components\DatePicker::make('tanggal_mulai')
+                            ->label('Tanggal Mulai')
+                            ->default(now()->startOfMonth())
+                            ->required(),
+                        Forms\Components\DatePicker::make('tanggal_akhir')
+                            ->label('Tanggal Akhir')
+                            ->default(now()->endOfMonth())
+                            ->required(),
+                        Forms\Components\DatePicker::make('tanggal_laporan')
+                            ->label('Tanggal Laporan')
+                            ->default(now())
+                            ->required(),
+                    ])
+                    ->action(function (Collection $records, array $data) {
+                        $sortedRecords = $records->sortBy('nama_bagian_snapshot')->sortByDesc('created_at');
+                        $groupedRecords = $sortedRecords->groupBy('nama_bagian_snapshot');
+
+                        $periode = Carbon::parse($data['tanggal_mulai'])->locale('id')->translatedFormat('d F Y') . ' - ' . Carbon::parse($data['tanggal_akhir'])->locale('id')->translatedFormat('d F Y');
+
+                        $pdf = Pdf::loadView('pdf.log-aktivitas', [
+                            'title' => $data['title'],
+                            'tanggal' => Carbon::parse($data['tanggal_laporan'])->locale('id')->translatedFormat('d F Y'),
+                            'periode' => $periode,
+                            'groupedRecords' => $groupedRecords,
+                        ])->setPaper('a4', 'landscape');
+
+                        return response()->streamDownload(function () use ($pdf) {
+                            echo $pdf->output();
+                        }, 'log-aktivitas-selected-' . now()->format('Y-m-d') . '.pdf');
+                    })
+                    ->deselectRecordsAfterCompletion(),
             ]);
     }
 
