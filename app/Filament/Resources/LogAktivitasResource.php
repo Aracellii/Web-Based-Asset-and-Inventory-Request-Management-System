@@ -35,6 +35,11 @@ class LogAktivitasResource extends Resource
     {
         return false;
     }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->role !== 'user';
+    }
     public static function getEloquentQuery(): Builder
     {
         $user = auth()->user();
