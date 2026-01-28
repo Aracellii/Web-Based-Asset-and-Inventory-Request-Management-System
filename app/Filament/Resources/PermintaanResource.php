@@ -93,6 +93,7 @@ class PermintaanResource extends Resource
 
     public static function table(Table $table): Table
     {
+        
         return $table
             ->heading('Permintaan Saya')
             ->query(
@@ -194,13 +195,14 @@ class PermintaanResource extends Resource
                     ->label('Filter Bidang')
                     ->multiple(true)
                     ->preload(),
-            ])
+            ])->defaultSort('approved', 'asc')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateHeading('Tidak ada permintaan');;
+            
     }
 
 
