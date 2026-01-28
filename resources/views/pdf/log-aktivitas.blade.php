@@ -10,7 +10,7 @@
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: colollapse;
             margin-top: 10px;
         }
 

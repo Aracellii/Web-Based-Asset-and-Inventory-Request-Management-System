@@ -121,6 +121,7 @@ class LogAktivitasResource extends Resource
 
                 Tables\Columns\TextColumn::make('user_snapshot')
                     ->label('Oleh')
+                    ->sortable()
                     ->description(fn($record) => "ID: " . ($record->user_id ?? 'System')),
             ])
             ->defaultSort('created_at', 'desc')

@@ -103,7 +103,7 @@ class GudangResource extends Resource
             ])
 
             ->headerActions([
-                // 1. ACTION EXCEL (Menggunakan PhpSpreadsheet - Stabil & Bisa Judul Custom)
+                // 1. ACTION EXCEL 
                 Tables\Actions\Action::make('export_excel')
                     ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin']))
                     ->label('Export Excel')
@@ -119,45 +119,66 @@ class GudangResource extends Resource
                             ->default('Laporan Stok Barang Gudang'),
                     ])
                     ->action(function (Tables\Table $table, array $data) {
-                        // Ambil data yang sudah difilter di tabel
+                        // Data yang sudah difilter di tabel
                         $records = $table->getLivewire()->getFilteredTableQuery()->with(['barang', 'bagian'])->get();
 
                         return response()->streamDownload(function () use ($records, $data) {
+                            $grouped = $records->groupBy(fn($item) => $item->bagian->nama_bagian ?? 'Tanpa Bagian');
+
                             $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-                            $sheet = $spreadsheet->getActiveSheet();
+                            $first = true;
 
-                            // Judul & Header Laporan
-                            $sheet->setCellValue('A1', strtoupper($data['custom_title']));
-                            $sheet->setCellValue('A2', 'TANGGAL LAPORAN: ' . Carbon::parse($data['tanggal_laporan'])->translatedFormat('d F Y'));
-                            $sheet->mergeCells('A1:D1');
-                            $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+                            foreach ($grouped as $bagianName => $items) {
+                                if ($first) {
+                                    $sheet = $spreadsheet->getActiveSheet();
+                                    $first = false;
+                                } else {
+                                    $sheet = $spreadsheet->createSheet();
+                                }
 
-                            // Header Tabel (Baris 4)
-                            $headers = ['Lokasi Bagian', 'Nama Barang', 'Kode Barang', 'Jumlah Stok'];
-                            $sheet->fromArray($headers, null, 'A4');
-                            $sheet->getStyle('A4:D4')->getFont()->setBold(true);
+                                $title = substr($bagianName, 0, 31);
+                                try {
+                                    $sheet->setTitle($title);
+                                } catch (\Exception $e) {
+                                    $sheet->setTitle(mb_substr($title, 0, 31));
+                                }
 
-                            // Isi Data (Mulai Baris 5)
-                            $row = 5;
-                            foreach ($records as $item) {
-                                $sheet->setCellValue('A' . $row, $item->bagian->nama_bagian ?? '-');
-                                $sheet->setCellValue('B' . $row, $item->barang->nama_barang ?? '-');
-                                $sheet->setCellValue('C' . $row, $item->barang->kode_barang ?? '-');
-                                $sheet->setCellValue('D' . $row, $item->stok);
-                                $row++;
+                                // Judul & Header Laporan per sheet
+                                $sheet->setCellValue('A1', strtoupper($data['custom_title']));
+                                $sheet->setCellValue('A2', 'TANGGAL LAPORAN: ' . Carbon::parse($data['tanggal_laporan'])->translatedFormat('d F Y'));
+                                $sheet->setCellValue('A3', 'BAGIAN: ' . $bagianName);
+                                $sheet->mergeCells('A1:D1');
+                                $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+
+                                // Header Tabel 
+                                $headers = ['Nama Barang', 'Kode Barang', 'Jumlah Stok'];
+                                $sheet->fromArray(array_merge(['Lokasi Bagian'], $headers), null, 'A5');
+                                $sheet->getStyle('A5:D5')->getFont()->setBold(true);
+
+                                // Isi Data 
+                                $row = 6;
+                                foreach ($items as $item) {
+                                    $sheet->setCellValue('A' . $row, $item->bagian->nama_bagian ?? '-');
+                                    $sheet->setCellValue('B' . $row, $item->barang->nama_barang ?? '-');
+                                    $sheet->setCellValue('C' . $row, $item->barang->kode_barang ?? '-');
+                                    $sheet->setCellValue('D' . $row, $item->stok);
+                                    $row++;
+                                }
+
+                                // Auto-width agar kolom tidak terpotong
+                                foreach (range('A', 'D') as $col) {
+                                    $sheet->getColumnDimension($col)->setAutoSize(true);
+                                }
                             }
 
-                            // Auto-width agar kolom tidak terpotong
-                            foreach (range('A', 'D') as $col) {
-                                $sheet->getColumnDimension($col)->setAutoSize(true);
-                            }
+                            $spreadsheet->setActiveSheetIndex(0);
 
                             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
                             $writer->save('php://output');
                         }, 'stok-barang-' . $data['tanggal_laporan'] . '.xlsx');
                     }),
 
-                // 2. ACTION PDF (Menggunakan DomPDF - Grouped by Bagian)
+                // 2. ACTION PDF )
                 Tables\Actions\Action::make('export_pdf')
                     ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin']))
                     ->label('Export PDF')
