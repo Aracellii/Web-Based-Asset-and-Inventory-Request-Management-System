@@ -12,7 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Carbon;
 
 class GudangResource extends Resource
 {
@@ -23,82 +23,82 @@ class GudangResource extends Resource
     protected static ?string $modelLabel = 'Stok Barang';
     protected static ?string $pluralModelLabel = 'Stok Barang';
 
-public static function form(Form $form): Form
-{
-    return $form
-        ->schema([
-            Forms\Components\Section::make('Input Stok Gudang')
-                ->disabled(fn ($context) => $context === 'edit' && auth()->user()?->role === 'user')
-                ->description('Pilih barang dan tentukan stok')
-                ->schema([    
-                    Forms\Components\Select::make('barang_id')
-                        ->label('Nama Barang')
-                        ->relationship('barang', 'nama_barang')
-                        ->searchable()
-                        ->preload()
-                        ->disabled(fn ($context) => $context === 'edit' && auth()->user()?->role === 'admin','user')
-                        ->required()
-                        ->editOptionForm([ 
-                            Forms\Components\TextInput::make('nama_barang')
-                                ->required(),
-                        ])
-                        ->createOptionForm([
-                            Forms\Components\TextInput::make('nama_barang')
-                                ->label('Nama Barang Baru')
-                                ->placeholder('Masukan Nama Barang')
-                                ->required()
-                                ->unique('barangs', 'nama_barang'),
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\Section::make('Input Stok Gudang')
+                    ->disabled(fn($context) => $context === 'edit' && auth()->user()?->role === 'user')
+                    ->description('Pilih barang dan tentukan stok')
+                    ->schema([
+                        Forms\Components\Select::make('barang_id')
+                            ->label('Nama Barang')
+                            ->relationship('barang', 'nama_barang')
+                            ->searchable()
+                            ->preload()
+                            ->disabled(fn($context) => $context === 'edit' && in_array(auth()->user()?->role, ['admin', 'user']))
+                            ->required()
+                            ->editOptionForm([
+                                Forms\Components\TextInput::make('nama_barang')
+                                    ->required(),
+                            ])
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('nama_barang')
+                                    ->label('Nama Barang Baru')
+                                    ->placeholder('Masukan Nama Barang')
+                                    ->required()
+                                    ->unique('barangs', 'nama_barang'),
                                 Forms\Components\TextInput::make('kode_barang')
-                                ->label('Kode Barang')
-                                ->placeholder('Masukkan Kode Barang')
-                                ->required()
-                                ->unique('barangs', 'kode_barang'),
-                        ])
-                       ->createOptionUsing(function (array $data) {
-                        return \Illuminate\Support\Facades\DB::transaction(function () use ($data) {
+                                    ->label('Kode Barang')
+                                    ->placeholder('Masukkan Kode Barang')
+                                    ->required()
+                                    ->unique('barangs', 'kode_barang'),
+                            ])
+                            ->createOptionUsing(function (array $data) {
+                                return \Illuminate\Support\Facades\DB::transaction(function () use ($data) {
 
-                            $barang = \App\Models\Barang::create([
-                                'kode_barang' => $data['kode_barang'],
-                                'nama_barang' => $data['nama_barang'],
-                            ]);
+                                    $barang = \App\Models\Barang::create([
+                                        'kode_barang' => $data['kode_barang'],
+                                        'nama_barang' => $data['nama_barang'],
+                                    ]);
 
-                            $bagians = \App\Models\Bagian::all();
+                                    $bagians = \App\Models\Bagian::all();
 
-                            foreach ($bagians as $bagian) {
-                                \App\Models\Gudang::create([
-                                    'barang_id' => $barang->id,
-                                    'bagian_id' => $bagian->id,
-                                    'stok'      => 0,
-                                ]);
-                            }
-                            \Filament\Notifications\Notification::make()
-                                ->title('Barang Berhasil Dibuat')
-                                ->success()
-                                ->send();
+                                    foreach ($bagians as $bagian) {
+                                        \App\Models\Gudang::create([
+                                            'barang_id' => $barang->id,
+                                            'bagian_id' => $bagian->id,
+                                            'stok'      => 0,
+                                        ]);
+                                    }
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Barang Berhasil Dibuat')
+                                        ->success()
+                                        ->send();
 
-                            return $barang->id; 
-                        });
-                    }),
-                    Forms\Components\TextInput::make('stok')
-                        ->label('Jumlah Stok Terbaru')
-                        ->numeric()
-                        ->default(0)
-                        ->minValue(0)
-                        ->required(),
+                                    return $barang->id;
+                                });
+                            }),
+                        Forms\Components\TextInput::make('stok')
+                            ->label('Jumlah Stok Terbaru')
+                            ->numeric()
+                            ->default(0)
+                            ->minValue(0)
+                            ->required(),
 
-                    Forms\Components\Select::make('bagian_ids')
-                        ->label('Pilih Bagian')
-                        ->multiple()
-                        ->options(\App\Models\Bagian::pluck('nama_bagian', 'id'))
-                        ->searchable()
-                        ->preload()
-                        ->visible(fn ($context) => $context === 'create' && auth()->user()?->role === 'keuangan')
-                        ->required(fn ($context) => $context === 'create' && auth()->user()?->role === 'keuangan')
-                        ->helperText('Pilih satu atau lebih bagian untuk menambahkan stok'),
-                        
-                ])->columns(2), 
-        ]);
-}
+                        Forms\Components\Select::make('bagian_ids')
+                            ->label('Pilih Bagian')
+                            ->multiple()
+                            ->options(\App\Models\Bagian::pluck('nama_bagian', 'id'))
+                            ->searchable()
+                            ->preload()
+                            ->visible(fn($context) => $context === 'create' && auth()->user()?->role === 'keuangan')
+                            ->required(fn($context) => $context === 'create' && auth()->user()?->role === 'keuangan')
+                            ->helperText('Pilih satu atau lebih bagian untuk menambahkan stok'),
+
+                    ])->columns(2),
+            ]);
+    }
 
     public static function table(Table $table): Table
     {
@@ -109,7 +109,7 @@ public static function form(Form $form): Form
                     ->rowIndex(),
 
                 Tables\Columns\TextColumn::make('barang.kode_barang')
-                    ->label('Kode Barang'   )
+                    ->label('Kode Barang')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('barang.nama_barang')
@@ -133,14 +133,14 @@ public static function form(Form $form): Form
                     ->dateTime()
                     ->sortable(),
             ])
-            ->headerActions([
 
-                Tables\Actions\Action::make('export_pdf')
-                    ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
-                    ->label('Export PDF')
-                    ->icon('heroicon-o-document-arrow-down')
-                    ->color('danger')
-                    //Form untuk tanggal
+            ->headerActions([
+                // 1. ACTION EXCEL (Menggunakan PhpSpreadsheet - Stabil & Bisa Judul Custom)
+                Tables\Actions\Action::make('export_excel')
+                    ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin']))
+                    ->label('Export Excel')
+                    ->icon('heroicon-o-document-plus')
+                    ->color('success')
                     ->form([
                         Forms\Components\DatePicker::make('tanggal_laporan')
                             ->label('Pilih Tanggal Laporan')
@@ -150,39 +150,91 @@ public static function form(Form $form): Form
                             ->label('Judul Laporan')
                             ->default('Laporan Stok Barang Gudang'),
                     ])
+                    ->action(function (Tables\Table $table, array $data) {
+                        // Ambil data yang sudah difilter di tabel
+                        $records = $table->getLivewire()->getFilteredTableQuery()->with(['barang', 'bagian'])->get();
 
-                  ->action(function (Table $table, array $data) {
+                        return response()->streamDownload(function () use ($records, $data) {
+                            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+                            $sheet = $spreadsheet->getActiveSheet();
 
-                    $records = $table->getLivewire()
-                        ->getFilteredTableQuery()
-                        ->with(['barang', 'bagian'])
-                        ->get()
-                        ->groupBy(fn ($item) => $item->bagian->nama_bagian ?? 'Tanpa Bagian');
+                            // Judul & Header Laporan
+                            $sheet->setCellValue('A1', strtoupper($data['custom_title']));
+                            $sheet->setCellValue('A2', 'TANGGAL LAPORAN: ' . Carbon::parse($data['tanggal_laporan'])->translatedFormat('d F Y'));
+                            $sheet->mergeCells('A1:D1');
+                            $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
 
-                    $pdf = Pdf::loadView('pdf.stok-barang', [
-                        'groupedRecords' => $records,
-                        'title'          => $data['custom_title'],
-                        'tanggal'        => $data['tanggal_laporan'],
-                    ]);
-                    $filename = 'stok-barang-' . $data['tanggal_laporan'] . '.pdf';
-                    return response()->streamDownload(
-                        fn () => print($pdf->output()),
-                        $filename
-                    );
-                })      
+                            // Header Tabel (Baris 4)
+                            $headers = ['Lokasi Bagian', 'Nama Barang', 'Kode Barang', 'Jumlah Stok'];
+                            $sheet->fromArray($headers, null, 'A4');
+                            $sheet->getStyle('A4:D4')->getFont()->setBold(true);
+
+                            // Isi Data (Mulai Baris 5)
+                            $row = 5;
+                            foreach ($records as $item) {
+                                $sheet->setCellValue('A' . $row, $item->bagian->nama_bagian ?? '-');
+                                $sheet->setCellValue('B' . $row, $item->barang->nama_barang ?? '-');
+                                $sheet->setCellValue('C' . $row, $item->barang->kode_barang ?? '-');
+                                $sheet->setCellValue('D' . $row, $item->stok);
+                                $row++;
+                            }
+
+                            // Auto-width agar kolom tidak terpotong
+                            foreach (range('A', 'D') as $col) {
+                                $sheet->getColumnDimension($col)->setAutoSize(true);
+                            }
+
+                            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+                            $writer->save('php://output');
+                        }, 'stok-barang-' . $data['tanggal_laporan'] . '.xlsx');
+                    }),
+
+                // 2. ACTION PDF (Menggunakan DomPDF - Grouped by Bagian)
+                Tables\Actions\Action::make('export_pdf')
+                    ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin']))
+                    ->label('Export PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('danger')
+                    ->form([
+                        Forms\Components\DatePicker::make('tanggal_laporan')
+                            ->label('Pilih Tanggal Laporan')
+                            ->default(now())
+                            ->required(),
+                        Forms\Components\TextInput::make('custom_title')
+                            ->label('Judul Laporan')
+                            ->default('Laporan Stok Barang Gudang'),
+                    ])
+                    ->action(function (Tables\Table $table, array $data) {
+                        $records = $table->getLivewire()
+                            ->getFilteredTableQuery()
+                            ->with(['barang', 'bagian'])
+                            ->get()
+                            ->groupBy(fn($item) => $item->bagian->nama_bagian ?? 'Tanpa Bagian');
+
+                        $pdf = Pdf::loadView('pdf.stok-barang', [
+                            'groupedRecords' => $records,
+                            'title'          => $data['custom_title'],
+                            'tanggal'        => $data['tanggal_laporan'],
+                        ]);
+
+                        return response()->streamDownload(
+                            fn() => print($pdf->output()),
+                            'stok-barang-' . $data['tanggal_laporan'] . '.pdf'
+                        );
+                    }),
+            ]) // Tutup headerActions
+            ->filters([
+                Tables\Filters\SelectFilter::make('bagian_id')
+                    ->relationship('bagian', 'nama_bagian')
+                    ->label('Filter per Bidang')
+                    ->multiple(),
             ])
-          ->filters([
-            Tables\Filters\SelectFilter::make('bagian_id')
-                ->relationship('bagian', 'nama_bagian')
-                ->label('Filter per Bidang')
-                ->multiple(),
-        ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin'])),
+                    ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin'])),
                 Tables\Actions\DeleteAction::make()
                     ->label('Kosongkan')
-                    ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
+                    ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin']))
                     ->modalHeading('Reset stok gudang?')
                     ->modalDescription('Stok akan dikosongkan')
                     ->modalSubmitActionLabel('Reset stok')
@@ -192,21 +244,21 @@ public static function form(Form $form): Form
                     }),
             ])
             ->bulkActions([
-            Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make()
-                    ->visible(fn () => in_array(auth()->user()?->role, ['keuangan', 'admin']))
-                    ->modalHeading('Reset stok gudang yang dipilih?')
-                    ->modalDescription('Stok akan di reset')
-                    ->modalSubmitActionLabel('Reset stok')
-                    ->successNotificationTitle('Stok terpilih berhasil di reset')
-                    ->using(function (\Illuminate\Database\Eloquent\Collection $records): void {
-                        $records->each(function (Gudang $record): void {
-                            $record->update(['stok' => 0]);
-                        });
-                    }),
-            ])
-            ->label('Kosongkan Stok Terpilih') 
-        ]);
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin']))
+                        ->modalHeading('Reset stok gudang yang dipilih?')
+                        ->modalDescription('Stok akan di reset')
+                        ->modalSubmitActionLabel('Reset stok')
+                        ->successNotificationTitle('Stok terpilih berhasil di reset')
+                        ->using(function (\Illuminate\Database\Eloquent\Collection $records): void {
+                            $records->each(function (Gudang $record): void {
+                                $record->update(['stok' => 0]);
+                            });
+                        }),
+                ])
+                    ->label('Kosongkan Stok Terpilih')
+            ]);
     }
 
     public static function getEloquentQuery(): Builder
@@ -222,15 +274,17 @@ public static function form(Form $form): Form
 
         return $query;
     }
-     public static function getNavigationBadge(): ?string{
-            $count = \App\Models\Barang::whereIn('id', function ($query) {
-                $query->select('barang_id')
-                    ->from('gudangs')
-                    ->where('stok', 0);
-            })->count();    
-    
-            return $count > 0 ? (string)$count : null; }
-            
+    public static function getNavigationBadge(): ?string
+    {
+        $count = \App\Models\Barang::whereIn('id', function ($query) {
+            $query->select('barang_id')
+                ->from('gudangs')
+                ->where('stok', 0);
+        })->count();
+
+        return $count > 0 ? (string)$count : null;
+    }
+
 
 
     public static function getPages(): array
@@ -241,9 +295,11 @@ public static function form(Form $form): Form
             'edit' => Pages\EditGudang::route('/{record}/edit'),
         ];
     }
-    public static function getNavigationBadgeColor(): ?string{
-    return 'danger'; }
-    
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'danger';
+    }
+
     public static function canCreate(): bool
     {
         return in_array(auth()->user()?->role, ['keuangan']);
@@ -252,7 +308,7 @@ public static function form(Form $form): Form
     {
         return in_array(auth()->user()?->role, ['keuangan', 'admin']);
     }
-     public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
     {
         return in_array(auth()->user()?->role, ['keuangan', 'admin']);
     }
