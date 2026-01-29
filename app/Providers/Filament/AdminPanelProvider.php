@@ -38,6 +38,7 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Indigo,
             ])
             ->sidebarFullyCollapsibleOnDesktop()
+            ->maxContentWidth('5xl')
             // Hooks
             ->renderHook(
                 'panels::user-menu.before',
