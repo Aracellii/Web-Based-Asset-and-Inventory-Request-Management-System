@@ -2,14 +2,11 @@
 
 namespace App\Filament\Pages\Auth;
 
-use Filament\Facades\Filament;
+use App\Models\Bagian;
 use Filament\Forms\Components\Select;
-use Illuminate\Auth\Events\Registered;
-use Filament\Notifications\Notification;
 use Filament\Forms\Components\Component;
 use Filament\Pages\Auth\Register as BaseRegister;
 use Filament\Http\Responses\Auth\Contracts\RegistrationResponse;
-use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 
 class Register extends BaseRegister
 {
@@ -47,11 +44,11 @@ class Register extends BaseRegister
         ];
     }
 
-    protected function getRoleFormComponent(): \Filament\Forms\Components\Component
+    protected function getRoleFormComponent(): Component
     {
-    return \Filament\Forms\Components\Select::make('bagian_id')
+    return Select::make('bagian_id')
         ->label('Bidang / Bagian')
-        ->options(\App\Models\Bagian::pluck('nama_bagian', 'id')) 
+        ->options(Bagian::pluck('nama_bagian', 'id')) 
         ->searchable()
         ->required();
     }   
