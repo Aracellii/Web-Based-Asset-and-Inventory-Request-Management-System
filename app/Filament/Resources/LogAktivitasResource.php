@@ -186,47 +186,11 @@ class LogAktivitasResource extends Resource
                         }, 'log-aktivitas-' . now()->format('Y-m-d') . '.pdf');
                     }),
             ])
+            ->actions([
+                
+            ])
             ->bulkActions([
-                Tables\Actions\BulkAction::make('exportSelectedPdf')
-                    ->label('Export PDF')
-                    ->icon('heroicon-o-document-arrow-down')
-                    ->color('danger')
-                    ->form([
-                        Forms\Components\TextInput::make('title')
-                            ->label('Judul Laporan')
-                            ->default('Laporan Log Aktivitas (Data Terpilih)')
-                            ->required(),
-                        Forms\Components\DatePicker::make('tanggal_mulai')
-                            ->label('Tanggal Mulai')
-                            ->default(now()->startOfMonth())
-                            ->required(),
-                        Forms\Components\DatePicker::make('tanggal_akhir')
-                            ->label('Tanggal Akhir')
-                            ->default(now()->endOfMonth())
-                            ->required(),
-                        Forms\Components\DatePicker::make('tanggal_laporan')
-                            ->label('Tanggal Laporan')
-                            ->default(now())
-                            ->required(),
-                    ])
-                    ->action(function (Collection $records, array $data) {
-                        $sortedRecords = $records->sortBy('nama_bagian_snapshot')->sortByDesc('created_at');
-                        $groupedRecords = $sortedRecords->groupBy('nama_bagian_snapshot');
-
-                        $periode = Carbon::parse($data['tanggal_mulai'])->locale('id')->translatedFormat('d F Y') . ' - ' . Carbon::parse($data['tanggal_akhir'])->locale('id')->translatedFormat('d F Y');
-
-                        $pdf = Pdf::loadView('pdf.log-aktivitas', [
-                            'title' => $data['title'],
-                            'tanggal' => Carbon::parse($data['tanggal_laporan'])->locale('id')->translatedFormat('d F Y'),
-                            'periode' => $periode,
-                            'groupedRecords' => $groupedRecords,
-                        ])->setPaper('a4', 'landscape');
-
-                        return response()->streamDownload(function () use ($pdf) {
-                            echo $pdf->output();
-                        }, 'log-aktivitas-selected-' . now()->format('Y-m-d') . '.pdf');
-                    })
-                    ->deselectRecordsAfterCompletion(),
+          
             ]);
     }
 

@@ -115,7 +115,12 @@ class AdminPanelProvider extends PanelProvider
                         background: #0f172a !important;
                         border-right: 1px solid #1e293b !important;
                     }
+                 
+                   
                     .dark .fi-sidebar-header {
+                        background: #0f172a !important;
+                    }
+                    .dark .fi{
                         background: #0f172a !important;
                     }
                     .dark .fi-sidebar-item-label {
