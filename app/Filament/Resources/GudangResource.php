@@ -107,7 +107,7 @@ class GudangResource extends Resource
                 Tables\Actions\Action::make('export_excel')
                     ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin']))
                     ->label('Export Excel')
-                    ->icon('heroicon-o-document-plus')
+                    ->icon('heroicon-o-document-arrow-down')
                     ->color('success')
                     ->form([
                         Forms\Components\DatePicker::make('tanggal_laporan')
