@@ -33,6 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->registration(Register::class)
             ->brandName('SIATK')
+            
             ->colors([
                 'primary' => Color::Indigo,
             ])
@@ -79,13 +80,18 @@ class AdminPanelProvider extends PanelProvider
                 <style>
                     /* 1. TEMA TERANG */
                     html:not(.dark) .fi-sidebar {
-                        background: linear-gradient(180deg, #e0f2fe 0%, #ffffff 100%) !important;
+                        background: linear-gradient(180deg, #11386b 0%, #5ca8ff 100%) !important;
                     }
                     html:not(.dark) .fi-sidebar-header {
-                        background: #e0f2fe !important;
+                        background: #11386b !important;
+                        
+                    }
+                    html:not(.dark) .fi-sidebar-header .fi-logo,
+                    html:not(.dark) .fi-sidebar-header a {
+                        color: white !important;
                     }
                     html:not(.dark) .fi-sidebar-item-label {
-                        color: #0369a1 !important;
+                        color: #eef4f7 !important;
                         font-weight: 500;
                     }
                     html:not(.dark) .fi-sidebar-item-icon {
