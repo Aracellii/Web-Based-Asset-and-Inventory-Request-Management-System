@@ -73,45 +73,61 @@ class AdminPanelProvider extends PanelProvider
         FilamentView::registerRenderHook(
             'panels::head.end',
             fn(): string => Blade::render('<style>
-    /* 1. Background Biru Muda */
-    .fi-sidebar {
-    background: linear-gradient(180deg, #e0f2fe 0%, #ffffff 100%) !important;
-    }
+            /* 1. TEMA TERANG (Hanya aktif jika TIDAK ada class .dark) */
+            html:not(.dark) .fi-sidebar {
+                background: linear-gradient(180deg, #e0f2fe 0%, #ffffff 100%) !important;
+            }
 
-    /* 2. Teks & Icon harus Gelap agar terbaca */
-    .fi-sidebar-item-label {
-        color: #0369a1 !important; /* Biru Tua */
-        font-weight: 500;
-    }
+            html:not(.dark) .fi-sidebar-item-label {
+                color: #0369a1 !important;
+                font-weight: 500;
+            }
 
-    .fi-sidebar-item-icon {
-        color: #0ea5e9 !important; /* Biru Cerah */
-    }
+            html:not(.dark) .fi-sidebar-item-icon {
+                color: #0ea5e9 !important;
+            }
 
-    /* 3. Efek Hover (Jangan pakai warna gelap) */
-    .fi-sidebar-item-button:hover {
-        background-color: #bae6fd !important; /* Biru yang sedikit lebih tua dari bg */
-    }
+            html:not(.dark) .fi-sidebar-item-button:hover {
+                background-color: #bae6fd !important;
+            }
 
-    /* 4. Saat Menu Aktif */
-    .fi-sidebar-item-active .fi-sidebar-item-button {
-        background-color: #0284c7 !important; /* Biru Solid */
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    }
+            html:not(.dark) .fi-sidebar-item-active .fi-sidebar-item-button {
+                background-color: #0284c7 !important;
+                box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            }
+            
+            html:not(.dark) .fi-sidebar-item-active .fi-sidebar-item-label,
+            html:not(.dark) .fi-sidebar-item-active .fi-sidebar-item-icon {
+                color: white !important;
+            }
 
-    .fi-sidebar-item-active .fi-sidebar-item-label,
-    .fi-sidebar-item-active .fi-sidebar-item-icon {
-        color: white !important;
-    }
+            /* 2. TEMA GELAP (Hanya aktif jika ada class .dark) */
+            .dark .fi-sidebar {
+                background: #0f172a !important; /* Hilangkan gradient di dark mode agar tidak aneh */
+                border-right: 1px solid #1e293b !important;
+            }
+            
+            .dark .fi-sidebar-item-label {
+                color: #94a3b8 !important;
+            }
 
-    /* Judul Group Menu */
-    .fi-sidebar-group-label {
-        color: #64748b !important;
-        font-weight: bold;
-        text-transform: uppercase;
-        font-size: 0.7rem;
-    }
-    </style>'),
+            .dark .fi-sidebar-item-icon {
+                color: #38bdf8 !important;
+            }
+
+            .dark .fi-sidebar-item-button:hover {
+                background-color: rgba(255, 255, 255, 0.05) !important;
+            }
+
+            .dark .fi-sidebar-item-active .fi-sidebar-item-button {
+                background-color: #2563eb !important;
+            }
+            
+            .dark .fi-sidebar-item-active .fi-sidebar-item-label,
+            .dark .fi-sidebar-item-active .fi-sidebar-item-icon {
+                color: white !important;
+            }
+        </style>'),
         );
     }
 }
