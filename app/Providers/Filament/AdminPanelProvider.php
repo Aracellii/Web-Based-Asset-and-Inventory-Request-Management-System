@@ -103,7 +103,7 @@ class AdminPanelProvider extends PanelProvider
 
             /* 2. TEMA GELAP (Hanya aktif jika ada class .dark) */
             .dark .fi-sidebar {
-                background: #0f172a !important; /* Hilangkan gradient di dark mode agar tidak aneh */
+                background: #0f172a !important;
                 border-right: 1px solid #1e293b !important;
             }
             
