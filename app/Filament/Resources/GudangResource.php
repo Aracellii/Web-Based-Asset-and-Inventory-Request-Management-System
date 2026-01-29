@@ -106,7 +106,7 @@ class GudangResource extends Resource
                 // 1. ACTION EXCEL 
                 Tables\Actions\Action::make('export_excel')
                     ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin']))
-                    ->label('Export Excel')
+                    ->label('Excel')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('success')
                     ->form([
@@ -181,7 +181,7 @@ class GudangResource extends Resource
                 // 2. ACTION PDF )
                 Tables\Actions\Action::make('export_pdf')
                     ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin']))
-                    ->label('Export PDF')
+                    ->label('PDF')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('danger')
                     ->form([

@@ -191,7 +191,7 @@ class BarangResource extends Resource
     }
 
     public static function getNavigationBadge(): ?string{
-            $count = \App\Models\Barang::whereIn('id', function ($query) {
+            $count = Barang::whereIn('id', function ($query) {
                 $query->select('barang_id')
                     ->from('gudangs')
                     ->where('stok', 0);

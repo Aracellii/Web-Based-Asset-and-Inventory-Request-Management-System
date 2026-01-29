@@ -86,7 +86,7 @@ class PermintaanResource extends Resource
 
                             ])
                             ->columns(3)
-                            ->createItemButtonLabel('Tambah Baris Barang')
+                            ->addActionLabel('Tambah Baris Barang')
                     ])
             ]);
     }
