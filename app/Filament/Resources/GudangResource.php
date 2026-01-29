@@ -263,16 +263,29 @@ class GudangResource extends Resource
 
         return $query;
     }
-    public static function getNavigationBadge(): ?string
-    {
-        $count = \App\Models\Barang::whereIn('id', function ($query) {
-            $query->select('barang_id')
-                ->from('gudangs')
-                ->where('stok', 0);
-        })->count();
 
-        return $count > 0 ? (string)$count : null;
+public static function getNavigationBadge(): ?string
+{
+    $user = auth()->user();
+    if (!$user) return null;
+
+    // Role selain admin & keuangan tidak dapat badge
+    if (!in_array($user->role, ['admin', 'keuangan'])) {
+        return null;
     }
+
+    $query = Gudang::where('stok', 0);
+
+    // Admin hanya lihat gudang sesuai bagiannya
+    if ($user->role === 'admin') {
+        $query->where('bagian_id', $user->bagian_id);
+    }
+
+    $count = $query->count();
+
+    return $count > 0 ? (string) $count : null;
+}
+
 
 
 
