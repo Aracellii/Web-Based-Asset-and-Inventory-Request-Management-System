@@ -5,6 +5,7 @@ namespace App\Filament\Resources\GudangResource\Pages;
 use App\Filament\Resources\GudangResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use PhpParser\Node\Stmt\Label;
 
 class ListGudangs extends ListRecords
 {
@@ -13,7 +14,9 @@ class ListGudangs extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+            ->Label('Tambah Stok')
+            ->icon('heroicon-o-plus'),
         ];
     }
 }

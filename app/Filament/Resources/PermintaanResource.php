@@ -48,7 +48,7 @@ class PermintaanResource extends Resource
                 Forms\Components\Section::make('Daftar Barang')
                     ->schema([
                         Forms\Components\Repeater::make('detailPermintaans')
-                            ->relationship() // Menghubungkan ke tabel detail_permintaans
+                            ->relationship() 
                             ->schema([
                                 Forms\Components\Select::make('barang_id')
                                     ->label('Barang')

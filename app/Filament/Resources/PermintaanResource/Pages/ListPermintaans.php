@@ -14,7 +14,9 @@ class ListPermintaans extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+            ->Label('Buat Permintaan')
+            ->icon('heroicon-o-plus'),
         ];
     }
     protected function getHeaderWidgets(): array
