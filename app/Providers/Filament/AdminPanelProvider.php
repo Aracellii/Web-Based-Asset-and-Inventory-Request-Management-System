@@ -21,6 +21,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\Pages\Auth\EditProfile;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -33,16 +34,21 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->registration(Register::class)
             ->brandName('SIATK')
-            
+
             ->colors([
                 'primary' => Color::Indigo,
             ])
             ->sidebarFullyCollapsibleOnDesktop()
-            ->profile() 
+            ->profile(EditProfile::class) 
+            ->userMenuItems([
+                'profile' => \Filament\Navigation\MenuItem::make()
+                    ->label('Akun Saya')
+                    ->icon('heroicon-m-user-circle'),
+            ])
             // Hooks
             ->renderHook(
                 'panels::user-menu.before',
-                fn () => view('filament.components.realtime-clock'),
+                fn() => view('filament.components.realtime-clock'),
             )
             // Discoveries
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
@@ -77,7 +83,7 @@ class AdminPanelProvider extends PanelProvider
     {
         FilamentView::registerRenderHook(
             'panels::head.end',
-            fn (): string => Blade::render('
+            fn(): string => Blade::render('
                 <style>
                     /* 1. TEMA TERANG */
                     html:not(.dark) .fi-sidebar {
