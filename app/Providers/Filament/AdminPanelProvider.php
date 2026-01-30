@@ -22,6 +22,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Pages\Auth\EditProfile;
+use Illuminate\Support\HtmlString;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -33,19 +34,48 @@ class AdminPanelProvider extends PanelProvider
             ->path('app')
             ->login()
             ->registration(Register::class)
-            ->brandName('SIATK')
+            ->brandName(new HtmlString('
+                    <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gray-200 dark:bg-gray-800 rounded flex-shrink-0 flex items-center justify-center border border-dashed border-gray-400">
+                        <span class="text-[8px] text-gray-400"></span>
+                    </div>
+
+                    <div class="leading-tight">
+                        <div class="text-xl font-bold">SIATK</div>
+                        <div class="text-xs font-medium tracking-wider text-white-500">
+                            Sistem Informasi Aset & Tata Kelola
+                        </div>
+                    </div>
+                </div>
+            '))
 
             ->colors([
                 'primary' => Color::Indigo,
             ])
             ->sidebarFullyCollapsibleOnDesktop()
-            ->profile(EditProfile::class, isSimple:false)
+            ->profile(EditProfile::class, isSimple: false)
             ->userMenuItems([
                 'profile' => \Filament\Navigation\MenuItem::make()
                     ->label('Akun Saya')
                     ->icon('heroicon-m-user-circle'),
             ])
             // Hooks
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::TOPBAR_START,
+                fn(): string => Blade::render('
+                    <div class="flex items-center ml-4 gap-3">
+                    <div class="w-8 h-8 bg-gray-200 dark:bg-gray-800 rounded flex-shrink-0 flex items-center justify-center border border-dashed border-gray-400">
+                        <span class="text-[7px] text-gray-400"></span>
+                    </div>
+
+                    <div class="flex flex-col leading-tight border-l-2 border-primary-600 pl-3">
+                        <span class="text-lg font-bold text-gray-600 dark:text-white uppercase tracking-tight">
+                            SIATK
+                        </span>
+                    </div>
+                </div>
+                '),
+            )
             ->renderHook(
                 'panels::user-menu.before',
                 fn() => view('filament.components.realtime-clock'),
@@ -118,6 +148,9 @@ class AdminPanelProvider extends PanelProvider
                     html:not(.dark) .fi-sidebar-item-active .fi-sidebar-item-icon {
                         color: white !important;
                     }
+                    html:not(.dark) .fi-sidebar-item-button:hover .fi-sidebar-item-label {
+                        color: #0284c7 !important; /* Biru saat di-hover */
+                    }
 
                     /* 2. TEMA GELAP */
                     .dark .fi-sidebar {
@@ -141,9 +174,13 @@ class AdminPanelProvider extends PanelProvider
                     .dark .fi-sidebar-item-button:hover {
                         background-color: rgba(255, 255, 255, 0.05) !important;
                     }
+                        .dark .fi-sidebar-item-text:hover {
+                        color: gold !important;
+                        }
                     .dark .fi-sidebar-item-active .fi-sidebar-item-button {
                         background-color: #2563eb !important;
                     }
+
                     .dark .fi-sidebar-item-active .fi-sidebar-item-label,
                     .dark .fi-sidebar-item-active .fi-sidebar-item-icon {
                         color: white !important;
