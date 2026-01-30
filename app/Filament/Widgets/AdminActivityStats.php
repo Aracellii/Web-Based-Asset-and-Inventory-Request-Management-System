@@ -20,11 +20,12 @@ class AdminActivityStats extends BaseWidget
 
     public static function canView(): bool
     {
-        return auth()->user()?->role === 'admin';
+        return in_array(auth()->user()?->role, ['admin']);
     }
 
     protected function getStats(): array
     {
+
         $user = auth()->user();
         $startOfMonth = Carbon::now()->startOfMonth();
         $endOfMonth = Carbon::now()->endOfMonth();

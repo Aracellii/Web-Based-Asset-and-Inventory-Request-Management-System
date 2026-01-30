@@ -24,7 +24,7 @@ class TopRequestedItemsChart extends ChartWidget
 
     public static function canView(): bool
     {
-        return auth()->user()?->role !== 'user';
+        return in_array(auth()->user()?->role, ['admin']);
     }
 
     public ?string $startDate = null;
