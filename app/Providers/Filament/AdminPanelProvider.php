@@ -39,7 +39,7 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Indigo,
             ])
             ->sidebarFullyCollapsibleOnDesktop()
-            ->profile(EditProfile::class) 
+            ->profile(EditProfile::class)
             ->userMenuItems([
                 'profile' => \Filament\Navigation\MenuItem::make()
                     ->label('Akun Saya')
@@ -76,7 +76,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->plugins([
+                \EightyNine\ExcelImport\ExcelImportPlugin::make()
+            ]);;
     }
 
     public function boot(): void
