@@ -43,7 +43,7 @@ class EditProfile extends BaseEditProfile
         return $form
             ->schema([
                 Section::make('Informasi Pribadi')
-                    ->description('Data ini digunakan untuk identifikasi akun Anda di seluruh sistem.')
+                    ->description('Perbarui nama dan email akun Anda.')
                     ->icon('heroicon-o-user-circle')
                     ->schema([
                         Grid::make(2)
@@ -61,7 +61,7 @@ class EditProfile extends BaseEditProfile
                     ]),
 
                 Section::make('Kredensial Keamanan')
-                    ->description('Ganti password secara berkala untuk mencegah akses yang tidak diinginkan.')
+                    ->description('Gunakan kata sandi yang kuat dan unik untuk keamanan akun.')
                     ->icon('heroicon-o-lock-closed')
                     // ->aside() dihapus agar deskripsi pindah ke atas
                     ->schema([
@@ -73,7 +73,6 @@ class EditProfile extends BaseEditProfile
                                     ->columnSpan(1),
 
                                 $this->getPasswordConfirmationFormComponent()
-                                    ->visible(true)
                                     ->label('Konfirmasi Password')
                                     ->prefixIcon('heroicon-m-shield-check')
                                     ->columnSpan(1),
