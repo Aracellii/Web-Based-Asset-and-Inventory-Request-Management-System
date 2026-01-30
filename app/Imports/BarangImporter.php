@@ -20,7 +20,7 @@ class BarangImporter implements ToModel, WithHeadingRow
         $namaBagian  = $row['nama_bagian'] ?? null;
 
         if (!$kodeBarang) return null;
-        
+
         // 2. Simpan/Update data Barang
         $barang = Barang::withTrashed()->where('kode_barang', $kodeBarang)->first();
 
@@ -34,16 +34,6 @@ class BarangImporter implements ToModel, WithHeadingRow
             $barang = Barang::create([
                 'kode_barang' => $kodeBarang,
                 'nama_barang' => $namaBarang,
-            ]);
-        }
-        // Ini memastikan barang baru punya baris di setiap bagian dengan stok default 0
-        $allBagians = Bagian::all();
-        foreach ($allBagians as $b) {
-            Gudang::firstOrCreate([
-                'barang_id' => $barang->id,
-                'bagian_id' => $b->id,
-            ], [
-                'stok' => 0,
             ]);
         }
 
@@ -60,11 +50,16 @@ class BarangImporter implements ToModel, WithHeadingRow
             ]);
 
             // Tambahkan stok lama dengan stok baru dari Excel
+            $gudang->keteranganOtomatis = 'Pembelian';
             $gudang->stok = ($gudang->stok ?? 0) + (int) $stokInput;
             $gudang->save();
         }
 
         // Return null karena kita sudah handle simpan data secara manual di atas
         return null;
+    }
+    public function chunkSize(): int
+    {
+        return 100; // Proses 100 baris per satu waktu
     }
 }

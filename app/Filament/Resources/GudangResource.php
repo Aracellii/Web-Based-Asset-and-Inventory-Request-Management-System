@@ -71,6 +71,7 @@ class GudangResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->paginated([10, 25, 50, 100, 1000])
             ->columns([
                 Tables\Columns\TextColumn::make('index')
                     ->label('No')
@@ -264,27 +265,27 @@ class GudangResource extends Resource
         return $query;
     }
 
-public static function getNavigationBadge(): ?string
-{
-    $user = auth()->user();
-    if (!$user) return null;
+    public static function getNavigationBadge(): ?string
+    {
+        $user = auth()->user();
+        if (!$user) return null;
 
-    // Role selain admin & keuangan tidak dapat badge
-    if (!in_array($user->role, ['admin', 'keuangan'])) {
-        return null;
+        // Role selain admin & keuangan tidak dapat badge
+        if (!in_array($user->role, ['admin', 'keuangan'])) {
+            return null;
+        }
+
+        $query = Gudang::where('stok', 0);
+
+        // Admin hanya lihat gudang sesuai bagiannya
+        if ($user->role === 'admin') {
+            $query->where('bagian_id', $user->bagian_id);
+        }
+
+        $count = $query->count();
+
+        return $count > 0 ? (string) $count : null;
     }
-
-    $query = Gudang::where('stok', 0);
-
-    // Admin hanya lihat gudang sesuai bagiannya
-    if ($user->role === 'admin') {
-        $query->where('bagian_id', $user->bagian_id);
-    }
-
-    $count = $query->count();
-
-    return $count > 0 ? (string) $count : null;
-}
 
 
 
