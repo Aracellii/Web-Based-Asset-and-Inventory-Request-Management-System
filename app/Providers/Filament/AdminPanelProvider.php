@@ -36,6 +36,7 @@ class AdminPanelProvider extends PanelProvider
             ->passwordReset()
             ->registration(Register::class)
             ->brandName(fn () => view('filament.components.logo'))
+            ->favicon(asset('build/assets/logo.svg'))
             ->colors([
                 'primary' => Color::Indigo,
             ])
