@@ -87,7 +87,6 @@ class PermintaanResource extends Resource
                             ])
                             ->columns(3)
                             ->addable(function ($livewire) {
-                                // Nonaktifkan tombol tambah di mode edit
                                 if ($livewire instanceof \Filament\Resources\Pages\EditRecord) {
                                     return false;
                                 }
@@ -176,7 +175,7 @@ class PermintaanResource extends Resource
                             return $query->whereYear('created_at', Carbon::now()->year);
                         }
 
-                        // Jika pilih rentang hari (7, 30, 60)
+                        // Jika pilih rentang hari 
                         return $query->where('created_at', '>=', Carbon::now()->subDays((int) $data['rentang']));
                     })
                     ->indicateUsing(function (array $data): ?string {
@@ -210,7 +209,7 @@ class PermintaanResource extends Resource
                         route('filament.admin.resources.permintaans.edit', ['record' => $record->permintaan_id])
                     )
                     ->visible(fn (DetailPermintaan $record): bool => $record->approved === 'pending'),
-                Tables\Actions\DeleteAction::make()
+                     Tables\Actions\DeleteAction::make()
                     ->visible(fn (DetailPermintaan $record): bool => $record->approved === 'pending')
                     ->action(function (DetailPermintaan $record) {
                         // Hapus permintaan induk jika hanya ada 1 detail
