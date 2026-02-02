@@ -162,7 +162,7 @@ class LogAktivitasResource extends Resource
                     ])
                     ->action(function (array $data) {
                         // Increase memory limit for PDF generation
-                        ini_set('memory_limit', '512M');
+                        ini_set('memory_limit', '1028M');
                         
                         $records = static::getEloquentQuery()
                             ->whereBetween('created_at', [
