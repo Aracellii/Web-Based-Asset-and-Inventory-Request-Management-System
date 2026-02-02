@@ -6,6 +6,7 @@ use App\Filament\Resources\GudangResource;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Gudang;
+use App\Models\Bagian;
 use Illuminate\Database\Eloquent\Model;
 use EightyNine\ExcelImport\ExcelImportAction;
 use App\Imports\BarangImporter;
@@ -64,9 +65,53 @@ class CreateGudang extends CreateRecord
                 }
             }
 
+            // OTOMATIS BUAT DI SEMUA BAGIAN LAIN DENGAN STOK 0
+            $semuaBagian = Bagian::all();
+            foreach ($semuaBagian as $bagian) {
+                // Skip jika sudah diproses di atas
+                if (in_array($bagian->id, $bagianIds)) {
+                    continue;
+                }
+
+                // Buat gudang dengan stok 0 jika belum ada
+                Gudang::firstOrCreate(
+                    [
+                        'barang_id' => $data['barang_id'],
+                        'bagian_id' => $bagian->id,
+                    ],
+                    [
+                        'stok' => 0,
+                    ]
+                );
+            }
+
             return Gudang::where('barang_id', $data['barang_id'])->first();
         }
+        
+        // ROLE SELAIN KEUANGAN
         $data['bagian_id'] = Auth::user()->bagian_id;
-        return parent::handleRecordCreation($data);
+        $gudang = parent::handleRecordCreation($data);
+        
+        // OTOMATIS BUAT DI SEMUA BAGIAN LAIN DENGAN STOK 0
+        $semuaBagian = Bagian::all();
+        foreach ($semuaBagian as $bagian) {
+            // Skip bagian user yang sedang input
+            if ($bagian->id === Auth::user()->bagian_id) {
+                continue;
+            }
+
+            // Buat gudang dengan stok 0 jika belum ada
+            Gudang::firstOrCreate(
+                [
+                    'barang_id' => $data['barang_id'],
+                    'bagian_id' => $bagian->id,
+                ],
+                [
+                    'stok' => 0,
+                ]
+            );
+        }
+        
+        return $gudang;
     }
 }

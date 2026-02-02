@@ -53,6 +53,29 @@ class BarangImporter implements ToModel, WithHeadingRow
             $gudang->keteranganOtomatis = 'Pembelian';
             $gudang->stok = ($gudang->stok ?? 0) + (int) $stokInput;
             $gudang->save();
+
+            // 5. OTOMATIS BUAT BARANG DI SEMUA BAGIAN LAIN DENGAN STOK 0
+            $semuaBagian = Bagian::all();
+            foreach ($semuaBagian as $bagianLain) {
+                // Skip bagian yang sudah diproses
+                if ($bagianLain->id === $bagian->id) {
+                    continue;
+                }
+
+                // Cek apakah barang sudah ada di bagian lain
+                $gudangLain = Gudang::where('barang_id', $barang->id)
+                    ->where('bagian_id', $bagianLain->id)
+                    ->first();
+
+                // Jika belum ada, buat dengan stok 0
+                if (!$gudangLain) {
+                    Gudang::create([
+                        'barang_id' => $barang->id,
+                        'bagian_id' => $bagianLain->id,
+                        'stok' => 0,
+                    ]);
+                }
+            }
         }
 
         // Return null karena kita sudah handle simpan data secara manual di atas

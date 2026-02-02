@@ -195,6 +195,8 @@ class GudangResource extends Resource
                             ->default('Laporan Stok Barang Gudang'),
                     ])
                     ->action(function (Tables\Table $table, array $data) {
+                        ini_set('memory_limit', '1028M');
+                        
                         $records = $table->getLivewire()
                             ->getFilteredTableQuery()
                             ->with(['barang', 'bagian'])
@@ -207,10 +209,16 @@ class GudangResource extends Resource
                             'tanggal'        => $data['tanggal_laporan'],
                         ]);
 
-                        return response()->streamDownload(
+                        $response = response()->streamDownload(
                             fn() => print($pdf->output()),
                             'stok-barang-' . $data['tanggal_laporan'] . '.pdf'
                         );
+                        
+                        // Free memory after PDF generation
+                        unset($pdf, $records);
+                        gc_collect_cycles();
+                        
+                        return $response;
                     }),
             ]) // Tutup headerActions
             ->filters([
