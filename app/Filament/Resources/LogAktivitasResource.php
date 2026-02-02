@@ -161,6 +161,9 @@ class LogAktivitasResource extends Resource
                             ->required(),
                     ])
                     ->action(function (array $data) {
+                        // Increase memory limit for PDF generation
+                        ini_set('memory_limit', '512M');
+                        
                         $records = static::getEloquentQuery()
                             ->whereBetween('created_at', [
                                 Carbon::parse($data['tanggal_mulai'])->startOfDay(),
@@ -181,9 +184,15 @@ class LogAktivitasResource extends Resource
                             'groupedRecords' => $groupedRecords,
                         ])->setPaper('a4', 'landscape');
 
-                        return response()->streamDownload(function () use ($pdf) {
+                        $response = response()->streamDownload(function () use ($pdf) {
                             echo $pdf->output();
                         }, 'log-aktivitas-' . now()->format('Y-m-d') . '.pdf');
+                        
+                        // Free memory after PDF generation
+                        unset($pdf, $records, $groupedRecords);
+                        gc_collect_cycles();
+                        
+                        return $response;
                     }),
             ])
             ->actions([
