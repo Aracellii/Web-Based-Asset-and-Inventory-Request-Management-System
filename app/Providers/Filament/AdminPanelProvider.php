@@ -35,18 +35,26 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->registration(Register::class)
             ->brandName(new HtmlString('
-                    <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gray-200 dark:bg-gray-800 rounded flex-shrink-0 flex items-center justify-center border border-dashed border-gray-400">
-                        <span class="text-[8px] text-gray-400"></span>
-                    </div>
+                
 
-                    <div class="leading-tight">
-                        <div class="text-xl font-bold">SIATK</div>
-                        <div class="text-xs font-medium tracking-wider text-white-500">
-                            Sistem Informasi Aset & Tata Kelola
-                        </div>
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-gray-200 dark:bg-gray-800 rounded flex-shrink-0 flex items-center justify-center border border-dashed border-gray-400"
+                >
+                    <img
+                        src="{{ asset(build/assets/logo.svg) }}"
+                        alt="SIATK"
+                        class="w-7 h-7 object-contain"
+                    >
+                </div>
+
+                <div class="leading-tight">
+                    <div class="text-xl font-bold">SIATK</div>
+                    <div class="text-xs font-medium tracking-wider text-white-500">
+                        Sistem Informasi Aset & Tata Kelola
                     </div>
                 </div>
+            </div>
             '))
 
             ->colors([
