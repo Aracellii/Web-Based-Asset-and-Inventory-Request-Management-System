@@ -14,9 +14,9 @@
     </div>
 </div>
 
-@elseif((request()->routeIs('filament.admin.auth.password-reset.request')))
+@elseif(str_contains(request()->url(), 'password-reset') || str_contains(request()->headers->get('referer'), 'password-reset'))
 <!-- Tidak usah ada logo untuk forgot password -->
- 
+
 @else
 <div class="flex items-center gap-3">
     <img
