@@ -132,6 +132,9 @@ class AdminPanelProvider extends PanelProvider
                         background-color: #0284c7 !important;
                         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
                     }
+                    html:not(.dark) .fi-sidebar-item-active .fi-sidebar-item-button:hover .fi-sidebar-item-label {
+                        color: white !important; /* Tetap Putih walau di-hover */
+                    }
                     html:not(.dark) .fi-sidebar-item-active .fi-sidebar-item-label,
                     html:not(.dark) .fi-sidebar-item-active .fi-sidebar-item-icon {
                         color: white !important;
