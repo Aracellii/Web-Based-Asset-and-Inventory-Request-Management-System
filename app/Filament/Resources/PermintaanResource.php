@@ -126,7 +126,7 @@ class PermintaanResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('permintaan.user.bagian.nama_bagian')
-                    ->label('Bidang')
+                    ->label('Unit Kerja')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('approved')
                     ->label('Status')
@@ -192,7 +192,7 @@ class PermintaanResource extends Resource
                     ->multiple(true),
                 Tables\Filters\SelectFilter::make('filter_bagian')
                     ->relationship('permintaan.user.bagian', 'nama_bagian')
-                    ->label('Filter Bidang')
+                    ->label('Filter Unit Kerja')
                     ->multiple(true)
                     ->preload(),
             ])

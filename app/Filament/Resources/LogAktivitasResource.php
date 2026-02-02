@@ -82,10 +82,13 @@ class LogAktivitasResource extends Resource
                     ->dateTime('d M Y, H:i')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('nama_barang_snapshot')
-                    ->label('Barang')
-                    ->description(fn($record) => "Kode: {$record->kode_barang_snapshot}")
-                    ->searchable(),
+    Tables\Columns\TextColumn::make('nama_barang_snapshot')
+        ->label('Barang')
+        ->description(fn($record) => "Kode: {$record->kode_barang_snapshot}")
+        ->searchable([
+            'nama_barang_snapshot',
+            'kode_barang_snapshot',
+        ]),
 
                 Tables\Columns\TextColumn::make('nama_bagian_snapshot')
                     ->label('Bidang / Bagian')
@@ -127,7 +130,7 @@ class LogAktivitasResource extends Resource
                 Tables\Columns\TextColumn::make('user_snapshot')
                     ->label('Oleh')
                     ->sortable()
-                    ->description(fn($record) => "ID: " . ($record->user_id ?? 'System')),
+                    ->description(fn($record) => ($record->user->email ?? 'Unknown')),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

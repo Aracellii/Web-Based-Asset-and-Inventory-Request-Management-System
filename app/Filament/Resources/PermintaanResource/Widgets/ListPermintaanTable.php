@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 use Filament\Forms\Components\Select;
-use App\Models\Barang;
 
 
 class ListPermintaanTable extends BaseWidget
@@ -69,7 +68,7 @@ class ListPermintaanTable extends BaseWidget
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('permintaan.user.bagian.nama_bagian')
-                    ->label('Bidang')
+                    ->label('Unit Kerja')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('approved')
                     ->label('Status')
@@ -137,7 +136,7 @@ class ListPermintaanTable extends BaseWidget
 
                 Tables\Filters\SelectFilter::make('filter_bagian')
                     ->relationship('permintaan.user.bagian', 'nama_bagian')
-                    ->label('Filter Bidang')
+                    ->label('Filter Unit Kerja')
                     ->multiple(true)
                     ->preload(),
             ])

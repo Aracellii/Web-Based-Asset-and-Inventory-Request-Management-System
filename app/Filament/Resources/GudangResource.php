@@ -86,7 +86,7 @@ class GudangResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('bagian.nama_bagian')
-                    ->label('Bidang / Bagian')
+                    ->label('Unit Kerja')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('stok')
                     ->label('Jumlah Stok')
@@ -224,7 +224,8 @@ class GudangResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('bagian_id')
                     ->relationship('bagian', 'nama_bagian')
-                    ->label('Filter per Bidang')
+                    ->label('Filter Unit Kerja')
+                    ->preload()
                     ->multiple(),
             ])
             ->actions([
