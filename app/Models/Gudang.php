@@ -44,28 +44,28 @@ class Gudang extends Model
             }
         });
         
-        static::updating(function (Gudang $gudang) {
-            $stokLama = $gudang->getOriginal('stok');
-            $stokBaru = $gudang->stok;
-            $selisih = $stokBaru - $stokLama;
+        // static::updating(function (Gudang $gudang) {
+        //     $stokLama = $gudang->getOriginal('stok');
+        //     $stokBaru = $gudang->stok;
+        //     $selisih = $stokBaru - $stokLama;
 
-            if ($selisih != 0) {
-                LogAktivitas::create([
-                    'barang_id' => $gudang->barang_id,
-                    'user_id' => Auth::id(),
-                    'gudang_id' => $gudang->id,
-                    'nama_barang_snapshot' => $gudang->barang->nama_barang ?? '',
-                    'kode_barang_snapshot' => $gudang->barang->kode_barang ?? '',
-                    'user_snapshot' => Auth::user()->name ?? 'System',
-                    'nama_bagian_snapshot' => $gudang->bagian->nama_bagian ?? '',
-                    'tipe' => $selisih > 0 ? 'Masuk' : 'Keluar',
-                    'keterangan' => $gudang->keteranganOtomatis,
-                    'jumlah' => abs($selisih),
-                    'stok_awal' => $stokLama,
-                    'stok_akhir' => $stokBaru,
-                ]);
-            }
-        });
+        //     if ($selisih != 0) {
+        //         LogAktivitas::create([
+        //             'barang_id' => $gudang->barang_id,
+        //             'user_id' => Auth::id(),
+        //             'gudang_id' => $gudang->id,
+        //             'nama_barang_snapshot' => $gudang->barang->nama_barang ?? '',
+        //             'kode_barang_snapshot' => $gudang->barang->kode_barang ?? '',
+        //             'user_snapshot' => Auth::user()->name ?? 'System',
+        //             'nama_bagian_snapshot' => $gudang->bagian->nama_bagian ?? '',
+        //             'tipe' => $selisih > 0 ? 'Masuk' : 'Keluar',
+        //             'keterangan' => $gudang->keteranganOtomatis,
+        //             'jumlah' => abs($selisih),
+        //             'stok_awal' => $stokLama,
+        //             'stok_akhir' => $stokBaru,
+        //         ]);
+        //     }
+        // });
     }
     public function barang()
     {
