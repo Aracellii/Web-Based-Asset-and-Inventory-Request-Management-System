@@ -195,7 +195,6 @@ class GudangResource extends Resource
                             ->default('Laporan Stok Barang Gudang'),
                     ])
                     ->action(function (Tables\Table $table, array $data) {
-                        // Increase memory limit for PDF generation
                         ini_set('memory_limit', '1028M');
                         
                         $records = $table->getLivewire()
