@@ -33,24 +33,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('app')
             ->login()
+            ->passwordReset()
             ->registration(Register::class)
-            ->brandName(new HtmlString('
-                    <div class="flex items-center gap-3">
-                    <div>
-                    <img
-                    src="' . asset('build/assets/logo.svg') . '"
-                    alt="SIATK"
-                    class="w-7 h-7 object-contain">
-                    </div>
-                    <div class="leading-tight">
-                        <div class="text-xl font-bold">SIATK</div>
-                        <div class="text-xs font-medium tracking-wider text-white-500">
-                            Sistem Informasi Aset & Tata Kelola
-                        </div>
-                    </div>
-                </div>
-            '))
-
+            ->brandName(fn () => view('filament.components.logo'))
             ->colors([
                 'primary' => Color::Indigo,
             ])
@@ -66,18 +51,16 @@ class AdminPanelProvider extends PanelProvider
                 \Filament\View\PanelsRenderHook::TOPBAR_START,
                 fn(): string => Blade::render('
                     <div class="flex items-center ml-4 gap-3">
-                    <div>
-                    <img
-                    src="' . asset('build/assets/logo.svg') . '"
-                    alt="SIATK"
-                    class="w-7 h-7 object-contain">
+                        <img
+                        src="' . asset('build/assets/logo.svg') . '"
+                        alt="SIATK"
+                        class="w-7 h-7 object-contain">
+                        <div class="flex flex-col leading-tight border-l-2 border-primary-600 pl-3">
+                            <span class="text-lg font-bold text-gray-600 dark:text-white uppercase tracking-tight">
+                                SIATK
+                            </span>
+                        </div>
                     </div>
-                    <div class="flex flex-col leading-tight border-l-2 border-primary-600 pl-3">
-                        <span class="text-lg font-bold text-gray-600 dark:text-white uppercase tracking-tight">
-                            SIATK
-                        </span>
-                    </div>
-                </div>
                 '),
             )
             ->renderHook(
