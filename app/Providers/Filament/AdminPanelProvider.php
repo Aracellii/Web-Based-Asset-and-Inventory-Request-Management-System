@@ -34,26 +34,22 @@ class AdminPanelProvider extends PanelProvider
             ->path('app')
             ->login()
             ->registration(Register::class)
-          ->brandName(new HtmlString('
-            <div class="flex items-center gap-3">
-                <div>
+            ->brandName(new HtmlString('
+                    <div class="flex items-center gap-3">
+                    <div>
                     <img
-                        src="' . asset('build/assets/logo.svg') . '"
-                        alt="SIATK"
-                        class="w-7 h-7 object-contain"
-                    >
-                </div>
-
-                <div class="flex flex-col justify-center leading-tight">
-                    <div class="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                        SIATK
+                    src="' . asset('build/assets/logo.svg') . '"
+                    alt="SIATK"
+                    class="w-7 h-7 object-contain">
                     </div>
-                    <div class="text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                        Sistem Informasi Aset & Tata Kelola
+                    <div class="leading-tight">
+                        <div class="text-xl font-bold">SIATK</div>
+                        <div class="text-xs font-medium tracking-wider text-white-500">
+                            Sistem Informasi Aset & Tata Kelola
+                        </div>
                     </div>
                 </div>
-            </div>
-'))
+            '))
 
             ->colors([
                 'primary' => Color::Indigo,
@@ -69,24 +65,19 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\View\PanelsRenderHook::TOPBAR_START,
                 fn(): string => Blade::render('
-                      <div class="flex items-center gap-3">
-                <div>
+                    <div class="flex items-center ml-4 gap-3">
+                    <div>
                     <img
-                        src="' . asset('build/assets/logo.svg') . '"
-                        alt="SIATK"
-                        class="w-7 h-7 object-contain"
-                    >
-                </div>
-
-                <div class="flex flex-col justify-center leading-tight">
-                    <div class="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                        SIATK
+                    src="' . asset('build/assets/logo.svg') . '"
+                    alt="SIATK"
+                    class="w-7 h-7 object-contain">
                     </div>
-                    <div class="text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                        Sistem Informasi Aset & Tata Kelola
+                    <div class="flex flex-col leading-tight border-l-2 border-primary-600 pl-3">
+                        <span class="text-lg font-bold text-gray-600 dark:text-white uppercase tracking-tight">
+                            SIATK
+                        </span>
                     </div>
                 </div>
-            </div>
                 '),
             )
             ->renderHook(
