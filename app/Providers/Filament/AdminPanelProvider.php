@@ -22,7 +22,6 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Pages\Auth\EditProfile;
-use Illuminate\Support\HtmlString;
 
 class AdminPanelProvider extends PanelProvider
 {
