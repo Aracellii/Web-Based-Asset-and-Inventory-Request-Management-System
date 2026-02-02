@@ -86,6 +86,13 @@ class PermintaanResource extends Resource
 
                             ])
                             ->columns(3)
+                            ->addable(function ($livewire) {
+                                // Nonaktifkan tombol tambah di mode edit
+                                if ($livewire instanceof \Filament\Resources\Pages\EditRecord) {
+                                    return false;
+                                }
+                                return true;
+                            })
                             ->addActionLabel('Tambah Baris Barang')
                     ])
             ]);
@@ -141,6 +148,7 @@ class PermintaanResource extends Resource
                     ->formatStateUsing(fn(string $state): string => ucfirst($state))
                     ->sortable()
             ])
+            ->recordUrl(null)
             ->filters([
                 Tables\Filters\SelectFilter::make('created_at')
                     ->label('Rentang Waktu')
@@ -196,9 +204,39 @@ class PermintaanResource extends Resource
                     ->multiple(true)
                     ->preload(),
             ])->defaultSort('approved', 'asc')
+            ->actions([
+                Tables\Actions\EditAction::make()
+                    ->url(fn (DetailPermintaan $record): string => 
+                        route('filament.admin.resources.permintaans.edit', ['record' => $record->permintaan_id])
+                    )
+                    ->visible(fn (DetailPermintaan $record): bool => $record->approved === 'pending'),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn (DetailPermintaan $record): bool => $record->approved === 'pending')
+                    ->action(function (DetailPermintaan $record) {
+                        // Hapus permintaan induk jika hanya ada 1 detail
+                        $permintaan = $record->permintaan;
+                        if ($permintaan->detailPermintaans()->count() == 1) {
+                            $permintaan->delete();
+                        } else {
+                            $record->delete();
+                        }
+                    }),
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->action(function ($records) {
+                            foreach ($records as $record) {
+                                if ($record->approved === 'pending') {
+                                    $permintaan = $record->permintaan;
+                                    if ($permintaan->detailPermintaans()->count() == 1) {
+                                        $permintaan->delete();
+                                    } else {
+                                        $record->delete();
+                                    }
+                                }
+                            }
+                        }),
                 ]),
             ])
             ->emptyStateHeading('Tidak ada permintaan');;
