@@ -33,6 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('app')
             ->login()
+            ->passwordReset()
             ->registration(Register::class)
             ->brandName(new HtmlString('
                     <div class="flex items-center gap-3">
