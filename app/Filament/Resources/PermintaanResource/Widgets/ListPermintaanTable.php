@@ -57,19 +57,16 @@ class ListPermintaanTable extends BaseWidget
                     ->searchable(),
                 Tables\Columns\TextColumn::make('barang.nama_barang')
                     ->label('Nama Barang')
+                    ->description(fn($record) => "Kode: " . ($record->barang?->kode_barang ?? '-'))
                     ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('barang.kode_barang')
-                    ->label('Kode Barang')
-                    ->sortable()
-                    ->searchable(),
+                    ->searchable([
+                        'nama_barang',
+                        'kode_barang',
+                    ]),
                 Tables\Columns\TextColumn::make('jumlah')
                     ->label('Jumlah')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('permintaan.user.bagian.nama_bagian')
-                    ->label('Unit Kerja')
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('approved')
                     ->label('Status')
                     ->badge()
