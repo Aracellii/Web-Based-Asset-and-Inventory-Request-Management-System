@@ -27,23 +27,4 @@ class EditPermintaan extends EditRecord
     {
         return $this->getResource()::getUrl('index');
     }
-    
-    public function mount(int | string $record): void
-    {
-        parent::mount($record);
-        
-        // Cek apakah ada detail yang bukan pending
-        $nonPendingCount = $this->record->detailPermintaans()->where('approved', '!=', 'pending')->count();
-        
-        if ($nonPendingCount > 0) {
-            Notification::make()
-                ->warning()
-                ->title('Peringatan')
-                ->body('Permintaan ini tidak dapat diedit karena sudah diproses (approved/rejected).')
-                ->persistent()
-                ->send();
-            
-            redirect($this->getResource()::getUrl('index'));
-        }
-    }
 }

@@ -48,7 +48,7 @@ class PermintaanResource extends Resource
                 Forms\Components\Section::make('Daftar Barang')
                     ->schema([
                         Forms\Components\Repeater::make('detailPermintaans')
-                            ->relationship() 
+                            ->relationship()
                             ->schema([
                                 Forms\Components\Select::make('barang_id')
                                     ->label('Barang')
@@ -61,15 +61,7 @@ class PermintaanResource extends Resource
                                     ->required()
                                     ->default(1)
                                     ->minValue(1)
-                                    ->reactive()
-                                    // Hitung 
-                                    ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                        $barangId = $get('barang_id');
-                                        $barang = Barang::find($barangId);
-                                        if ($barang) {
-                                            $set('biaya', $state * $barang->harga_satuan);
-                                        }
-                                    }),
+                                    ->reactive(),
                                 Forms\Components\Hidden::make('bagian_id')
                                     ->default(function (callable $get) {
                                         // Ambil user_id dari komponen di luar repeater
@@ -99,7 +91,7 @@ class PermintaanResource extends Resource
 
     public static function table(Table $table): Table
     {
-        
+
         return $table
             ->heading('Permintaan Saya')
             ->query(
@@ -205,14 +197,14 @@ class PermintaanResource extends Resource
             ])->defaultSort('approved', 'asc')
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->url(fn (DetailPermintaan $record): string => 
-                        route('filament.admin.resources.permintaans.edit', ['record' => $record->permintaan_id])
+                    ->url(
+                        fn(DetailPermintaan $record): string =>
+                        DetailPermintaanResource::getUrl('edit', ['record' => $record->id])
                     )
                     ->visible(fn (DetailPermintaan $record): bool => $record->approved === 'pending'),
                      Tables\Actions\DeleteAction::make()
                     ->visible(fn (DetailPermintaan $record): bool => $record->approved === 'pending')
                     ->action(function (DetailPermintaan $record) {
-                        // Hapus permintaan induk jika hanya ada 1 detail
                         $permintaan = $record->permintaan;
                         if ($permintaan->detailPermintaans()->count() == 1) {
                             $permintaan->delete();
@@ -239,7 +231,6 @@ class PermintaanResource extends Resource
                 ]),
             ])
             ->emptyStateHeading('Tidak ada permintaan');;
-            
     }
 
 
@@ -252,7 +243,7 @@ class PermintaanResource extends Resource
     {
         $user = auth()->user();
 
-        if($user->role != 'admin') {
+        if ($user->role != 'admin') {
             return null;
         }
 
@@ -270,7 +261,7 @@ class PermintaanResource extends Resource
 
     public static function getNavigationBadgeColor(): ?string
     {
-        return 'warning'; 
+        return 'warning';
     }
 
     public static function getPages(): array
