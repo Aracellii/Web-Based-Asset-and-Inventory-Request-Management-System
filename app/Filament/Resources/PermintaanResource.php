@@ -139,6 +139,7 @@ class PermintaanResource extends Resource
                     ->formatStateUsing(fn(string $state): string => ucfirst($state))
                     ->sortable()
             ])
+            ->defaultSort('created_at', 'desc')
             ->recordUrl(null)
             ->filters([
                 Tables\Filters\SelectFilter::make('created_at')
@@ -194,7 +195,7 @@ class PermintaanResource extends Resource
                     ->label('Filter Bidang')
                     ->multiple(true)
                     ->preload(),
-            ])->defaultSort('approved', 'asc')
+            ])
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->url(
