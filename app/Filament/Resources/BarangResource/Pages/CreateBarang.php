@@ -9,7 +9,7 @@ use Filament\Resources\Pages\CreateRecord;
 use Filament\Notifications\Notification;
 use EightyNine\ExcelImport\ExcelImportAction;
 use App\Imports\BarangImporter;
-
+use Filament\Forms\Components\Actions\Action;
 class CreateBarang extends CreateRecord
 {
     protected static string $resource = BarangResource::class;
@@ -21,11 +21,18 @@ class CreateBarang extends CreateRecord
                 ->color('success')
                 ->use(BarangImporter::class)
                 ->modalHeading('Tambahkan barang sekaligus dari file Excel')
-                ->modalDescription('Pastikan dalam file excel terdapat kolom: kode_barang, nama_barang, stok, dan nama_bagian. Jika nama_bagian tidak ditemukan, stok tidak akan ditambahkan.') 
+                ->modalDescription('Pastikan dalam file excel terdapat kolom: kode_barang, nama_barang, stok, dan nama_bagian. Jika nama_bagian tidak ditemukan, stok tidak akan ditambahkan.')
                 ->uploadField(
                     fn($upload) => $upload
-                        ->label("Pilih File Barang (.csv/.xlsx)") 
+                        ->label("Pilih File Barang (.csv/.xlsx)")
                         ->placeholder("Klik untuk cari atau Seret file ke sini")
+                        ->hintAction(
+                            Action::make('downloadTemplate')
+                                ->label('Download Template')
+                                ->icon('heroicon-m-arrow-down-tray')
+                                ->url(asset('templates/Template_Tabel_Barang.xlsx'))
+                                ->openUrlInNewTab()
+                        )
                 )
                 ->modalWidth('3xl')
                 ->size('xl'),

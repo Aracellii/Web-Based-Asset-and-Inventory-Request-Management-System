@@ -23,7 +23,7 @@ class CreateGudang extends CreateRecord
                 ->color('success')
                 ->use(BarangImporter::class)
                 ->modalHeading('Tambahkan barang sekaligus dari file Excel')
-                ->modalDescription('Pastikan dalam file excel terdapat kolom: kode_barang, nama_barang, stok, dan nama_bagian. Jika nama_bagian tidak ditemukan, stok tidak akan ditambahkan.')
+                ->modalDescription('Pastikan dalam file excel terdapat kolom: kode_barang, nama_barang, stok, dan nama_bagian. Semua baris harus valid atau import akan ditolak total.')
                 ->uploadField(
                     fn($upload) => $upload
                         ->label("Pilih File Barang (.csv/.xlsx)")
@@ -95,11 +95,11 @@ class CreateGudang extends CreateRecord
 
             return Gudang::where('barang_id', $data['barang_id'])->first();
         }
-        
+
         // ROLE SELAIN KEUANGAN
         $data['bagian_id'] = Auth::user()->bagian_id;
         $gudang = parent::handleRecordCreation($data);
-        
+
         // OTOMATIS BUAT DI SEMUA BAGIAN LAIN DENGAN STOK 0
         $semuaBagian = Bagian::all();
         foreach ($semuaBagian as $bagian) {
@@ -119,7 +119,7 @@ class CreateGudang extends CreateRecord
                 ]
             );
         }
-        
+
         return $gudang;
     }
 }
