@@ -35,6 +35,6 @@ class Permintaan extends Model
         'id',        
         'user_id',    
         'bagian_id'   
-    );
+    );//
 }
 }
