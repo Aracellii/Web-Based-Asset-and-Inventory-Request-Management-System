@@ -147,7 +147,8 @@ class ListPermintaanTable extends BaseWidget
                     ->modalHeading('Approve Permintaan')
 
                     ->action(function ($record, $livewire) {
-                        DB::transaction(function () use ($record) {
+                        $success = false;
+                        DB::transaction(function () use ($record, &$success) {
                             $stokGudang = $record->gudang;
                             if (!$stokGudang || $stokGudang->stok < $record->jumlah) {
                                 Notification::make()
@@ -156,33 +157,37 @@ class ListPermintaanTable extends BaseWidget
                                     ->danger()
                                     ->send();
                                 return;
-                            } else {
-                                // INSERT detail_terverifikasis
-                                DetailTerverifikasi::create([
-                                    'detail_permintaan_id' => $record->id,
-                                    'bagian_id'    => $record->bagian_id,
-                                    'barang_id' => $record->barang_id,
-                                    'jumlah'    => $record->jumlah,
-                                    'approved'  => 'approved',
-                                ]);
-                                // UPDATE status approved di detail_permintaans
-                                $record->update([
-                                    'approved' => 'approved',
-                                ]);
-                                //set keterangan ke "Pemakaian"
-                                $stokGudang->keteranganOtomatis = 'Pemakaian';
-                                // Kurangi stok di tabel gudangs
-                                $stokGudang->stok -= $record->jumlah;
-                                $stokGudang->save();
-
-                                Notification::make()
-                                    ->title('Permintaan berhasil di-approve')
-                                    ->success()
-                                    ->send();
                             }
-                        });
-                        $livewire->dispatch('refreshPermintaanSaya'); //refresh widget setelah approve agar status terupdate
+                            
+                            // INSERT detail_terverifikasis
+                            DetailTerverifikasi::create([
+                                'detail_permintaan_id' => $record->id,
+                                'bagian_id'    => $record->bagian_id,
+                                'barang_id' => $record->barang_id,
+                                'jumlah'    => $record->jumlah,
+                                'approved'  => 'approved',
+                            ]);
+                            // UPDATE status approved di detail_permintaans
+                            $record->update([
+                                'approved' => 'approved',
+                            ]);
+                            //set keterangan ke "Pemakaian"
+                            $stokGudang->keteranganOtomatis = 'Pemakaian';
+                            // Kurangi stok di tabel gudangs
+                            $stokGudang->stok -= $record->jumlah;
+                            $stokGudang->save();
 
+                            Notification::make()
+                                ->title('Permintaan berhasil di-approve')
+                                ->success()
+                                ->send();
+                                
+                            $success = true;
+                        });
+                        
+                        if ($success) {
+                            $livewire->dispatch('refreshPermintaanSaya');
+                        }
                     }),
 
                 Action::make('reject')
@@ -214,7 +219,7 @@ class ListPermintaanTable extends BaseWidget
                             ->success()
                             ->send();
 
-                        $livewire->dispatch('refreshPermintaanSaya'); //refresh widget setelah approve agar status terupdate
+                        $livewire->dispatch('refreshPermintaanSaya');
                     }),
             ])
             ->emptyStateHeading('Tidak ada permintaan');

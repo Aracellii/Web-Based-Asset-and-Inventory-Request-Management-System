@@ -185,6 +185,7 @@ class UserResource extends Resource
                 Tables\Filters\TrashedFilter::make()
                     ->label('Status')
                     ->native(false),
+                    
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
