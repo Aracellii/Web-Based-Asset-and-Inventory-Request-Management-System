@@ -14,9 +14,7 @@ return new class extends Migration
         Schema::create('permintaans', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
-            $table->date('tanggal_permintaan');
             $table->timestamps();
-            
         });
     }
 

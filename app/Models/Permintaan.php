@@ -9,12 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Permintaan extends Model
 {
     protected $table = 'permintaans';
-
-    protected $fillable = [
-        'user_id',
-        'tanggal_permintaan'
-    ];
-
+    protected $guarded = [];
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -27,14 +22,14 @@ class Permintaan extends Model
     }
 
     public function bagian()
-{
-     return $this->hasOneThrough(
-        Bagian::class, 
-        User::class, 
-        'id',       
-        'id',        
-        'user_id',    
-        'bagian_id'   
-    );//
-}
+    {
+        return $this->hasOneThrough(
+            Bagian::class,
+            User::class,
+            'id',
+            'id',
+            'user_id',
+            'bagian_id'
+        ); //
+    }
 }
