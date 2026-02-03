@@ -13,9 +13,12 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
+use App\Traits\HasBagianScope;
 
 class GudangResource extends Resource
 {
+    use HasBagianScope;
+    
     protected static ?int $navigationSort = 2;
     protected static ?string $model = Gudang::class;
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
@@ -28,7 +31,7 @@ class GudangResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make('Input Stok Gudang')
-                    ->disabled(fn($context) => $context === 'edit' && auth()->user()?->role === 'user')
+                    ->disabled(fn($context) => $context === 'edit' && !auth()->user()?->can('update_gudang'))
                     ->description('Pilih barang dan tentukan stok')
                     ->schema([
                         Forms\Components\Select::make('barang_id')
@@ -51,8 +54,8 @@ class GudangResource extends Resource
                             ->searchable()
                             ->preload()
                             ->disabled(fn($context) => $context === 'edit')
-                            ->visible(fn($context) => $context === 'edit' || (auth()->user()?->role !== 'keuangan'))
-                            ->required(fn($context) => $context === 'edit' || (auth()->user()?->role !== 'keuangan')),
+                            ->visible(fn($context) => $context === 'edit' || (!auth()->user()?->isKeuangan()))
+                            ->required(fn($context) => $context === 'edit' || (!auth()->user()?->isKeuangan())),
 
                         Forms\Components\Select::make('bagian_ids')
                             ->label('Pilih Bagian')
@@ -60,8 +63,8 @@ class GudangResource extends Resource
                             ->options(\App\Models\Bagian::pluck('nama_bagian', 'id'))
                             ->searchable()
                             ->preload()
-                            ->visible(fn($context) => $context === 'create' && auth()->user()?->role === 'keuangan')
-                            ->required(fn($context) => $context === 'create' && auth()->user()?->role === 'keuangan')
+                            ->visible(fn($context) => $context === 'create' && auth()->user()?->isKeuangan())
+                            ->required(fn($context) => $context === 'create' && auth()->user()?->isKeuangan())
                             ->helperText('Pilih satu atau lebih bagian untuk menambahkan stok'),
 
                     ])->columns(2),
@@ -262,16 +265,24 @@ class GudangResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        //Tampilkan Data Gudang
         $query = parent::getEloquentQuery();
+        $user = auth()->user();
+        
         // Filter hanya tampilkan gudang yang barangnya belum dihapus
         $query->whereHas('barang');
-        // Filter Role
-        if (Auth::user()->role !== 'keuangan') {
-            $query->where('bagian_id', Auth::user()->bagian_id);
+        
+        // Jika punya view_any_gudang, bisa lihat semua
+        if ($user && $user->can('view_any_gudang')) {
+            return $query;
         }
-
-        return $query;
+        
+        // Jika hanya punya view_gudang, lihat gudang bagiannya saja
+        if ($user && $user->can('view_gudang') && $user->bagian_id) {
+            return $query->where('bagian_id', $user->bagian_id);
+        }
+        
+        // Tidak punya akses sama sekali
+        return $query->whereRaw('1 = 0');
     }
 
     public static function getNavigationBadge(): ?string
@@ -279,15 +290,15 @@ class GudangResource extends Resource
         $user = auth()->user();
         if (!$user) return null;
 
-        // Role selain admin & keuangan tidak dapat badge
-        if (!in_array($user->role, ['admin', 'keuangan'])) {
+        // User tanpa permission view_gudang tidak dapat badge
+        if (!$user->can('view_any_gudang')) {
             return null;
         }
 
         $query = Gudang::where('stok', 0);
 
         // Admin hanya lihat gudang sesuai bagiannya
-        if ($user->role === 'admin') {
+        if ($user->isAdmin()) {
             $query->where('bagian_id', $user->bagian_id);
         }
 

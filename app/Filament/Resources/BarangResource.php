@@ -14,9 +14,12 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
+use App\Traits\HasBagianScope;
 
 class BarangResource extends Resource
 {
+    use HasBagianScope;
+    
     protected static ?string $model = Barang::class;
     protected static ?int $navigationSort = 3;
     protected static ?string $navigationIcon = 'heroicon-o-cube';
@@ -203,9 +206,25 @@ class BarangResource extends Resource
     {
         return 'danger';
     }
-    public static function canAccess(): bool
-{
-    return in_array(auth()->user()?->role, ['keuangan']);
-}
-
+    
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+        
+        // Jika punya view_any_barang, bisa lihat semua barang
+        if ($user && $user->can('view_any_barang')) {
+            return $query;
+        }
+        
+        // Jika hanya punya view_barang, lihat barang yang ada di gudang bagiannya
+        if ($user && $user->can('view_barang') && $user->bagian_id) {
+            return $query->whereHas('gudangs', function ($q) use ($user) {
+                $q->where('bagian_id', $user->bagian_id);
+            });
+        }
+        
+        // Tidak punya akses
+        return $query->whereRaw('1 = 0');
+    }
 }

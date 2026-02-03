@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
     use SoftDeletes;
 
     /**
@@ -61,9 +62,29 @@ class User extends Authenticatable implements FilamentUser
         return true;
     }
 
-    // app/Models/User.php
-public function bagian()
-{
-    return $this->belongsTo(Bagian::class);
-}
+    public function bagian()
+    {
+        return $this->belongsTo(Bagian::class);
+    }
+
+    // Helper methods untuk role checking
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole('super_admin');
+    }
+
+    public function isKeuangan(): bool
+    {
+        return $this->hasRole('keuangan');
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
+    }
+
+    public function isUser(): bool
+    {
+        return $this->hasRole('user');
+    }
 }

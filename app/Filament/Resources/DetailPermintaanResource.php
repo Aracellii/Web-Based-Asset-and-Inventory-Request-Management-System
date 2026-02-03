@@ -7,9 +7,13 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use App\Filament\Resources\DetailPermintaanResource\Pages;
+use Illuminate\Database\Eloquent\Builder;
+use App\Traits\HasBagianScope;
 
 class DetailPermintaanResource extends Resource
 {
+    use HasBagianScope;
+    
     protected static ?string $model = DetailPermintaan::class;
     protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
@@ -40,6 +44,15 @@ class DetailPermintaanResource extends Resource
             'index' => Pages\ListDetailPermintaans::route('/'),
             'edit' => Pages\EditDetailPermintaan::route('/{record}/edit'),
         ];
+    }
+    
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        
+        // DetailPermintaan di-scope berdasarkan user yang membuat permintaan
+        // Super Admin & Keuangan lihat semua, Admin lihat bagiannya, User lihat miliknya
+        return static::applyUserScope($query, 'user_id');
     }
     
 }

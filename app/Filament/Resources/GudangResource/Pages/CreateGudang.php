@@ -40,8 +40,8 @@ class CreateGudang extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        // ROLE KEUANGAN
-        if (Auth::user()->role === 'keuangan') {
+        // ROLE KEUANGAN atau SUPER ADMIN
+        if (Auth::user()->isKeuangan() || Auth::user()->isSuperAdmin()) {
 
             $bagianIds = $data['bagian_ids'] ?? [];
             $stokInput = (int) ($data['stok'] ?? 0);

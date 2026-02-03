@@ -12,9 +12,12 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
+use App\Traits\HasBagianScope;
 
 class LogAktivitasResource extends Resource
 {
+    use HasBagianScope;
+    
     protected static ?int $navigationSort = 5;
     protected static ?string $model = LogAktivitas::class;
 
@@ -43,30 +46,31 @@ class LogAktivitasResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $user = auth()->user();
-
         $query = static::getModel()::query();
 
-        // 1. Keuangan
-        if ($user->role === 'keuangan') {
+        // Jika punya view_any_log, bisa lihat semua log
+        if ($user && $user->can('view_any_log::aktivitas')) {
             return $query;
         }
 
-        if ($user->role === 'admin') {
-            $bagianId = $user->bagian_id;
-
-            if (!$bagianId) {
-                return $query->whereRaw('1 = 0');
+        // Jika hanya punya view_log
+        if ($user && $user->can('view_log::aktivitas')) {
+            // Admin - lihat log dari users di bagiannya (exclude keuangan)
+            if ($user->isAdmin() && $user->bagian_id) {
+                return $query->whereIn('user_id', function ($q) use ($user) {
+                    $q->select('id')
+                        ->from('users')
+                        ->where('bagian_id', $user->bagian_id)
+                        ->where('role', '!=', 'keuangan');
+                });
             }
 
-            return $query->whereIn('user_id', function ($q) use ($bagianId) {
-                $q->select('id')
-                    ->from('users')
-                    ->where('bagian_id', $bagianId)
-                    ->where('role', '!=', 'keuangan');
-            });
+            // User biasa - lihat log miliknya sendiri
+            return $query->where('user_id', $user->id);
         }
 
-        return $query->where('user_id', $user->id);
+        // Tidak punya akses
+        return $query->whereRaw('1 = 0');
     }
 
     public static function table(Table $table): Table

@@ -20,7 +20,7 @@ class KeuanganActivityStats extends BaseWidget
 
     public static function canView(): bool
     {
-        return auth()->user()?->role === 'keuangan';
+        return auth()->user()?->can('widget_KeuanganActivityStats');
     }
 
     protected function getStats(): array

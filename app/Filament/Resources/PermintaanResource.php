@@ -15,9 +15,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Filament\Forms\Components\Select;
+use App\Traits\HasBagianScope;
 
 class PermintaanResource extends Resource
 {
+    use HasBagianScope;
+    
     protected static ?int $navigationSort = 4;
     protected static ?string $model = Permintaan::class;
     protected static ?string $modelLabel = 'Permintaan';
@@ -234,6 +237,32 @@ class PermintaanResource extends Resource
             ->emptyStateHeading('Tidak ada permintaan');;
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+        
+        // Jika punya view_any_permintaan, bisa lihat semua permintaan
+        if ($user && $user->can('view_any_permintaan')) {
+            return $query;
+        }
+        
+        // Jika hanya punya view_permintaan
+        if ($user && $user->can('view_permintaan')) {
+            // Admin bisa lihat permintaan dari bagiannya
+            if ($user->isAdmin() && $user->bagian_id) {
+                return $query->whereHas('user', function ($q) use ($user) {
+                    $q->where('bagian_id', $user->bagian_id);
+                });
+            }
+            
+            // User hanya bisa lihat permintaannya sendiri
+            return $query->where('user_id', $user->id);
+        }
+        
+        // Tidak punya akses
+        return $query->whereRaw('1 = 0');
+    }
 
 
     public static function getRelations(): array
@@ -244,12 +273,12 @@ class PermintaanResource extends Resource
     {
         $user = auth()->user();
 
-        if ($user->role != 'admin') {
+        if (!$user->isAdmin()) {
             return null;
         }
 
         $count = DetailPermintaan::where('approved', 'pending')
-            ->when($user->role === 'admin', function ($query) use ($user) {
+            ->when($user->isAdmin(), function ($query) use ($user) {
                 // Admin lihat pending
                 return $query->whereHas('permintaan.user', function ($q) use ($user) {
                     $q->where('users.bagian_id', $user->bagian_id);

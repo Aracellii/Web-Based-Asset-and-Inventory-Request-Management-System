@@ -20,7 +20,7 @@ class ListPermintaanTable extends BaseWidget
     // Widget ini HANYA muncul jika admin
     public static function canView(): bool
     {
-        return auth()->user()->role === 'admin';
+        return auth()->user()->isAdmin();
     }
     protected int | string | array $columnSpan = 'full';
     protected function getTableQuery(): Builder
@@ -28,8 +28,8 @@ class ListPermintaanTable extends BaseWidget
         $user = auth()->user();
         $query = DetailPermintaan::query();
 
-        // Filter berdasarkan role admin dan bagian yang sesuai
-        if ($user->role === 'admin') {
+        // Filter berdasarkan admin dan bagian yang sesuai
+        if ($user->isAdmin()) {
             $query->whereHas('permintaan.user', function ($q) use ($user) {
                 $q->where('users.bagian_id', $user->bagian_id);
             });
@@ -142,7 +142,7 @@ class ListPermintaanTable extends BaseWidget
             ])
             ->actions([
                 Action::make('approve')
-                    ->visible(fn($record) => auth()->user()->role === 'admin' && $record->approved === 'pending')
+                    ->visible(fn($record) => auth()->user()->isAdmin() && $record->approved === 'pending')
                     ->label('Approve')
                     ->color('success')
                     ->icon('heroicon-o-check-circle')
@@ -189,7 +189,7 @@ class ListPermintaanTable extends BaseWidget
                     }),
 
                 Action::make('reject')
-                    ->visible(fn($record) => auth()->user()->role === 'admin' && $record->approved === 'pending')
+                    ->visible(fn($record) => auth()->user()->isAdmin() && $record->approved === 'pending')
                     ->label('Reject')
                     ->color('danger')
                     ->icon('heroicon-o-x-circle')

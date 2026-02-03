@@ -21,7 +21,7 @@ class UserActivityStats extends BaseWidget
 
     public static function canView(): bool
     {
-        return auth()->user()?->role === 'user';
+        return auth()->user()?->can('widget_UserActivityStats');
     }
 
     protected function getStats(): array

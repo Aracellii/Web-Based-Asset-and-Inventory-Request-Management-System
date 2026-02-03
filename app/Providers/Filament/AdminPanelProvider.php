@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\Register;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Widgets\StockMovementChart;
 use App\Filament\Widgets\TopRequestedItemsChart;
@@ -33,6 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('app')
             ->login()
             ->passwordReset()
+            
             ->registration(Register::class)
             ->brandName(fn () => view('filament.components.logo'))
             ->favicon(asset('build/assets/logo.svg'))
@@ -75,6 +77,8 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
+            
+            
             ->widgets([
                 StockMovementChart::class,
                 TopRequestedItemsChart::class,
@@ -95,6 +99,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugins([
+                FilamentShieldPlugin::make(),
                 \EightyNine\ExcelImport\ExcelImportPlugin::make()
             ]);;
     }
