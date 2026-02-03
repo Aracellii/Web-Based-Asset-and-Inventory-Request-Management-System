@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique('email');
             $table->string('password');
-            $table->enum('role', ['keuangan', 'user', 'admin'])->default('user');
+            $table->enum('role', ['super_admin', 'keuangan', 'admin', 'user'])->default('user');
             $table->foreignId('bagian_id')->nullable()->constrained()->onDelete('set null');
             $table->rememberToken();
             $table->timestamps();
