@@ -26,6 +26,11 @@ class GudangResource extends Resource
     protected static ?string $modelLabel = 'Stok Barang';
     protected static ?string $pluralModelLabel = 'Stok Barang';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('view_gudang') || auth()->user()?->can('view_any_gudang');
+    }
+
     public static function form(Form $form): Form
     {
         return $form

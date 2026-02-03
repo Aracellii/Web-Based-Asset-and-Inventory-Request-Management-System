@@ -15,9 +15,9 @@ class ListGudangs extends ListRecords
     {
         return [
             Actions\CreateAction::make()
-            ->Label('Tambah Stok')
-            ->icon('heroicon-o-plus')
-            ->size('xl'),
+                ->label('Tambah Stok')
+                ->icon('heroicon-o-plus')
+                ->size('xl'),
         ];
     }
 }

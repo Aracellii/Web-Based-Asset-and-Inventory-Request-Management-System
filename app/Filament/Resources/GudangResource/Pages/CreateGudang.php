@@ -10,7 +10,6 @@ use App\Models\Bagian;
 use Illuminate\Database\Eloquent\Model;
 use EightyNine\ExcelImport\ExcelImportAction;
 use App\Imports\BarangImporter;
-use Filament\Forms\Components\Actions\Action;
 
 class CreateGudang extends CreateRecord
 {
@@ -28,13 +27,6 @@ class CreateGudang extends CreateRecord
                     fn($upload) => $upload
                         ->label("Pilih File Barang (.csv/.xlsx)")
                         ->placeholder("Klik untuk cari atau Seret file ke sini")
-                        ->hintAction(
-                            Action::make('downloadTemplate')
-                                ->label('Download Template')
-                                ->icon('heroicon-m-arrow-down-tray')
-                                ->url(asset('templates/Template_Tabel_Barang.xlsx'))
-                                ->openUrlInNewTab()
-                        )
                 )
                 ->modalWidth('3xl')
                 ->size('xl'),
@@ -95,11 +87,11 @@ class CreateGudang extends CreateRecord
 
             return Gudang::where('barang_id', $data['barang_id'])->first();
         }
-
+        
         // ROLE SELAIN KEUANGAN
         $data['bagian_id'] = Auth::user()->bagian_id;
         $gudang = parent::handleRecordCreation($data);
-
+        
         // OTOMATIS BUAT DI SEMUA BAGIAN LAIN DENGAN STOK 0
         $semuaBagian = Bagian::all();
         foreach ($semuaBagian as $bagian) {
@@ -119,7 +111,7 @@ class CreateGudang extends CreateRecord
                 ]
             );
         }
-
+        
         return $gudang;
     }
 }

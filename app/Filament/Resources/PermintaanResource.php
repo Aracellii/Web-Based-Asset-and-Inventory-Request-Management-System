@@ -28,6 +28,11 @@ class PermintaanResource extends Resource
     protected static ?string $pluralModelLabel = 'Permintaan';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('view_permintaan') || auth()->user()?->can('view_any_permintaan');
+    }
+
     public static function form(Form $form): Form
     {
         return $form

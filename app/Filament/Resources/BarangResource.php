@@ -27,6 +27,11 @@ class BarangResource extends Resource
     protected static ?string $modelLabel = 'Barang';
     protected static ?string $pluralModelLabel = 'Katalog Barang';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('view_barang') || auth()->user()?->can('view_any_barang');
+    }
+
     public static function form(Form $form): Form
     {
         return $form
