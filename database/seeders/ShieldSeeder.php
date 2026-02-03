@@ -99,18 +99,18 @@ class ShieldSeeder extends Seeder
             'reorder_barang',
             'force_delete_barang',
             'force_delete_any_barang',
-            'view_detail::permintaan',
-            'view_any_detail::permintaan',
-            'create_detail::permintaan',
-            'update_detail::permintaan',
-            'delete_detail::permintaan',
-            'delete_any_detail::permintaan',
-            'restore_detail::permintaan',
-            'restore_any_detail::permintaan',
-            'replicate_detail::permintaan',
-            'reorder_detail::permintaan',
-            'force_delete_detail::permintaan',
-            'force_delete_any_detail::permintaan',
+            'view_detail_permintaan',
+            'view_any_detail_permintaan',
+            'create_detail_permintaan',
+            'update_detail_permintaan',
+            'delete_detail_permintaan',
+            'delete_any_detail_permintaan',
+            'restore_detail_permintaan',
+            'restore_any_detail_permintaan',
+            'replicate_detail_permintaan',
+            'reorder_detail_permintaan',
+            'force_delete_detail_permintaan',
+            'force_delete_any_detail_permintaan',
             'view_gudang',
             'view_any_gudang',
             'create_gudang',
@@ -123,18 +123,18 @@ class ShieldSeeder extends Seeder
             'reorder_gudang',
             'force_delete_gudang',
             'force_delete_any_gudang',
-            'view_log::aktivitas',
-            'view_any_log::aktivitas',
-            'create_log::aktivitas',
-            'update_log::aktivitas',
-            'delete_log::aktivitas',
-            'delete_any_log::aktivitas',
-            'restore_log::aktivitas',
-            'restore_any_log::aktivitas',
-            'replicate_log::aktivitas',
-            'reorder_log::aktivitas',
-            'force_delete_log::aktivitas',
-            'force_delete_any_log::aktivitas',
+            'view_log_aktivitas',
+            'view_any_log_aktivitas',
+            'create_log_aktivitas',
+            'update_log_aktivitas',
+            'delete_log_aktivitas',
+            'delete_any_log_aktivitas',
+            'restore_log_aktivitas',
+            'restore_any_log_aktivitas',
+            'replicate_log_aktivitas',
+            'reorder_log_aktivitas',
+            'force_delete_log_aktivitas',
+            'force_delete_any_log_aktivitas',
             'view_permintaan',
             'view_any_permintaan',
             'create_permintaan',
@@ -192,8 +192,8 @@ class ShieldSeeder extends Seeder
             'update_permintaan',
 
             // Detail Permintaan
-            'view_detail::permintaan',
-            'view_any_detail::permintaan', // Bisa lihat detail semua bagian
+            'view_detail_permintaan',
+            'view_any_detail_permintaan', // Bisa lihat detail semua bagian
 
             // Barang - View semua barang
             'view_barang',
@@ -204,8 +204,8 @@ class ShieldSeeder extends Seeder
             'view_any_gudang', // Bisa lihat stok semua gudang
 
             // Log Aktivitas - View semua log
-            'view_log::aktivitas',
-            'view_any_log::aktivitas', // Bisa lihat log semua aktivitas
+            'view_log_aktivitas',
+            'view_any_log_aktivitas', // Bisa lihat log semua aktivitas
 
             // Widgets
             'widget_KeuanganActivityStats',
@@ -233,11 +233,11 @@ class ShieldSeeder extends Seeder
             'update_permintaan',
 
             // Detail Permintaan
-            'view_detail::permintaan', // Hanya detail dari bagiannya
-            // TIDAK dapat view_any_detail::permintaan
-            'create_detail::permintaan',
-            'update_detail::permintaan',
-            'delete_detail::permintaan',
+            'view_detail_permintaan', // Hanya detail dari bagiannya
+            // TIDAK dapat view_any_detail_permintaan
+            'create_detail_permintaan',
+            'update_detail_permintaan',
+            'delete_detail_permintaan',
 
             // Gudang - Manage gudang bagiannya
             'view_gudang', // Hanya gudang bagiannya
@@ -246,8 +246,8 @@ class ShieldSeeder extends Seeder
             'update_gudang',
 
             // Log Aktivitas - Lihat log bagiannya
-            'view_log::aktivitas', // Hanya log dari bagiannya
-            // TIDAK dapat view_any_log::aktivitas
+            'view_log_aktivitas', // Hanya log dari bagiannya
+            // TIDAK dapat view_any_log_aktivitas
 
             // Widgets
             'widget_AdminActivityStats',
@@ -265,9 +265,9 @@ class ShieldSeeder extends Seeder
             'create_permintaan',
 
             // Detail Permintaan - Create untuk permintaannya sendiri
-            'view_detail::permintaan', // Hanya detail miliknya
-            // TIDAK dapat view_any_detail::permintaan
-            'create_detail::permintaan',
+            'view_detail_permintaan', // Hanya detail miliknya
+            // TIDAK dapat view_any_detail_permintaan
+            'create_detail_permintaan',
 
             // Barang - View barang yang ada di gudang bagiannya
             'view_barang', // Hanya barang di gudang bagiannya

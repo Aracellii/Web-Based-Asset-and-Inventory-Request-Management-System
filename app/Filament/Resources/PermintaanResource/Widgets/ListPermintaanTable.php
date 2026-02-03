@@ -21,8 +21,7 @@ class ListPermintaanTable extends BaseWidget
     public static function canView(): bool
     {
         $user = auth()->user();
-        // Super Admin & Keuangan bisa lihat widget ini
-        return $user->hasPermissionTo('view_any_detail::permintaan') || $user->hasPermissionTo('update_permintaan');
+        return $user->hasPermissionTo('view_any_detail_permintaan') || $user->hasPermissionTo('update_permintaan');
     }
     protected int | string | array $columnSpan = 'full';
     protected function getTableQuery(): Builder
