@@ -253,7 +253,6 @@ class PermintaanResource extends Resource
     {
         $query = parent::getEloquentQuery();
         $user = auth()->user();
-<<<<<<< Updated upstream
 
         // Jika punya view_any_permintaan, bisa lihat semua permintaan
         if ($user && $user->can('view_any_permintaan')) {
@@ -261,16 +260,6 @@ class PermintaanResource extends Resource
         }
         // Jika hanya punya view_permintaan
         if ($user && $user->can('view_permintaan')) {
-=======
-        
-        // Jika punya access_permintaan, bisa lihat semua permintaan
-        if ($user && $user->can('access_permintaan')) {
-            return $query;
-        }
-        
-        // Jika hanya punya access_permintaan
-        if ($user && $user->can('access_permintaan')) {
->>>>>>> Stashed changes
             // Admin bisa lihat permintaan dari bagiannya
             if ($user->isAdmin() && $user->bagian_id) {
                 return $query->whereHas('user', function ($q) use ($user) {
