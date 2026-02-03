@@ -21,7 +21,12 @@ class ListPermintaanTable extends BaseWidget
     public static function canView(): bool
     {
         $user = auth()->user();
+<<<<<<< Updated upstream
         return $user->hasPermissionTo('view_any_detail_permintaan') || $user->hasPermissionTo('update_permintaan');
+=======
+        // Super Admin & Keuangan bisa lihat widget ini
+        return $user->hasPermissionTo('access_permintaan') || $user->hasPermissionTo('manage_permintaan');
+>>>>>>> Stashed changes
     }
     protected int | string | array $columnSpan = 'full';
     protected function getTableQuery(): Builder
@@ -140,7 +145,7 @@ class ListPermintaanTable extends BaseWidget
             ])
             ->actions([
                 Action::make('approve')
-                    ->visible(fn($record) => auth()->user()->hasPermissionTo('update_permintaan') && $record->approved === 'pending')
+                    ->visible(fn($record) => auth()->user()->hasPermissionTo('approve_permintaan') && $record->approved === 'pending')
                     ->label('Approve')
                     ->color('success')
                     ->icon('heroicon-o-check-circle')
@@ -192,7 +197,7 @@ class ListPermintaanTable extends BaseWidget
                     }),
 
                 Action::make('reject')
-                    ->visible(fn($record) => auth()->user()->hasPermissionTo('update_permintaan') && $record->approved === 'pending')
+                    ->visible(fn($record) => auth()->user()->hasPermissionTo('approve_permintaan') && $record->approved === 'pending')
                     ->label('Reject')
                     ->color('danger')
                     ->icon('heroicon-o-x-circle')

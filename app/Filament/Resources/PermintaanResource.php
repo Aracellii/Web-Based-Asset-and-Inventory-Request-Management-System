@@ -30,7 +30,22 @@ class PermintaanResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('view_permintaan') || auth()->user()?->can('view_any_permintaan');
+        return auth()->user()?->can('access_permintaan');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('create_permintaan');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->can('manage_permintaan');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->can('manage_permintaan');
     }
 
     public static function form(Form $form): Form
@@ -238,6 +253,7 @@ class PermintaanResource extends Resource
     {
         $query = parent::getEloquentQuery();
         $user = auth()->user();
+<<<<<<< Updated upstream
 
         // Jika punya view_any_permintaan, bisa lihat semua permintaan
         if ($user && $user->can('view_any_permintaan')) {
@@ -245,6 +261,16 @@ class PermintaanResource extends Resource
         }
         // Jika hanya punya view_permintaan
         if ($user && $user->can('view_permintaan')) {
+=======
+        
+        // Jika punya access_permintaan, bisa lihat semua permintaan
+        if ($user && $user->can('access_permintaan')) {
+            return $query;
+        }
+        
+        // Jika hanya punya access_permintaan
+        if ($user && $user->can('access_permintaan')) {
+>>>>>>> Stashed changes
             // Admin bisa lihat permintaan dari bagiannya
             if ($user->isAdmin() && $user->bagian_id) {
                 return $query->whereHas('user', function ($q) use ($user) {

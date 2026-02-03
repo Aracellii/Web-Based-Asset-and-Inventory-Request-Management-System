@@ -15,7 +15,7 @@ class PermintaanPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_permintaan');
+        return $user->can('access_permintaan');
     }
 
     /**
@@ -23,7 +23,7 @@ class PermintaanPolicy
      */
     public function view(User $user, Permintaan $permintaan): bool
     {
-        return $user->can('view_permintaan');
+        return $user->can('access_permintaan');
     }
 
     /**
@@ -39,7 +39,7 @@ class PermintaanPolicy
      */
     public function update(User $user, Permintaan $permintaan): bool
     {
-        return $user->can('update_permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -47,7 +47,7 @@ class PermintaanPolicy
      */
     public function delete(User $user, Permintaan $permintaan): bool
     {
-        return $user->can('delete_permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -63,7 +63,7 @@ class PermintaanPolicy
      */
     public function forceDelete(User $user, Permintaan $permintaan): bool
     {
-        return $user->can('force_delete_permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -71,7 +71,7 @@ class PermintaanPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -79,7 +79,7 @@ class PermintaanPolicy
      */
     public function restore(User $user, Permintaan $permintaan): bool
     {
-        return $user->can('restore_permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -87,7 +87,7 @@ class PermintaanPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -95,7 +95,7 @@ class PermintaanPolicy
      */
     public function replicate(User $user, Permintaan $permintaan): bool
     {
-        return $user->can('replicate_permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -103,6 +103,6 @@ class PermintaanPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_permintaan');
+        return $user->can('manage_permintaan');
     }
 }

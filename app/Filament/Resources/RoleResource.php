@@ -25,6 +25,14 @@ class RoleResource extends Resource implements HasShieldPermissions
 
     protected static ?string $recordTitleAttribute = 'name';
 
+<<<<<<< Updated upstream
+=======
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('manage_roles');
+    }
+
+>>>>>>> Stashed changes
     public static function getPermissionPrefixes(): array
     {
         return [

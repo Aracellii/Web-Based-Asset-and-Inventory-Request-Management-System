@@ -36,25 +36,25 @@ class LogAktivitasResource extends Resource
 
     public static function canDelete($record): bool
     {
-        return false;
+        return auth()->user()?->can('clear_log_aktivitas');
     }
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->role !== 'user';
+        return auth()->user()?->can('access_log_aktivitas');
     }
     public static function getEloquentQuery(): Builder
     {
         $user = auth()->user();
         $query = static::getModel()::query();
 
-        // Jika punya view_any_log, bisa lihat semua log
-        if ($user && $user->can('view_any_log::aktivitas')) {
+        // Jika punya access_log_aktivitas, bisa lihat semua log
+        if ($user && $user->can('access_log_aktivitas')) {
             return $query;
         }
 
-        // Jika hanya punya view_log
-        if ($user && $user->can('view_log::aktivitas')) {
+        // Jika hanya punya view_log_aktivitas
+        if ($user && $user->can('view_log_aktivitas')) {
             // Admin - lihat log dari users di bagiannya (exclude keuangan)
             if ($user->isAdmin() && $user->bagian_id) {
                 return $query->whereIn('user_id', function ($q) use ($user) {
