@@ -85,6 +85,98 @@ class ShieldSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
+        // 0. CREATE ALL PERMISSIONS FIRST
+        $permissions = [
+            'view_barang',
+            'view_any_barang',
+            'create_barang',
+            'update_barang',
+            'delete_barang',
+            'delete_any_barang',
+            'restore_barang',
+            'restore_any_barang',
+            'replicate_barang',
+            'reorder_barang',
+            'force_delete_barang',
+            'force_delete_any_barang',
+            'view_detail::permintaan',
+            'view_any_detail::permintaan',
+            'create_detail::permintaan',
+            'update_detail::permintaan',
+            'delete_detail::permintaan',
+            'delete_any_detail::permintaan',
+            'restore_detail::permintaan',
+            'restore_any_detail::permintaan',
+            'replicate_detail::permintaan',
+            'reorder_detail::permintaan',
+            'force_delete_detail::permintaan',
+            'force_delete_any_detail::permintaan',
+            'view_gudang',
+            'view_any_gudang',
+            'create_gudang',
+            'update_gudang',
+            'delete_gudang',
+            'delete_any_gudang',
+            'restore_gudang',
+            'restore_any_gudang',
+            'replicate_gudang',
+            'reorder_gudang',
+            'force_delete_gudang',
+            'force_delete_any_gudang',
+            'view_log::aktivitas',
+            'view_any_log::aktivitas',
+            'create_log::aktivitas',
+            'update_log::aktivitas',
+            'delete_log::aktivitas',
+            'delete_any_log::aktivitas',
+            'restore_log::aktivitas',
+            'restore_any_log::aktivitas',
+            'replicate_log::aktivitas',
+            'reorder_log::aktivitas',
+            'force_delete_log::aktivitas',
+            'force_delete_any_log::aktivitas',
+            'view_permintaan',
+            'view_any_permintaan',
+            'create_permintaan',
+            'update_permintaan',
+            'delete_permintaan',
+            'delete_any_permintaan',
+            'restore_permintaan',
+            'restore_any_permintaan',
+            'replicate_permintaan',
+            'reorder_permintaan',
+            'force_delete_permintaan',
+            'force_delete_any_permintaan',
+            'view_role',
+            'view_any_role',
+            'create_role',
+            'update_role',
+            'delete_role',
+            'delete_any_role',
+            'view_user',
+            'view_any_user',
+            'create_user',
+            'update_user',
+            'delete_user',
+            'delete_any_user',
+            'restore_user',
+            'restore_any_user',
+            'replicate_user',
+            'reorder_user',
+            'force_delete_user',
+            'force_delete_any_user',
+            'widget_UserApproved',
+            'widget_AdminActivityStats',
+            'widget_KeuanganActivityStats',
+            'widget_UserActivityStats',
+            'widget_StockMovementChart',
+            'widget_TopRequestedItemsChart',
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
+        }
+
         // 1. SUPER ADMIN - Full Access
         $superAdmin = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
         $allPermissions = Permission::all();
@@ -98,23 +190,23 @@ class ShieldSeeder extends Seeder
             'view_permintaan',
             'view_any_permintaan', // Bisa lihat permintaan semua bagian
             'update_permintaan',
-            
+
             // Detail Permintaan
             'view_detail::permintaan',
             'view_any_detail::permintaan', // Bisa lihat detail semua bagian
-            
+
             // Barang - View semua barang
             'view_barang',
             'view_any_barang', // Bisa lihat semua barang
-            
+
             // Gudang - View semua gudang
             'view_gudang',
             'view_any_gudang', // Bisa lihat stok semua gudang
-            
+
             // Log Aktivitas - View semua log
             'view_log::aktivitas',
             'view_any_log::aktivitas', // Bisa lihat log semua aktivitas
-            
+
             // Widgets
             'widget_KeuanganActivityStats',
             'widget_StockMovementChart',
@@ -133,30 +225,30 @@ class ShieldSeeder extends Seeder
             'delete_barang',
             'restore_barang',
             'replicate_barang',
-            
+
             // Permintaan - Process permintaan dari bagiannya
             'view_permintaan', // Hanya permintaan dari bagiannya
             // TIDAK dapat view_any_permintaan
             'create_permintaan',
             'update_permintaan',
-            
+
             // Detail Permintaan
             'view_detail::permintaan', // Hanya detail dari bagiannya
             // TIDAK dapat view_any_detail::permintaan
             'create_detail::permintaan',
             'update_detail::permintaan',
             'delete_detail::permintaan',
-            
+
             // Gudang - Manage gudang bagiannya
             'view_gudang', // Hanya gudang bagiannya
             // TIDAK dapat view_any_gudang - ini yang penting!
             'create_gudang',
             'update_gudang',
-            
+
             // Log Aktivitas - Lihat log bagiannya
             'view_log::aktivitas', // Hanya log dari bagiannya
             // TIDAK dapat view_any_log::aktivitas
-            
+
             // Widgets
             'widget_AdminActivityStats',
             'widget_StockMovementChart',
@@ -171,20 +263,20 @@ class ShieldSeeder extends Seeder
             'view_permintaan', // Hanya permintaannya sendiri
             // TIDAK dapat view_any_permintaan
             'create_permintaan',
-            
+
             // Detail Permintaan - Create untuk permintaannya sendiri
             'view_detail::permintaan', // Hanya detail miliknya
             // TIDAK dapat view_any_detail::permintaan
             'create_detail::permintaan',
-            
+
             // Barang - View barang yang ada di gudang bagiannya
             'view_barang', // Hanya barang di gudang bagiannya
             // TIDAK dapat view_any_barang
-            
+
             // Gudang - View gudang bagiannya saja
             'view_gudang', // Hanya gudang bagiannya
             // TIDAK dapat view_any_gudang
-            
+
             // Widgets
             'widget_UserActivityStats',
             'widget_UserApproved',
@@ -199,7 +291,7 @@ class ShieldSeeder extends Seeder
                 $user->assignRole('admin');
             } elseif ($user->role === 'user') {
                 $user->assignRole('user');
-            } elseif ($user->role === 'superadmin') {
+            } elseif ($user->role === 'super_admin') {
                 $user->assignRole('super_admin');
             }
         }
@@ -210,7 +302,7 @@ class ShieldSeeder extends Seeder
             [
                 'name' => 'Super Administrator',
                 'password' => \Illuminate\Support\Facades\Hash::make('12345678'),
-                'role' => 'superadmin',
+                'role' => 'super_admin',
                 'bagian_id' => 1,
             ]
         );

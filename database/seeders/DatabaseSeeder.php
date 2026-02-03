@@ -9,11 +9,11 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            BagianSeeder::class,
+            BagianSeeder::class, // Setup bagian terlebih dahulu
+            ShieldSeeder::class, // Setup roles & permissions
             UserSeeder::class,
             BarangSeeder::class,
             GudangSeeder::class,
-            ShieldSeeder::class, // Setup roles & permissions
         ]);
     }
 }
