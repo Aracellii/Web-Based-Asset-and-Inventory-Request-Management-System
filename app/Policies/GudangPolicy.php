@@ -15,7 +15,6 @@ class GudangPolicy
      */
     public function viewAny(User $user): bool
     {
-        // view_any: Bisa lihat semua gudang dari semua bagian
         return $user->can('view_any_gudang');
     }
 
@@ -24,17 +23,7 @@ class GudangPolicy
      */
     public function view(User $user, Gudang $gudang): bool
     {
-        // Jika punya view_any, otomatis bisa view specific record
-        if ($user->can('view_any_gudang')) {
-            return true;
-        }
-        
-        // Jika hanya punya view, cek apakah gudang dari bagiannya
-        if ($user->can('view_gudang')) {
-            return $gudang->bagian_id === $user->bagian_id;
-        }
-        
-        return false;
+        return $user->can('view_gudang');
     }
 
     /**
@@ -50,19 +39,7 @@ class GudangPolicy
      */
     public function update(User $user, Gudang $gudang): bool
     {
-        // Cek permission dulu
-        if (!$user->can('update_gudang')) {
-            return false;
-        }
-        
-        // Super Admin & Keuangan bisa update semua
-        if ($user->isSuperAdmin() || $user->isKeuangan()) {
-            return true;
-        }
-        
-        // Admin bisa update gudang bagiannya
-        // User tidak bisa update
-        return $user->isAdmin() && $gudang->bagian_id === $user->bagian_id;
+        return $user->can('update_gudang');
     }
 
     /**
@@ -70,19 +47,7 @@ class GudangPolicy
      */
     public function delete(User $user, Gudang $gudang): bool
     {
-        // Cek permission dulu
-        if (!$user->can('delete_gudang')) {
-            return false;
-        }
-        
-        // Super Admin & Keuangan bisa delete semua
-        if ($user->isSuperAdmin() || $user->isKeuangan()) {
-            return true;
-        }
-        
-        // Admin bisa delete gudang bagiannya
-        // User tidak bisa delete
-        return $user->isAdmin() && $gudang->bagian_id === $user->bagian_id;
+        return $user->can('delete_gudang');
     }
 
     /**

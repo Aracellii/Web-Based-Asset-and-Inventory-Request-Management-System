@@ -199,6 +199,8 @@ class ShieldSeeder extends Seeder
                 $user->assignRole('admin');
             } elseif ($user->role === 'user') {
                 $user->assignRole('user');
+            } elseif ($user->role === 'superadmin') {
+                $user->assignRole('super_admin');
             }
         }
 
@@ -208,7 +210,7 @@ class ShieldSeeder extends Seeder
             [
                 'name' => 'Super Administrator',
                 'password' => \Illuminate\Support\Facades\Hash::make('12345678'),
-                'role' => 'super_admin',
+                'role' => 'superadmin',
                 'bagian_id' => 1,
             ]
         );

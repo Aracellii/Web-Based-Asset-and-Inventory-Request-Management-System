@@ -15,7 +15,6 @@ class BarangPolicy
      */
     public function viewAny(User $user): bool
     {
-        // view_any: Bisa lihat semua barang
         return $user->can('view_any_barang');
     }
 
@@ -24,17 +23,7 @@ class BarangPolicy
      */
     public function view(User $user, Barang $barang): bool
     {
-        // Jika punya view_any, otomatis bisa view specific record
-        if ($user->can('view_any_barang')) {
-            return true;
-        }
-        
-        // Jika hanya punya view, cek apakah barang ada di gudang bagiannya
-        if ($user->can('view_barang') && $user->bagian_id) {
-            return $barang->gudangs()->where('bagian_id', $user->bagian_id)->exists();
-        }
-        
-        return false;
+        return $user->can('view_barang');
     }
 
     /**
@@ -42,8 +31,7 @@ class BarangPolicy
      */
     public function create(User $user): bool
     {
-        // Hanya Keuangan & Super Admin yang bisa create barang baru
-        return $user->can('create_barang') && ($user->isSuperAdmin() || $user->isKeuangan());
+        return $user->can('create_barang');
     }
 
     /**
@@ -51,8 +39,7 @@ class BarangPolicy
      */
     public function update(User $user, Barang $barang): bool
     {
-        // Hanya Keuangan & Super Admin yang bisa update barang
-        return $user->can('update_barang') && ($user->isSuperAdmin() || $user->isKeuangan());
+        return $user->can('update_barang');
     }
 
     /**
@@ -60,8 +47,7 @@ class BarangPolicy
      */
     public function delete(User $user, Barang $barang): bool
     {
-        // Hanya Keuangan & Super Admin yang bisa delete barang
-        return $user->can('delete_barang') && ($user->isSuperAdmin() || $user->isKeuangan());
+        return $user->can('delete_barang');
     }
 
     /**

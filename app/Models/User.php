@@ -50,12 +50,40 @@ class User extends Authenticatable implements FilamentUser
         'password' => 'hashed',
     ];
 
-    /*protected static function booted(): void
+    protected static function booted(): void
     {
-        static::creating(function (User $user) {
-            $user->role = 'user';
+        // Auto-assign Spatie role based on database 'role' column
+        static::created(function (User $user) {
+            if ($user->role) {
+                $roleMap = [
+                    'superadmin' => 'super_admin',
+                    'keuangan' => 'keuangan',
+                    'admin' => 'admin',
+                    'user' => 'user',
+                ];
+                
+                $spatieRole = $roleMap[$user->role] ?? $user->role;
+                $user->assignRole($spatieRole);
+            }
         });
-    }*/
+
+        // Sync role when updated
+        static::updated(function (User $user) {
+            if ($user->isDirty('role') && $user->role) {
+                $roleMap = [
+                    'superadmin' => 'super_admin',
+                    'keuangan' => 'keuangan',
+                    'admin' => 'admin',
+                    'user' => 'user',
+                ];
+                
+                $spatieRole = $roleMap[$user->role] ?? $user->role;
+                
+                // Remove all existing roles and assign new one
+                $user->syncRoles([$spatieRole]);
+            }
+        });
+    }
 
     public function canAccessPanel(Panel $panel): bool
     {

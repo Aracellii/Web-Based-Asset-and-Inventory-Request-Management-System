@@ -25,21 +25,18 @@ class KeuanganActivityStats extends BaseWidget
 
     protected function getStats(): array
     {
-        $user = auth()->user();
         $startOfMonth = Carbon::now()->startOfMonth();
         $endOfMonth = Carbon::now()->endOfMonth();
         
         Carbon::setLocale('id');
 
-        // Hitung jumlah barang masuk bulan ini 
-        $masukCount = LogAktivitas::where('user_id', $user->id)
-            ->where('tipe', 'Masuk')
+        // Hitung jumlah barang masuk bulan ini dari SEMUA bagian
+        $masukCount = LogAktivitas::where('tipe', 'Masuk')
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
             ->count();
 
-        // Hitung jumlah barang keluar bulan ini
-        $keluarCount = LogAktivitas::where('user_id', $user->id)
-            ->where('tipe', 'Keluar')
+        // Hitung jumlah barang keluar bulan ini dari SEMUA bagian
+        $keluarCount = LogAktivitas::where('tipe', 'Keluar')
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
             ->count();
 
@@ -60,14 +57,12 @@ class KeuanganActivityStats extends BaseWidget
 
     protected function getChartData(string $tipe): array
     {
-        $user = auth()->user();
         $data = [];
 
-        // Ambil data 7 hari terakhir
+        // Ambil data 7 hari terakhir dari SEMUA bagian
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
-            $count = LogAktivitas::where('user_id', $user->id)
-                ->where('tipe', $tipe)
+            $count = LogAktivitas::where('tipe', $tipe)
                 ->whereDate('created_at', $date)
                 ->count();
             $data[] = $count;
