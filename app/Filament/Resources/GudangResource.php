@@ -17,6 +17,7 @@ use App\Traits\HasBagianScope;
 
 class GudangResource extends Resource
 {
+    
     use HasBagianScope;
     
     protected static ?int $navigationSort = 2;

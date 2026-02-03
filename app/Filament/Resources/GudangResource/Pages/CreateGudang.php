@@ -10,6 +10,7 @@ use App\Models\Bagian;
 use Illuminate\Database\Eloquent\Model;
 use EightyNine\ExcelImport\ExcelImportAction;
 use App\Imports\BarangImporter;
+use Filament\Forms\Components\Actions\Action;
 
 class CreateGudang extends CreateRecord
 {
@@ -27,6 +28,13 @@ class CreateGudang extends CreateRecord
                     fn($upload) => $upload
                         ->label("Pilih File Barang (.csv/.xlsx)")
                         ->placeholder("Klik untuk cari atau Seret file ke sini")
+                        ->hintAction(
+                            Action::make('downloadTemplate')
+                                ->label('Download Template')
+                                ->icon('heroicon-m-arrow-down-tray')
+                                ->url(asset('templates/Template_Tabel_Barang.xlsx'))
+                                ->openUrlInNewTab()
+                        )
                 )
                 ->modalWidth('3xl')
                 ->size('xl'),
