@@ -20,7 +20,7 @@ use App\Traits\HasBagianScope;
 class PermintaanResource extends Resource
 {
     use HasBagianScope;
-    
+
     protected static ?int $navigationSort = 4;
     protected static ?string $model = Permintaan::class;
     protected static ?string $modelLabel = 'Permintaan';
@@ -75,15 +75,11 @@ class PermintaanResource extends Resource
                                         // Ambil user_id dari komponen di luar repeater
                                         $userId = $get('../../user_id');
                                         if ($userId) {
-                                            // Cari user tersebut dan ambil bagian_id-nya
                                             return \App\Models\User::find($userId)?->bagian_id;
                                         }
-                                        // Fallback ke user yang sedang login jika belum pilih user
                                         return auth()->user()->bagian_id;
                                     })
                                     ->dehydrated(true),
-
-
                             ])
                             ->columns(3)
                             ->addable(function ($livewire) {
@@ -117,10 +113,10 @@ class PermintaanResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('permintaan.tanggal_permintaan')
+                    ->label('Tgl Permintaan')
                     ->date()
                     ->sortable()
-                    ->searchable()
-                    ->label('Tgl Permintaan'),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('barang.nama_barang')
                     ->label('Nama Barang')
                     ->sortable()
@@ -170,13 +166,9 @@ class PermintaanResource extends Resource
                         if (!$data['rentang'] || $data['rentang'] === 'all') {
                             return $query;
                         }
-
-                        // Jika pilih Tahun Ini
                         if ($data['rentang'] === 'this_year') {
                             return $query->whereYear('created_at', Carbon::now()->year);
                         }
-
-                        // Jika pilih rentang hari 
                         return $query->where('created_at', '>=', Carbon::now()->subDays((int) $data['rentang']));
                     })
                     ->indicateUsing(function (array $data): ?string {
@@ -210,9 +202,9 @@ class PermintaanResource extends Resource
                         fn(DetailPermintaan $record): string =>
                         DetailPermintaanResource::getUrl('edit', ['record' => $record->id])
                     )
-                    ->visible(fn (DetailPermintaan $record): bool => $record->approved === 'pending'),
-                     Tables\Actions\DeleteAction::make()
-                    ->visible(fn (DetailPermintaan $record): bool => $record->approved === 'pending')
+                    ->visible(fn(DetailPermintaan $record): bool => $record->approved === 'pending'),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn(DetailPermintaan $record): bool => $record->approved === 'pending')
                     ->action(function (DetailPermintaan $record) {
                         $permintaan = $record->permintaan;
                         if ($permintaan->detailPermintaans()->count() == 1) {
@@ -246,12 +238,11 @@ class PermintaanResource extends Resource
     {
         $query = parent::getEloquentQuery();
         $user = auth()->user();
-        
+
         // Jika punya view_any_permintaan, bisa lihat semua permintaan
         if ($user && $user->can('view_any_permintaan')) {
             return $query;
         }
-        
         // Jika hanya punya view_permintaan
         if ($user && $user->can('view_permintaan')) {
             // Admin bisa lihat permintaan dari bagiannya
@@ -260,12 +251,9 @@ class PermintaanResource extends Resource
                     $q->where('bagian_id', $user->bagian_id);
                 });
             }
-            
             // User hanya bisa lihat permintaannya sendiri
             return $query->where('user_id', $user->id);
         }
-        
-        // Tidak punya akses
         return $query->whereRaw('1 = 0');
     }
 
