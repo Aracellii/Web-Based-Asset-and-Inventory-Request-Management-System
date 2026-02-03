@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             BarangSeeder::class,
             GudangSeeder::class,
+            ShieldSeeder::class, // Setup roles & permissions
         ]);
     }
 }
