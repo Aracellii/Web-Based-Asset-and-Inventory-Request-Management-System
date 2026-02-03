@@ -17,10 +17,12 @@ use Filament\Forms\Components\Select;
 
 class ListPermintaanTable extends BaseWidget
 {
-    // Widget ini HANYA muncul jika admin
+    // Widget ini muncul jika user punya permission untuk melihat & approve permintaan
     public static function canView(): bool
     {
-        return auth()->user()->isAdmin();
+        $user = auth()->user();
+        // Super Admin & Keuangan bisa lihat widget ini
+        return $user->hasPermissionTo('view_any_detail::permintaan') || $user->hasPermissionTo('update_permintaan');
     }
     protected int | string | array $columnSpan = 'full';
     protected function getTableQuery(): Builder
@@ -139,7 +141,7 @@ class ListPermintaanTable extends BaseWidget
             ])
             ->actions([
                 Action::make('approve')
-                    ->visible(fn($record) => auth()->user()->isAdmin() && $record->approved === 'pending')
+                    ->visible(fn($record) => auth()->user()->hasPermissionTo('update_permintaan') && $record->approved === 'pending')
                     ->label('Approve')
                     ->color('success')
                     ->icon('heroicon-o-check-circle')
@@ -186,7 +188,7 @@ class ListPermintaanTable extends BaseWidget
                     }),
 
                 Action::make('reject')
-                    ->visible(fn($record) => auth()->user()->isAdmin() && $record->approved === 'pending')
+                    ->visible(fn($record) => auth()->user()->hasPermissionTo('update_permintaan') && $record->approved === 'pending')
                     ->label('Reject')
                     ->color('danger')
                     ->icon('heroicon-o-x-circle')
