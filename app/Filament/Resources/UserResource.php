@@ -102,8 +102,6 @@ class UserResource extends Resource
                                 return $roleDescriptions[$role] ?? 'Pilih role untuk melihat deskripsi';
                             }),
                     ])
-                    ->collapsible()
-                    ->collapsed(),
             ]);
     }
 
