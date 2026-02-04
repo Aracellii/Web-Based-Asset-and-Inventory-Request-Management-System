@@ -13,10 +13,12 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Filament\Forms\Components\Select;
 use App\Traits\HasBagianScope;
+use Filament\Tables\Actions\Action;
+use Filament\Infolists\Components\Livewire;
+use App\Filament\Resources\DetailPermintaanResource\Widgets\DetailPermintaanTable;
 
 class PermintaanResource extends Resource
 {
@@ -92,7 +94,7 @@ class PermintaanResource extends Resource
                                             $selectedBarang = collect($get('../../detailPermintaans'))
                                                 ->pluck('barang_id')
                                                 ->filter();
-                                                
+
                                             $counts = $selectedBarang->countBy();
 
                                             if ($counts->get($value) > 1) {
@@ -156,56 +158,60 @@ class PermintaanResource extends Resource
 
     public static function table(Table $table): Table
     {
-
         return $table
+            ->query(function () {
+                $user = auth()->user();
+                $query = Permintaan::query();
+
+                // Batasi berdasarkan permission
+                if (!$user->hasPermissionTo('access_permintaan')) {
+                    $query->where('bagian_id', $user->bagian_id);
+                }
+                return $query->latest();
+            })
             ->heading('Permintaan Saya')
-            ->query(
-                DetailPermintaan::query()->whereHas('permintaan', function ($q) {
-                    $q->where('user_id', Auth::id());
-                })
-            )
             ->columns([
-                Tables\Columns\TextColumn::make('permintaan.user.name')
+                Tables\Columns\TextColumn::make('id')
+                    ->label('ID Permintaan')
+                    ->sortable()
+                    ->weight('bold'),
+
+                Tables\Columns\TextColumn::make('user.name')
                     ->label('Peminta')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('permintaan_id')
-                    ->label('ID Permintaan')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('permintaan.created_at')
+
+                Tables\Columns\TextColumn::make('created_at')
                     ->label('Tgl Permintaan')
-                    ->date()
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('barang.nama_barang')
-                    ->label('Nama Barang')
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('barang.kode_barang')
-                    ->label('Kode Barang')
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('jumlah')
-                    ->label('Jumlah')
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('permintaan.user.bagian.nama_bagian')
-                    ->label('Unit Kerja')
+                    ->dateTime('d M Y, H:i')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('approved')
-                    ->label('Status')
+
+                Tables\Columns\TextColumn::make('detail_permintaans_count')
+                    ->label('Item')
+                    ->counts('detailPermintaans')
                     ->badge()
-                    ->colors([
-                        'warning' => 'pending',
-                        'success' => 'approved',
-                        'danger' => 'rejected',
-                    ])
-                    ->formatStateUsing(fn(string $state): string => ucfirst($state))
-                    ->sortable()
+                    ->color('gray'),
             ])
+
+            ->actions([
+                Action::make('view_details')
+                    ->label('Detail')
+                    ->icon('heroicon-m-eye')
+                    ->color('info')
+                    ->modalWidth('5xl')
+                    ->modalHeading('Detail Permintaan')
+                    ->infolist([
+                        Livewire::make(DetailPermintaanTable::class, function ($record) {
+                            return [
+                                'record' => $record,
+                            ];
+                        }),
+                    ])
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup'),
+            ])
+
             ->defaultSort('created_at', 'desc')
-            ->recordUrl(null)
             ->filters([
                 Tables\Filters\SelectFilter::make('created_at')
                     ->label('Rentang Waktu')
@@ -227,72 +233,29 @@ class PermintaanResource extends Resource
                         if (!$data['rentang'] || $data['rentang'] === 'all') {
                             return $query;
                         }
+                        // Jika pilih Tahun Ini
                         if ($data['rentang'] === 'this_year') {
                             return $query->whereYear('created_at', Carbon::now()->year);
                         }
+                        // Jika pilih rentang hari (7, 30, 60)
                         return $query->where('created_at', '>=', Carbon::now()->subDays((int) $data['rentang']));
                     })
                     ->indicateUsing(function (array $data): ?string {
                         if (!$data['rentang'] || $data['rentang'] === 'all') {
                             return null;
                         }
-
                         if ($data['rentang'] === 'this_year') {
                             return 'Rentang: Tahun Ini (' . Carbon::now()->year . ')';
                         }
-
                         return 'Rentang: ' . $data['rentang'] . ' Hari Terakhir';
                     }),
-                Tables\Filters\SelectFilter::make('approved')
-                    ->options([
-                        'pending' => 'Pending',
-                        'approved' => 'Approved',
-                        'rejected' => 'Rejected',
-                    ])
-                    ->label('Filter Status')
-                    ->multiple(true),
                 Tables\Filters\SelectFilter::make('filter_bagian')
-                    ->relationship('permintaan.user.bagian', 'nama_bagian')
+                    ->relationship('user.bagian', 'nama_bagian')
                     ->label('Filter Unit Kerja')
                     ->multiple(true)
                     ->preload(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
-                    ->url(
-                        fn(DetailPermintaan $record): string =>
-                        DetailPermintaanResource::getUrl('edit', ['record' => $record->id])
-                    )
-                    ->visible(fn(DetailPermintaan $record): bool => $record->approved === 'pending'),
-                Tables\Actions\DeleteAction::make()
-                    ->visible(fn(DetailPermintaan $record): bool => $record->approved === 'pending')
-                    ->action(function (DetailPermintaan $record) {
-                        $permintaan = $record->permintaan;
-                        if ($permintaan->detailPermintaans()->count() == 1) {
-                            $permintaan->delete();
-                        } else {
-                            $record->delete();
-                        }
-                    }),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->action(function ($records) {
-                            foreach ($records as $record) {
-                                if ($record->approved === 'pending') {
-                                    $permintaan = $record->permintaan;
-                                    if ($permintaan->detailPermintaans()->count() == 1) {
-                                        $permintaan->delete();
-                                    } else {
-                                        $record->delete();
-                                    }
-                                }
-                            }
-                        }),
-                ]),
-            ])
-            ->emptyStateHeading('Tidak ada permintaan');;
+            ->emptyStateHeading('Tidak ada permintaan');
     }
 
     public static function getEloquentQuery(): Builder

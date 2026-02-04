@@ -10,10 +10,7 @@ use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Filament\Forms\Components\Select;
-use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\Livewire;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Components\Grid;
 use App\Filament\Resources\DetailPermintaanResource\Widgets\DetailPermintaanTable;
 
 class ListPermintaanTable extends BaseWidget
@@ -76,6 +73,7 @@ class ListPermintaanTable extends BaseWidget
                         Livewire::make(DetailPermintaanTable::class, function ($record) {
                             return [
                                 'record' => $record,
+                                'canAction' => true, // Kirim TRUE agar tombol approve dan reject di list permintaan muncul
                             ];
                         }),
                     ])

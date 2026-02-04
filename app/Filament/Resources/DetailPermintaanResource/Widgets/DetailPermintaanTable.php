@@ -6,7 +6,6 @@ use App\Models\DetailPermintaan;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\DB;
 use Filament\Notifications\Notification;
@@ -20,6 +19,7 @@ class DetailPermintaanTable extends BaseWidget
 {
     // Ini sangat penting: Properti untuk menerima data dari tombol "Lihat"
     public $record;
+    public bool $canAction = false; // Atur tombol approval
     public function table(Table $table): Table
     {
         return $table
@@ -92,6 +92,7 @@ class DetailPermintaanTable extends BaseWidget
             ])
             ->actions([
                 Action::make('approve')
+                    ->visible(fn() => $this->canAction)
                     // ->visible(fn($record) => auth()->user()->hasPermissionTo('update_permintaan') && $record->approved === 'pending')
                     ->label('Approve')
                     ->color('success')
@@ -144,6 +145,7 @@ class DetailPermintaanTable extends BaseWidget
                     }),
 
                 Action::make('reject')
+                    ->visible(fn() => $this->canAction)
                     // ->visible(fn($record) => auth()->user()->hasPermissionTo('update_permintaan') && $record->approved === 'pending')
                     ->label('Reject')
                     ->color('danger')
