@@ -24,6 +24,10 @@ class SimplePermissionSeeder extends Seeder
             // Dashboard
             'access_dashboard' => 'Akses Dashboard',
             
+            // Scope Permissions - Batasan Data Bagian
+            'view_own_bagian_only' => 'Hanya Lihat Data Bagian Sendiri',
+            'view_all_bagian' => 'Lihat Data Semua Bagian',
+            
             // Stok Barang
             'access_stok_barang' => 'Akses Menu Stok Barang',
             'view_stok_barang' => 'Lihat Stok Barang',
@@ -78,10 +82,11 @@ class SimplePermissionSeeder extends Seeder
         $superAdmin = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
         $superAdmin->syncPermissions(array_keys($permissions));
 
-        // ADMIN - Manage semua kecuali settings
+        // ADMIN - Manage semua kecuali settings + Lihat Semua Bagian
         $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $admin->syncPermissions([
             'access_dashboard',
+            'view_all_bagian', // Admin bisa lihat semua bagian
             
             'access_stok_barang',
             'view_stok_barang',
@@ -109,10 +114,11 @@ class SimplePermissionSeeder extends Seeder
             'export_manajemen_user',
         ]);
 
-        // KEUANGAN - Full access + approval authority
+        // KEUANGAN - Full access + approval authority + Lihat Semua Bagian
         $keuangan = Role::firstOrCreate(['name' => 'keuangan', 'guard_name' => 'web']);
         $keuangan->syncPermissions([
             'access_dashboard',
+            'view_all_bagian', // Keuangan bisa lihat semua bagian
             
             'access_stok_barang',
             'view_stok_barang',
@@ -139,10 +145,11 @@ class SimplePermissionSeeder extends Seeder
             'view_manajemen_user',
         ]);
 
-        // USER - Limited access
+        // USER - Limited access + Hanya Lihat Bagian Sendiri
         $user = Role::firstOrCreate(['name' => 'user', 'guard_name' => 'web']);
         $user->syncPermissions([
             'access_dashboard',
+            'view_own_bagian_only', // User hanya lihat bagian sendiri
             
             'access_stok_barang',
             'view_stok_barang',

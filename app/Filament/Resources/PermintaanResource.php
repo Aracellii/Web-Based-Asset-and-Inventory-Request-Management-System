@@ -252,24 +252,9 @@ class PermintaanResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        $user = auth()->user();
-
-        // Jika punya view_any_permintaan, bisa lihat semua permintaan
-        if ($user && $user->can('view_any_permintaan')) {
-            return $query;
-        }
-        // Jika hanya punya view_permintaan
-        if ($user && $user->can('view_permintaan')) {
-            // Admin bisa lihat permintaan dari bagiannya
-            if ($user->isAdmin() && $user->bagian_id) {
-                return $query->whereHas('user', function ($q) use ($user) {
-                    $q->where('bagian_id', $user->bagian_id);
-                });
-            }
-            // User hanya bisa lihat permintaannya sendiri
-            return $query->where('user_id', $user->id);
-        }
-        return $query->whereRaw('1 = 0');
+        
+        // Apply user scope berdasarkan permission (via user's bagian)
+        return static::applyUserScope($query, 'user_id');
     }
 
 

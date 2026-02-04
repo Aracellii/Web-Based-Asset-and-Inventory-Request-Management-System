@@ -130,7 +130,7 @@ class GudangResource extends Resource
             ->headerActions([
                 // 1. ACTION EXCEL 
                 Tables\Actions\Action::make('export_excel')
-                    ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin']))
+                    ->visible(fn() => auth()->user()?->can('export_stok_barang'))
                     ->label('Excel')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('success')
@@ -205,7 +205,7 @@ class GudangResource extends Resource
 
                 // 2. ACTION PDF )
                 Tables\Actions\Action::make('export_pdf')
-                    ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin']))
+                    ->visible(fn() => auth()->user()?->can('export_stok_barang'))
                     ->label('PDF')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('danger')
@@ -254,10 +254,10 @@ class GudangResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin'])),
+                    ->visible(fn() => auth()->user()?->can('manage_stok_barang')),
                 Tables\Actions\DeleteAction::make()
                     ->label('Kosongkan')
-                    ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin']))
+                    ->visible(fn() => auth()->user()?->can('manage_stok_barang'))
                     ->modalHeading('Reset stok gudang?')
                     ->modalDescription('Stok akan dikosongkan')
                     ->modalSubmitActionLabel('Reset stok')
@@ -269,7 +269,7 @@ class GudangResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin']))
+                        ->visible(fn() => auth()->user()?->can('manage_stok_barang'))
                         ->modalHeading('Reset stok gudang yang dipilih?')
                         ->modalDescription('Stok akan di reset')
                         ->modalSubmitActionLabel('Reset stok')
@@ -287,23 +287,12 @@ class GudangResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        $user = auth()->user();
         
         // Filter hanya tampilkan gudang yang barangnya belum dihapus
         $query->whereHas('barang');
         
-        // Jika punya access_stok_barang, bisa lihat semua
-        if ($user && $user->can('access_stok_barang')) {
-            return $query;
-        }
-        
-        // Jika hanya punya view_stok_barang, lihat gudang bagiannya saja
-        if ($user && $user->can('view_stok_barang') && $user->bagian_id) {
-            return $query->where('bagian_id', $user->bagian_id);
-        }
-        
-        // Tidak punya akses sama sekali
-        return $query->whereRaw('1 = 0');
+        // Apply bagian scope berdasarkan permission
+        return static::applyBagianScope($query, 'bagian_id');
     }
 
     public static function getNavigationBadge(): ?string
