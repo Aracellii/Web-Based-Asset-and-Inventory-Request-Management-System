@@ -3,312 +3,66 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use BezhanSalleh\FilamentShield\Support\Utils;
+use Spatie\Permission\PermissionRegistrar;
 
-/**
- * Shield Seeder - Permission & Role Management
- * 
- * ROLE STRUCTURE:
- * ---------------
- * 1. super_admin : Full access to all resources and features
- * 2. keuangan    : Finance admin - Approve/reject requests, view reports, manage master data
- * 3. admin       : Warehouse admin - Manage items, process requests per department
- * 4. user        : Staff - Create and view their own requests
- * 
- * AUTHORIZATION LAYERS:
- * ---------------------
- * Layer 1: Permission Check (via Spatie Permission)
- *   - User must have the permission (e.g., 'view_barang', 'update_gudang')
- *   - Checked automatically by Shield plugin
- * 
- * Layer 2: Query Scoping (via getEloquentQuery in Resources)
- *   - Filters which records user can see in list view
- *   - Super Admin & Keuangan: See all records
- *   - Admin: See only records from their department (bagian)
- *   - User: See only their own records
- * 
- * Layer 3: Row-Level Authorization (via Policies)
- *   - Determines if user can view/edit/delete specific record
- *   - Checked on individual actions (view, edit, delete buttons)
- *   - Provides fine-grained control per record
- * 
- * PERMISSION STRATEGY BY RESOURCE:
- * --------------------------------
- * UNDERSTANDING view vs view_any:
- *   - view: Melihat data yang terbatas (milik sendiri atau bagian sendiri)
- *   - view_any: Melihat SEMUA data dari semua bagian
- * 
- * Contoh di Gudang:
- *   - view_gudang: User bisa lihat stok gudang bagiannya saja
- *   - view_any_gudang: User bisa lihat stok semua gudang dari semua bagian
- * 
- * Barang (Items):
- *   - view/view_any: Difilter berdasarkan gudang bagian
- *   - create/update/delete: Only super_admin & keuangan
- * 
- * Gudang (Warehouse Stock):
- *   - view: Lihat gudang bagian sendiri
- *   - view_any: Lihat semua gudang
- *   - create/update: super_admin, keuangan, admin (admin only for their dept)
- *   - delete: super_admin, keuangan, admin (admin only for their dept)
- * 
- * Permintaan (Requests):
- *   - view: User lihat miliknya, Admin lihat bagiannya
- *   - view_any: Lihat semua permintaan
- *   - create: All roles
- *   - update: All roles (admin for approve/reject, user for own pending)
- *   - delete: user only (for own pending requests)
- * 
- * Detail Permintaan:
- *   - Same as Permintaan, tied to parent request
- * 
- * Log Aktivitas:
- *   - view: User lihat lognya sendiri, Admin lihat log bagiannya
- *   - view_any: Lihat semua log
- *   - create/update/delete: None (read-only, auto-generated)
- * 
- * CREDENTIALS:
- * ------------
- * Super Admin: superadmin@gmail.com / 12345678
- * Keuangan   : admin@gmail.com / 12345678
- * Admin      : gudangTU@gmail.com / 12345678
- * User       : userTU@gmail.com / 12345678
- * 
- * To reassign permissions, run:
- * php artisan db:seed --class=ShieldSeeder
- */
 class ShieldSeeder extends Seeder
 {
     public function run(): void
     {
-        // Reset cached roles and permissions
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // 0. CREATE ALL PERMISSIONS FIRST
-        $permissions = [
-            'view_barang',
-            'view_any_barang',
-            'create_barang',
-            'update_barang',
-            'delete_barang',
-            'delete_any_barang',
-            'restore_barang',
-            'restore_any_barang',
-            'replicate_barang',
-            'reorder_barang',
-            'force_delete_barang',
-            'force_delete_any_barang',
-            'view_detail_permintaan',
-            'view_any_detail_permintaan',
-            'create_detail_permintaan',
-            'update_detail_permintaan',
-            'delete_detail_permintaan',
-            'delete_any_detail_permintaan',
-            'restore_detail_permintaan',
-            'restore_any_detail_permintaan',
-            'replicate_detail_permintaan',
-            'reorder_detail_permintaan',
-            'force_delete_detail_permintaan',
-            'force_delete_any_detail_permintaan',
-            'view_gudang',
-            'view_any_gudang',
-            'create_gudang',
-            'update_gudang',
-            'delete_gudang',
-            'delete_any_gudang',
-            'restore_gudang',
-            'restore_any_gudang',
-            'replicate_gudang',
-            'reorder_gudang',
-            'force_delete_gudang',
-            'force_delete_any_gudang',
-            'view_log_aktivitas',
-            'view_any_log_aktivitas',
-            'create_log_aktivitas',
-            'update_log_aktivitas',
-            'delete_log_aktivitas',
-            'delete_any_log_aktivitas',
-            'restore_log_aktivitas',
-            'restore_any_log_aktivitas',
-            'replicate_log_aktivitas',
-            'reorder_log_aktivitas',
-            'force_delete_log_aktivitas',
-            'force_delete_any_log_aktivitas',
-            'view_permintaan',
-            'view_any_permintaan',
-            'create_permintaan',
-            'update_permintaan',
-            'delete_permintaan',
-            'delete_any_permintaan',
-            'restore_permintaan',
-            'restore_any_permintaan',
-            'replicate_permintaan',
-            'reorder_permintaan',
-            'force_delete_permintaan',
-            'force_delete_any_permintaan',
-            'view_role',
-            'view_any_role',
-            'create_role',
-            'update_role',
-            'delete_role',
-            'delete_any_role',
-            'view_user',
-            'view_any_user',
-            'create_user',
-            'update_user',
-            'delete_user',
-            'delete_any_user',
-            'restore_user',
-            'restore_any_user',
-            'replicate_user',
-            'reorder_user',
-            'force_delete_user',
-            'force_delete_any_user',
-            'widget_UserApproved',
-            'widget_AdminActivityStats',
-            'widget_KeuanganActivityStats',
-            'widget_UserActivityStats',
-            'widget_StockMovementChart',
-            'widget_TopRequestedItemsChart',
-        ];
+        $rolesWithPermissions = '[{"name":"super_admin","guard_name":"web","permissions":["view_permintaan","create_permintaan","approve_permintaan","export_permintaan","access_dashboard","access_stok_barang","view_stok_barang","manage_stok_barang","export_stok_barang","access_katalog_barang","view_katalog_barang","manage_katalog_barang","import_katalog_barang","export_katalog_barang","access_permintaan","manage_permintaan","access_log_aktivitas","view_log_aktivitas","export_log_aktivitas","clear_log_aktivitas","access_manajemen_user","view_manajemen_user","manage_manajemen_user","export_manajemen_user","access_settings","manage_roles","view_own_bagian_only","view_all_bagian","widget_KeuanganActivityStats","widget_AdminActivityStats","widget_UserActivityStats","widget_UserApproved","widget_StockMovementChart","widget_TopRequestedItemsChart"]},{"name":"admin","guard_name":"web","permissions":["view_permintaan","approve_permintaan","export_permintaan","access_dashboard","access_stok_barang","view_stok_barang","manage_stok_barang","export_stok_barang","access_katalog_barang","view_katalog_barang","manage_katalog_barang","export_katalog_barang","access_permintaan","manage_permintaan","access_log_aktivitas","view_log_aktivitas","export_log_aktivitas","access_manajemen_user","view_manajemen_user","manage_manajemen_user","export_manajemen_user","view_all_bagian","widget_AdminActivityStats","widget_StockMovementChart","widget_TopRequestedItemsChart"]},{"name":"keuangan","guard_name":"web","permissions":["view_permintaan","approve_permintaan","export_permintaan","access_dashboard","access_stok_barang","view_stok_barang","manage_stok_barang","export_stok_barang","access_katalog_barang","view_katalog_barang","manage_katalog_barang","import_katalog_barang","export_katalog_barang","access_permintaan","manage_permintaan","access_log_aktivitas","view_log_aktivitas","export_log_aktivitas","access_manajemen_user","view_manajemen_user","view_all_bagian","widget_KeuanganActivityStats","widget_StockMovementChart","widget_TopRequestedItemsChart"]},{"name":"user","guard_name":"web","permissions":["view_permintaan","create_permintaan","access_dashboard","access_stok_barang","view_stok_barang","access_katalog_barang","view_katalog_barang","access_permintaan","access_log_aktivitas","view_log_aktivitas","view_own_bagian_only","widget_UserActivityStats","widget_UserApproved","widget_TopRequestedItemsChart"]}]';
+        $directPermissions = '[]';
 
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
-        }
+        static::makeRolesWithPermissions($rolesWithPermissions);
+        static::makeDirectPermissions($directPermissions);
 
-        // 1. SUPER ADMIN - Full Access
-        $superAdmin = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
-        $allPermissions = Permission::all();
-        $superAdmin->syncPermissions($allPermissions);
+        $this->command->info('Shield Seeding Completed.');
+    }
 
-        // 2. KEUANGAN - Finance Admin (Verifikasi & Approval)
-        // Dapat view_any untuk semua resource karena perlu monitor semua bagian
-        $keuangan = Role::firstOrCreate(['name' => 'keuangan', 'guard_name' => 'web']);
-        $keuangan->syncPermissions([
-            // Permintaan - Approve/Reject semua bagian
-            'view_permintaan',
-            'view_any_permintaan', // Bisa lihat permintaan semua bagian
-            'update_permintaan',
+    protected static function makeRolesWithPermissions(string $rolesWithPermissions): void
+    {
+        if (! blank($rolePlusPermissions = json_decode($rolesWithPermissions, true))) {
+            /** @var Model $roleModel */
+            $roleModel = Utils::getRoleModel();
+            /** @var Model $permissionModel */
+            $permissionModel = Utils::getPermissionModel();
 
-            // Detail Permintaan
-            'view_detail_permintaan',
-            'view_any_detail_permintaan', // Bisa lihat detail semua bagian
+            foreach ($rolePlusPermissions as $rolePlusPermission) {
+                $role = $roleModel::firstOrCreate([
+                    'name' => $rolePlusPermission['name'],
+                    'guard_name' => $rolePlusPermission['guard_name'],
+                ]);
 
-            // Barang - View semua barang
-            'view_barang',
-            'view_any_barang', // Bisa lihat semua barang
+                if (! blank($rolePlusPermission['permissions'])) {
+                    $permissionModels = collect($rolePlusPermission['permissions'])
+                        ->map(fn ($permission) => $permissionModel::firstOrCreate([
+                            'name' => $permission,
+                            'guard_name' => $rolePlusPermission['guard_name'],
+                        ]))
+                        ->all();
 
-            // Gudang - View semua gudang
-            'view_gudang',
-            'view_any_gudang', // Bisa lihat stok semua gudang
-
-            // Log Aktivitas - View semua log
-            'view_log_aktivitas',
-            'view_any_log_aktivitas', // Bisa lihat log semua aktivitas
-
-            // Widgets
-            'widget_KeuanganActivityStats',
-            'widget_StockMovementChart',
-            'widget_TopRequestedItemsChart',
-        ]);
-
-        // 3. ADMIN - Admin Gudang (Per Bagian)
-        // Hanya dapat view (bagiannya), TIDAK dapat view_any
-        $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-        $admin->syncPermissions([
-            // Barang - Lihat barang yang ada di gudang bagiannya
-            'view_barang', // Hanya barang di gudang bagiannya
-            // TIDAK dapat view_any_barang
-            'create_barang',
-            'update_barang',
-            'delete_barang',
-            'restore_barang',
-            'replicate_barang',
-
-            // Permintaan - Process permintaan dari bagiannya
-            'view_permintaan', // Hanya permintaan dari bagiannya
-            // TIDAK dapat view_any_permintaan
-            'create_permintaan',
-            'update_permintaan',
-
-            // Detail Permintaan
-            'view_detail_permintaan', // Hanya detail dari bagiannya
-            // TIDAK dapat view_any_detail_permintaan
-            'create_detail_permintaan',
-            'update_detail_permintaan',
-            'delete_detail_permintaan',
-
-            // Gudang - Manage gudang bagiannya
-            'view_gudang', // Hanya gudang bagiannya
-            // TIDAK dapat view_any_gudang - ini yang penting!
-            'create_gudang',
-            'update_gudang',
-
-            // Log Aktivitas - Lihat log bagiannya
-            'view_log_aktivitas', // Hanya log dari bagiannya
-            // TIDAK dapat view_any_log_aktivitas
-
-            // Widgets
-            'widget_AdminActivityStats',
-            'widget_StockMovementChart',
-            'widget_TopRequestedItemsChart',
-        ]);
-
-        // 4. USER - Staff (Hanya Buat Permintaan)
-        // Hanya dapat view (milik sendiri), TIDAK dapat view_any
-        $user = Role::firstOrCreate(['name' => 'user', 'guard_name' => 'web']);
-        $user->syncPermissions([
-            // Permintaan - Create & View Own saja
-            'view_permintaan', // Hanya permintaannya sendiri
-            // TIDAK dapat view_any_permintaan
-            'create_permintaan',
-
-            // Detail Permintaan - Create untuk permintaannya sendiri
-            'view_detail_permintaan', // Hanya detail miliknya
-            // TIDAK dapat view_any_detail_permintaan
-            'create_detail_permintaan',
-
-            // Barang - View barang yang ada di gudang bagiannya
-            'view_barang', // Hanya barang di gudang bagiannya
-            // TIDAK dapat view_any_barang
-
-            // Gudang - View gudang bagiannya saja
-            'view_gudang', // Hanya gudang bagiannya
-            // TIDAK dapat view_any_gudang
-
-            // Widgets
-            'widget_UserActivityStats',
-            'widget_UserApproved',
-        ]);
-
-        // Assign roles to existing users
-        $users = \App\Models\User::all();
-        foreach ($users as $user) {
-            if ($user->role === 'keuangan') {
-                $user->assignRole('keuangan');
-            } elseif ($user->role === 'admin') {
-                $user->assignRole('admin');
-            } elseif ($user->role === 'user') {
-                $user->assignRole('user');
-            } elseif ($user->role === 'super_admin') {
-                $user->assignRole('super_admin');
+                    $role->syncPermissions($permissionModels);
+                }
             }
         }
+    }
 
-        // Create Super Admin user if not exists
-        $superAdminUser = \App\Models\User::firstOrCreate(
-            ['email' => 'superadmin@gmail.com'],
-            [
-                'name' => 'Super Administrator',
-                'password' => \Illuminate\Support\Facades\Hash::make('12345678'),
-                'role' => 'super_admin',
-                'bagian_id' => 1,
-            ]
-        );
-        $superAdminUser->assignRole('super_admin');
+    public static function makeDirectPermissions(string $directPermissions): void
+    {
+        if (! blank($permissions = json_decode($directPermissions, true))) {
+            /** @var Model $permissionModel */
+            $permissionModel = Utils::getPermissionModel();
 
-        $this->command->info('✅ Roles and Permissions have been seeded successfully!');
-        $this->command->info('📝 Super Admin: superadmin@gmail.com / 12345678');
+            foreach ($permissions as $permission) {
+                if ($permissionModel::whereName($permission)->doesntExist()) {
+                    $permissionModel::create([
+                        'name' => $permission['name'],
+                        'guard_name' => $permission['guard_name'],
+                    ]);
+                }
+            }
+        }
     }
 }
