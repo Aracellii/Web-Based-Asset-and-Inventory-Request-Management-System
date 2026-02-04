@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PermintaanResource\Pages;
 use App\Models\Permintaan;
 use App\Models\Gudang;
+use App\Models\User;
 use App\Models\DetailPermintaan;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -59,10 +60,18 @@ class PermintaanResource extends Resource
                             ->default(auth()->id())
                             ->disabled()
                             ->dehydrated(),
-                        Forms\Components\DateTimePicker::make('created_at')
-                            ->label('Tanggal Permintaan')
-                            ->default(now())
-                            ->disabled(),
+                        Forms\Components\Grid::make(3)
+                            ->schema([
+                                Forms\Components\DatePicker::make('created_at')
+                                    ->label('Tanggal Permintaan')
+                                    ->default(now())
+                                    ->disabled(),
+                                Forms\Components\TimePicker::make('created_at_time')
+                                    ->label(new \Illuminate\Support\HtmlString('&nbsp;')) // Memaksa label ada tapi kosong
+                                    ->default(now())
+                                    ->disabled(),
+                            ])
+                            ->columnSpan(1),
                     ])->columns(2),
 
                 Forms\Components\Section::make('Daftar Barang')
@@ -78,27 +87,40 @@ class PermintaanResource extends Resource
                                     ->searchable()
                                     ->preload()
                                     ->live()
+                                    ->rules([
+                                        fn($get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
+                                            $selectedBarang = collect($get('../../detailPermintaans'))
+                                                ->pluck('barang_id')
+                                                ->filter();
+                                                
+                                            $counts = $selectedBarang->countBy();
+
+                                            if ($counts->get($value) > 1) {
+                                                $fail('Barang ini sudah dipilih di baris lain.');
+                                            }
+                                        },
+                                    ])
                                     ->afterStateUpdated(function ($state, callable $set) {
-                                        // Ambil stok langsung dari tabel GUDANG
-                                        $stokGudang = \App\Models\Gudang::where('barang_id', $state)->value('stok');
+                                        $stokGudang = Gudang::where('barang_id', $state)->value('stok');
                                         $set('stok_saat_ini', $stokGudang ?? 0);
                                     }),
                                 Forms\Components\TextInput::make('jumlah')
                                     ->label('Jumlah Minta')
                                     ->numeric()
                                     ->required()
+                                    ->prefix('Qty:')
                                     ->default(1)
                                     ->minValue(1)
                                     ->reactive()
                                     ->minValue(1)
-                                    // Validasi keras: tidak boleh lebih dari stok yang ada di gudang
+                                    // Validasi tidak boleh lebih dari stok yang ada di gudang
                                     ->maxValue(fn($get) => (int) $get('stok_saat_ini')),
                                 Forms\Components\Hidden::make('bagian_id')
                                     ->default(function (callable $get) {
                                         // Ambil user_id dari komponen di luar repeater
                                         $userId = $get('../../user_id');
                                         if ($userId) {
-                                            return \App\Models\User::find($userId)?->bagian_id;
+                                            return User::find($userId)?->bagian_id;
                                         }
                                         return auth()->user()->bagian_id;
                                     })
@@ -109,10 +131,10 @@ class PermintaanResource extends Resource
                                     ->readOnly()
                                     ->prefix('Qty:')
                                     ->helperText('Sisa stok yang tersedia saat ini.')
-                                    ->placeholder('0')
+                                    ->placeholder('-')
+
                                     // Load stok awal jika sedang dalam mode Edit
                                     ->afterStateHydrated(function ($state, $set, $get) {
-                                        // Pastikan saat Edit, stok gudang tetap terisi
                                         $barangId = $get('barang_id');
                                         if ($barangId) {
                                             $stok = Gudang::where('barang_id', $barangId)->value('stok');
@@ -276,8 +298,7 @@ class PermintaanResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        
-        // Apply user scope berdasarkan permission (via user's bagian)
+
         return static::applyUserScope($query, 'user_id');
     }
 
@@ -296,7 +317,6 @@ class PermintaanResource extends Resource
 
         $count = DetailPermintaan::where('approved', 'pending')
             ->when($user->isAdmin(), function ($query) use ($user) {
-                // Admin lihat pending
                 return $query->whereHas('permintaan.user', function ($q) use ($user) {
                     $q->where('users.bagian_id', $user->bagian_id);
                 });

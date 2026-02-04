@@ -33,7 +33,7 @@ class ListPermintaanTable extends BaseWidget
         $user = auth()->user();
         $query = Permintaan::query();
         // Jika tidak punya 'view_any', maka batasi hanya per bagian (Unit Kerja)
-        if (!$user->hasPermissionTo('view_any_permintaan')) {
+        if (!$user->hasPermissionTo('access_permintaan')) {
             $query->where('bagian_id', $user->bagian_id);
         }
 
