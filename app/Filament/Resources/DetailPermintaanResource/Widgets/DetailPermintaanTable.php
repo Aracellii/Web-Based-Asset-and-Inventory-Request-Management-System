@@ -36,25 +36,28 @@ class DetailPermintaanTable extends BaseWidget
                                 'class' => '!border-none !shadow-none !bg-transparent !px-0 '
                             ])
                             ->schema([
-                                Grid::make(4)
+                                Grid::make(11)
                                     ->schema([
                                         TextEntry::make('id')
-                                            ->label('ID Permintaan')
+                                            ->label('ID')
                                             ->weight('bold')
                                             ->prefix('# '),
                                         TextEntry::make('user.name')
                                             ->label('Peminta')
                                             ->badge()
-                                            ->color('gray'),
+                                            ->color('gray')
+                                            ->columnSpan(4),
                                         TextEntry::make('bagian.nama_bagian')
                                             ->label('Unit Kerja')
                                             ->badge()
-                                            ->color('gray'),
+                                            ->color('gray')
+                                            ->columnSpan(4),
                                         TextEntry::make('created_at')
                                             ->label('Tgl Permintaan')
                                             ->dateTime('d M Y, H:i')
                                             ->badge()
-                                            ->color('gray'),
+                                            ->color('gray')
+                                            ->columnSpan(2),
                                     ]),
                             ])
                             ->compact(),
