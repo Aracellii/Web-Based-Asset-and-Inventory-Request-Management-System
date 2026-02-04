@@ -129,8 +129,17 @@ class UserSeeder extends Seeder
             'bagian_id' => 6,
         ]);
         $user13->assignRole('user');
+
+        $user14 = User::create([
+            'name' => 'Super Admin',
+            'email' => 'superadmin@gmail.com',
+            'password' => Hash::make('12345678'),
+            'role' => 'super_admin',
+            'bagian_id' => 1,
+        ]);
+        $user14->assignRole('super_admin');
         
-        $this->command->info('✅ 13 users berhasil dibuat (1 keuangan, 6 admin, 6 user)');
+        $this->command->info('✅ 14 users berhasil dibuat (1 super admin, 1 keuangan, 6 admin, 6 user)');
         $this->command->info('   Password semua user: 12345678');
     }
 }
