@@ -26,7 +26,7 @@ class DetailPermintaanResource extends Resource
                         Forms\Components\Select::make('barang_id')
                             ->relationship('barang', 'nama_barang')
                             ->required()
-                            ->disabled() // Barang dikunci, hanya jumlah yang boleh edit
+                            ->disabled()
                             ->columnSpanFull(),
                         
                         Forms\Components\TextInput::make('jumlah')
