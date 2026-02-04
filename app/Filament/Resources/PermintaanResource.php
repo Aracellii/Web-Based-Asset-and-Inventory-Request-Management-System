@@ -151,7 +151,7 @@ class PermintaanResource extends Resource
                     ->label('ID Permintaan')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('permintaan.tanggal_permintaan')
+                Tables\Columns\TextColumn::make('permintaan.created_at')
                     ->label('Tgl Permintaan')
                     ->date()
                     ->sortable()
