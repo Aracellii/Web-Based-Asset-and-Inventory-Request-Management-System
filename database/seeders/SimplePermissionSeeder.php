@@ -72,6 +72,14 @@ class SimplePermissionSeeder extends Seeder
             // Settings & Roles (Admin only)
             'access_settings' => 'Akses Pengaturan',
             'manage_roles' => 'Kelola Roles & Permissions',
+            
+            // Shield RoleResource Permissions
+            'view_role' => 'Lihat Role',
+            'view_any_role' => 'Lihat Daftar Role',
+            'create_role' => 'Buat Role',
+            'update_role' => 'Edit Role',
+            'delete_role' => 'Hapus Role',
+            'delete_any_role' => 'Hapus Banyak Role',
         ];
 
         // Create all permissions
@@ -123,6 +131,14 @@ class SimplePermissionSeeder extends Seeder
             'view_manajemen_user',
             'manage_manajemen_user',
             'export_manajemen_user',
+            
+            'manage_roles',
+            'view_role',
+            'view_any_role',
+            'create_role',
+            'update_role',
+            'delete_role',
+            'delete_any_role',
         ]);
 
         // KEUANGAN - Full access + approval authority + Lihat Semua Bagian
@@ -157,6 +173,8 @@ class SimplePermissionSeeder extends Seeder
             
             'access_manajemen_user',
             'view_manajemen_user',
+            
+            'manage_roles',
         ]);
 
         // USER - Limited access + Hanya Lihat Bagian Sendiri

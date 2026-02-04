@@ -14,6 +14,8 @@ class GudangSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->command->info('🏭 Seeding Stok Gudang...');
+        
         $data = [];
         $stok_per_barang = [1 => 5, 2 => 15, 3 => 30, 4 => 30, 5 => 30, 6 => 30, 7 => 30, 8 => 30];
 
@@ -30,5 +32,7 @@ class GudangSeeder extends Seeder
         foreach ($data as $item) {
             Gudang::create($item);
         }
+        
+        $this->command->info('✅ ' . count($data) . ' stok gudang berhasil dibuat (6 bagian × 8 barang)');
     }
 }

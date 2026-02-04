@@ -9,6 +9,8 @@ class BarangSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->command->info('📦 Seeding Katalog Barang...');
+        
         $data = [
             ['nama_barang' => 'Pensil', 'kode_barang' => 'B001'],
             ['nama_barang' => 'buku', 'kode_barang' => 'B002'],
@@ -23,5 +25,7 @@ class BarangSeeder extends Seeder
         foreach ($data as $item) {
             Barang::create($item);
         }
+        
+        $this->command->info('✅ ' . count($data) . ' barang berhasil dibuat');
     }
 }
