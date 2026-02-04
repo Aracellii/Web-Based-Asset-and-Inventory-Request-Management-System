@@ -24,6 +24,14 @@ class SimplePermissionSeeder extends Seeder
             // Dashboard
             'access_dashboard' => 'Akses Dashboard',
             
+            // Dashboard Widgets
+            'widget_KeuanganActivityStats' => 'Widget Aktivitas Keuangan (Dashboard)',
+            'widget_AdminActivityStats' => 'Widget Aktivitas Admin (Dashboard)',
+            'widget_UserActivityStats' => 'Widget Aktivitas User (Dashboard)',
+            'widget_UserApproved' => 'Widget Barang Disetujui User (Dashboard)',
+            'widget_StockMovementChart' => 'Widget Grafik Pergerakan Stok (Dashboard)',
+            'widget_TopRequestedItemsChart' => 'Widget Grafik Barang Terbanyak Diminta (Dashboard)',
+            
             // Scope Permissions - Batasan Data Bagian
             'view_own_bagian_only' => 'Hanya Lihat Data Bagian Sendiri',
             'view_all_bagian' => 'Lihat Data Semua Bagian',
@@ -86,6 +94,9 @@ class SimplePermissionSeeder extends Seeder
         $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $admin->syncPermissions([
             'access_dashboard',
+            'widget_AdminActivityStats',
+            'widget_StockMovementChart',
+            'widget_TopRequestedItemsChart',
             'view_all_bagian', // Admin bisa lihat semua bagian
             
             'access_stok_barang',
@@ -118,6 +129,9 @@ class SimplePermissionSeeder extends Seeder
         $keuangan = Role::firstOrCreate(['name' => 'keuangan', 'guard_name' => 'web']);
         $keuangan->syncPermissions([
             'access_dashboard',
+            'widget_KeuanganActivityStats',
+            'widget_StockMovementChart',
+            'widget_TopRequestedItemsChart',
             'view_all_bagian', // Keuangan bisa lihat semua bagian
             
             'access_stok_barang',
@@ -149,6 +163,9 @@ class SimplePermissionSeeder extends Seeder
         $user = Role::firstOrCreate(['name' => 'user', 'guard_name' => 'web']);
         $user->syncPermissions([
             'access_dashboard',
+            'widget_UserActivityStats',
+            'widget_UserApproved',
+            'widget_TopRequestedItemsChart',
             'view_own_bagian_only', // User hanya lihat bagian sendiri
             
             'access_stok_barang',

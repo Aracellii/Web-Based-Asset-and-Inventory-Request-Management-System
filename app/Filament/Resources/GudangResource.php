@@ -225,7 +225,7 @@ class GudangResource extends Resource
                             ->getFilteredTableQuery()
                             ->with(['barang', 'bagian'])
                             ->get()
-                            ->groupBy(fn($item) => $item->bagian->nama_bagian ?? 'Tanpa Bagian');
+                            ->groupBy(fn($item) => $item->bagian->nama_bagian ?? 'Tanpa Bagian');   
 
                         $pdf = Pdf::loadView('pdf.stok-barang', [
                             'groupedRecords' => $records,
