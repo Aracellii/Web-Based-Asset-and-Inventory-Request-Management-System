@@ -31,6 +31,10 @@ class ListPermintaanTable extends BaseWidget
             $query->where('bagian_id', $user->bagian_id);
         }
 
+        $query->whereHas('detailPermintaans', function ($q) {
+            $q->where('approved', 'pending');
+        });
+
         return $query;
     }
 
@@ -43,23 +47,55 @@ class ListPermintaanTable extends BaseWidget
                 Tables\Columns\TextColumn::make('id')
                     ->label('ID Permintaan')
                     ->sortable()
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Peminta')
                     ->sortable()
                     ->searchable(),
-
+                Tables\Columns\TextColumn::make('detailPermintaans.barang.nama_barang')
+                    ->label('Preview Barang')
+                    ->listWithLineBreaks()
+                    ->bulleted()
+                    ->limitList(2)
+                    ->expandableLimitedList()
+                    ->color('gray')
+                    ->size('sm'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Tgl Permintaan')
                     ->dateTime('d M Y, H:i')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('detail_permintaans_count')
-                    ->label('Item')
-                    ->counts('detailPermintaans')
+                Tables\Columns\TextColumn::make('item_progress')
+                    ->label('Progress')
+                    ->getStateUsing(function ($record) {
+                        $total = $record->detailPermintaans()->count();
+                        $processed = $record->detailPermintaans()
+                            ->whereIn('approved', ['approved', 'rejected'])
+                            ->count();
+
+                        return "{$processed} / {$total}";
+                    })
                     ->badge()
-                    ->color('gray'),
+                    // Logika Warna: Abu-abu jika nol, Hijau jika selesai semua, Kuning jika sebagian
+                    ->color(function ($state) {
+                        [$processed, $total] = explode(' / ', $state);
+                        if ($processed == 0) return 'gray';
+                        if ($processed == $total) return 'success';
+                        return 'warning';
+                    })
+                    // Menambahkan keterangan di bawah angka (description)
+                    ->description(function ($state) {
+                        [$processed, $total] = explode(' / ', $state);
+
+                        if ($total == 0) return 'Tidak ada item';
+                        if ($processed == 0) return 'Belum diproses';
+                        if ($processed == $total) return 'Selesai';
+
+                        return 'Dalam proses';
+                    }),
             ])
 
             ->actions([

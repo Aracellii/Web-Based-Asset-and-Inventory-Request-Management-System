@@ -92,7 +92,7 @@ class DetailPermintaanTable extends BaseWidget
             ])
             ->actions([
                 Action::make('approve')
-                    ->visible(fn() => $this->canAction)
+                    ->visible(fn($record) => $this->canAction && $record->approved === 'pending')
                     // ->visible(fn($record) => auth()->user()->hasPermissionTo('update_permintaan') && $record->approved === 'pending')
                     ->label('Approve')
                     ->color('success')
@@ -145,7 +145,7 @@ class DetailPermintaanTable extends BaseWidget
                     }),
 
                 Action::make('reject')
-                    ->visible(fn() => $this->canAction)
+                    ->visible(fn($record) => $this->canAction && $record->approved === 'pending')
                     // ->visible(fn($record) => auth()->user()->hasPermissionTo('update_permintaan') && $record->approved === 'pending')
                     ->label('Reject')
                     ->color('danger')

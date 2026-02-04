@@ -90,7 +90,7 @@ class PermintaanResource extends Resource
                                     ->preload()
                                     ->live()
                                     ->rules([
-                                        fn($get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
+                                        fn($get): \Closure => function ($value, \Closure $fail) use ($get) {
                                             $selectedBarang = collect($get('../../detailPermintaans'))
                                                 ->pluck('barang_id')
                                                 ->filter();
@@ -161,7 +161,7 @@ class PermintaanResource extends Resource
         return $table
             ->query(function () {
                 $user = auth()->user();
-                $query = Permintaan::query();
+                $query = Permintaan::query()->where('user_id', $user->id);
 
                 // Batasi berdasarkan permission
                 if (!$user->hasPermissionTo('access_permintaan')) {
@@ -174,23 +174,50 @@ class PermintaanResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                     ->label('ID Permintaan')
                     ->sortable()
-                    ->weight('bold'),
-
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Peminta')
-                    ->sortable()
+                    ->weight('bold')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('detailPermintaans.barang.nama_barang')
+                    ->label('Preview Barang')
+                    ->listWithLineBreaks()
+                    ->bulleted()
+                    ->limitList(2)
+                    ->expandableLimitedList()
+                    ->color('gray')
+                    ->size('sm')
                     ->searchable(),
-
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Tgl Permintaan')
                     ->dateTime('d M Y, H:i')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
 
-                Tables\Columns\TextColumn::make('detail_permintaans_count')
-                    ->label('Item')
-                    ->counts('detailPermintaans')
+                Tables\Columns\TextColumn::make('item_progress')
+                    ->label('Progress')
+                    ->getStateUsing(function ($record) {
+                        $total = $record->detailPermintaans()->count();
+                        $processed = $record->detailPermintaans()
+                            ->whereIn('approved', ['approved', 'rejected'])
+                            ->count();
+
+                        return "{$processed} / {$total}";
+                    })
                     ->badge()
-                    ->color('gray'),
+                    ->color(function ($state) {
+                        [$processed, $total] = explode(' / ', $state);
+                        if ($processed == 0) return 'gray';
+                        if ($processed == $total) return 'success';
+                        return 'warning';
+                    })
+                    ->description(function ($state) {
+                        [$processed, $total] = explode(' / ', $state);
+
+                        if ($total == 0) return 'Tidak ada item';
+                        if ($processed == 0) return 'Belum diproses';
+                        if ($processed == $total) return 'Selesai';
+
+                        return 'Dalam proses';
+                    }),
             ])
 
             ->actions([
