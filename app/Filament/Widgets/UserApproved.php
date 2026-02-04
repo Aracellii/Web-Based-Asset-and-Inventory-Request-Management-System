@@ -11,7 +11,6 @@ class UserApproved extends BaseWidget
 {
     protected static ?int $sort = 0;
 
-    // setengah layar (kalau dashboard 2 kolom)
     protected int | string | array $columnSpan = 1;
 
     protected function getColumns(): int
@@ -19,10 +18,12 @@ class UserApproved extends BaseWidget
         return 1;
     }
 
-    public static function canView(): bool
+       public static function canView(): bool
     {
-        return auth()->user()?->can('widget_UserApproved');
+        $user = auth()->user();
+        return $user && $user->can('user_graphic');
     }
+
 
     protected function getStats(): array
     {
@@ -48,7 +49,6 @@ class UserApproved extends BaseWidget
         ];
     }
 
-    // 🔑 HARUS public
     public function getApprovedChartData(): array
     {
         $user = auth()->user();

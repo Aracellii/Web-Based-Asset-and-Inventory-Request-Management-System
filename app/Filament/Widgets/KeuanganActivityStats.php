@@ -18,9 +18,10 @@ class KeuanganActivityStats extends BaseWidget
         return 2;
     }
 
-    public static function canView(): bool
+   public static function canView(): bool
     {
-        return auth()->user()?->can('widget_KeuanganActivityStats');
+        $user = auth()->user();
+        return $user && $user->can('keuangan_graphic');
     }
 
     protected function getStats(): array

@@ -21,7 +21,8 @@ class UserActivityStats extends BaseWidget
 
     public static function canView(): bool
     {
-        return auth()->user()?->can('widget_UserActivityStats');
+        $user = auth()->user();
+        return $user && $user->can('user_graphic');
     }
 
     protected function getStats(): array
@@ -30,12 +31,14 @@ class UserActivityStats extends BaseWidget
 
         Carbon::setLocale('id');
 
+
         $totalPermintaan = Permintaan::where('user_id', $user->id)
             ->whereBetween('created_at', [
                 Carbon::now()->startOfMonth(),
                 Carbon::now()->endOfMonth(),
             ])
             ->count();
+
 
         return [
             Stat::make('Total Permintaan', $totalPermintaan)

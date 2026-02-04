@@ -24,7 +24,8 @@ class TopRequestedItemsChart extends ChartWidget
 
     public static function canView(): bool
     {
-        return auth()->user()?->can('widget_TopRequestedItemsChart');
+        $user = auth()->user();
+        return $user && $user->can('keuangan_graphic');
     }
 
     public ?string $startDate = null;
