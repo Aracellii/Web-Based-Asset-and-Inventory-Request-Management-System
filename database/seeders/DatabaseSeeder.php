@@ -10,7 +10,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             BagianSeeder::class, // Setup bagian terlebih dahulu
-            ShieldSeeder::class, // Setup roles & permissions
+            SimplePermissionSeeder::class, // Setup roles & permissions (Simple)
+            // ShieldSeeder::class, // DEPRECATED: Ganti pakai SimplePermissionSeeder
             UserSeeder::class,
             BarangSeeder::class,
             GudangSeeder::class,
