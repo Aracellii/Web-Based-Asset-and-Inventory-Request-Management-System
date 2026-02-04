@@ -17,6 +17,13 @@ use Carbon\Carbon;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\Layout\Split;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\Grid;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\RepeatableEntry;
+use App\Filament\Resources\DetailPermintaanResource\Widgets\DetailPermintaanTable;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\HtmlString;
 
 
 class ListPermintaanTable extends BaseWidget
@@ -32,7 +39,7 @@ class ListPermintaanTable extends BaseWidget
     {
         $user = auth()->user();
         $query = Permintaan::query();
-        // Jika tidak punya 'view_any', maka batasi hanya per bagian (Unit Kerja)
+        // batasi hanya per bagian (Unit Kerja)
         if (!$user->hasPermissionTo('access_permintaan')) {
             $query->where('bagian_id', $user->bagian_id);
         }
@@ -45,7 +52,6 @@ class ListPermintaanTable extends BaseWidget
             ->query($this->getTableQuery())
             ->heading('List Permintaan')
             ->columns([
-                // Tulis kolom secara langsung (tanpa Split/Stack) agar header muncul
                 Tables\Columns\TextColumn::make('id')
                     ->label('ID Permintaan')
                     ->sortable(),
@@ -114,9 +120,50 @@ class ListPermintaanTable extends BaseWidget
                     ->label('Lihat Detail')
                     ->icon('heroicon-m-eye')
                     ->color('info')
-                    ->modalContent(fn($record) => view('filament.components.permintaan-details-action-table', [
-                        'record' => $record,
-                    ]))
+                    // ->infolist([
+                    //     Section::make('Informasi Barang')
+                    //         ->schema([
+                    //             // Baris Header (Hanya muncul sekali di paling atas)
+                    //             Grid::make(3)
+                    //                 ->schema([
+                    //                     TextEntry::make('barang_header')
+                    //                         ->default('Nama Barang')
+                    //                         ->weight('bold')
+                    //                         ->hiddenLabel(),
+                    //                     TextEntry::make('qty_header')
+                    //                         ->default('Jumlah Minta')
+                    //                         ->weight('bold')
+                    //                         ->hiddenLabel(),
+                    //                     TextEntry::make('stok_header')
+                    //                         ->default('Stok Gudang')
+                    //                         ->weight('bold')
+                    //                         ->hiddenLabel(),
+                    //                 ])
+                    //                 ->extraAttributes(['class' => 'border-b pb-2 mb-2']), // Tambah garis bawah header
+
+                    //             // Baris Data (Akan looping sebanyak item barang)
+                    //             RepeatableEntry::make('detailPermintaans')
+                    //                 ->hiddenLabel()
+                    //                 ->schema([
+                    //                     TextEntry::make('barang.nama_barang')
+                    //                         ->hiddenLabel(),
+                    //                     TextEntry::make('jumlah')
+                    //                         ->badge()
+                    //                         ->color('primary')
+                    //                         ->hiddenLabel(),
+                    //                     TextEntry::make('stok_saat_ini')
+                    //                         ->default(0)
+                    //                         ->hiddenLabel(),
+                    //                 ])
+                    //                 ->columns(3) // Harus sama dengan Grid header di atas
+                    //         ])
+                    // ])
+                    ->modalHeading('Detail Permintaan')
+                    ->modalContent(fn($record): HtmlString => new HtmlString(
+                        Blade::render('@livewire(\App\Filament\Resources\DetailPermintaanResource\Widgets\DetailPermintaanTable::class, ["record" => $record])', [
+                            'record' => $record
+                        ])
+                    ))
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Tutup'),
             ])
