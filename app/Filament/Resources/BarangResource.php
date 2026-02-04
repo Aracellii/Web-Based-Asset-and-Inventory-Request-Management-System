@@ -29,7 +29,22 @@ class BarangResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('view_barang') || auth()->user()?->can('view_any_barang');
+        return auth()->user()?->can('access_katalog_barang');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('manage_katalog_barang');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->can('manage_katalog_barang');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->can('manage_katalog_barang');
     }
 
     public static function form(Form $form): Form
@@ -217,13 +232,13 @@ class BarangResource extends Resource
         $query = parent::getEloquentQuery();
         $user = auth()->user();
         
-        // Jika punya view_any_barang, bisa lihat semua barang
-        if ($user && $user->can('view_any_barang')) {
+        // Jika punya access_katalog_barang, bisa lihat semua barang
+        if ($user && $user->can('access_katalog_barang')) {
             return $query;
         }
         
-        // Jika hanya punya view_barang, lihat barang yang ada di gudang bagiannya
-        if ($user && $user->can('view_barang') && $user->bagian_id) {
+        // Jika hanya punya view_katalog_barang, lihat barang yang ada di gudang bagiannya
+        if ($user && $user->can('view_katalog_barang') && $user->bagian_id) {
             return $query->whereHas('gudangs', function ($q) use ($user) {
                 $q->where('bagian_id', $user->bagian_id);
             });

@@ -29,7 +29,22 @@ class PermintaanResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('view_permintaan') || auth()->user()?->can('view_any_permintaan');
+        return auth()->user()?->can('access_permintaan');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('create_permintaan');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->can('manage_permintaan');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->can('manage_permintaan');
     }
 
     public static function form(Form $form): Form

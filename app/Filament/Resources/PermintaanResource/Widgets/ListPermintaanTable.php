@@ -25,7 +25,7 @@ class ListPermintaanTable extends BaseWidget
     public static function canView(): bool
     {
         $user = auth()->user();
-        return $user->hasPermissionTo('view_any_detail_permintaan') || $user->hasPermissionTo('update_permintaan');
+        return $user->hasPermissionTo('access_permintaan') || $user->hasPermissionTo('manage_permintaan');
     }
     protected int | string | array $columnSpan = 'full';
     protected function getTableQuery(): Builder

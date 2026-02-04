@@ -15,7 +15,7 @@ class DetailPermintaanPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_detail::permintaan');
+        return $user->can('access_permintaan');
     }
 
     /**
@@ -23,7 +23,7 @@ class DetailPermintaanPolicy
      */
     public function view(User $user, DetailPermintaan $detailPermintaan): bool
     {
-        return $user->can('view_detail::permintaan');
+        return $user->can('access_permintaan');
     }
 
     /**
@@ -31,7 +31,7 @@ class DetailPermintaanPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_detail::permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -39,7 +39,7 @@ class DetailPermintaanPolicy
      */
     public function update(User $user, DetailPermintaan $detailPermintaan): bool
     {
-        return $user->can('update_detail::permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -47,7 +47,7 @@ class DetailPermintaanPolicy
      */
     public function delete(User $user, DetailPermintaan $detailPermintaan): bool
     {
-        return $user->can('delete_detail::permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -55,7 +55,7 @@ class DetailPermintaanPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_detail::permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -63,7 +63,7 @@ class DetailPermintaanPolicy
      */
     public function forceDelete(User $user, DetailPermintaan $detailPermintaan): bool
     {
-        return $user->can('force_delete_detail::permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -71,7 +71,7 @@ class DetailPermintaanPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_detail::permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -79,7 +79,7 @@ class DetailPermintaanPolicy
      */
     public function restore(User $user, DetailPermintaan $detailPermintaan): bool
     {
-        return $user->can('restore_detail::permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -87,7 +87,7 @@ class DetailPermintaanPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_detail::permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -95,7 +95,7 @@ class DetailPermintaanPolicy
      */
     public function replicate(User $user, DetailPermintaan $detailPermintaan): bool
     {
-        return $user->can('replicate_detail::permintaan');
+        return $user->can('manage_permintaan');
     }
 
     /**
@@ -103,6 +103,6 @@ class DetailPermintaanPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_detail::permintaan');
+        return $user->can('manage_permintaan');
     }
 }

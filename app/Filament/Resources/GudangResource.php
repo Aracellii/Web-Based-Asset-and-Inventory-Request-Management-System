@@ -17,7 +17,7 @@ use App\Traits\HasBagianScope;
 
 class GudangResource extends Resource
 {
-    
+
     use HasBagianScope;
     
     protected static ?int $navigationSort = 2;
@@ -29,7 +29,22 @@ class GudangResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('view_gudang') || auth()->user()?->can('view_any_gudang');
+        return auth()->user()?->can('access_stok_barang');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('manage_stok_barang');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->can('manage_stok_barang');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->can('manage_stok_barang');
     }
 
     public static function form(Form $form): Form
@@ -37,7 +52,7 @@ class GudangResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make('Input Stok Gudang')
-                    ->disabled(fn($context) => $context === 'edit' && !auth()->user()?->can('update_gudang'))
+                    ->disabled(fn($context) => $context === 'edit' && !auth()->user()?->can('manage_stok_barang'))
                     ->description('Pilih barang dan tentukan stok')
                     ->schema([
                         Forms\Components\Select::make('barang_id')
@@ -277,13 +292,13 @@ class GudangResource extends Resource
         // Filter hanya tampilkan gudang yang barangnya belum dihapus
         $query->whereHas('barang');
         
-        // Jika punya view_any_gudang, bisa lihat semua
-        if ($user && $user->can('view_any_gudang')) {
+        // Jika punya access_stok_barang, bisa lihat semua
+        if ($user && $user->can('access_stok_barang')) {
             return $query;
         }
         
-        // Jika hanya punya view_gudang, lihat gudang bagiannya saja
-        if ($user && $user->can('view_gudang') && $user->bagian_id) {
+        // Jika hanya punya view_stok_barang, lihat gudang bagiannya saja
+        if ($user && $user->can('view_stok_barang') && $user->bagian_id) {
             return $query->where('bagian_id', $user->bagian_id);
         }
         
@@ -296,8 +311,8 @@ class GudangResource extends Resource
         $user = auth()->user();
         if (!$user) return null;
 
-        // User tanpa permission view_gudang tidak dapat badge
-        if (!$user->can('view_any_gudang')) {
+        // User tanpa permission access_stok_barang tidak dapat badge
+        if (!$user->can('access_stok_barang')) {
             return null;
         }
 
@@ -327,18 +342,5 @@ class GudangResource extends Resource
     public static function getNavigationBadgeColor(): ?string
     {
         return 'danger';
-    }
-
-    public static function canCreate(): bool
-    {
-        return in_array(auth()->user()?->role, ['keuangan']);
-    }
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
-    {
-        return in_array(auth()->user()?->role, ['keuangan', 'admin']);
-    }
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
-    {
-        return in_array(auth()->user()?->role, ['keuangan', 'admin']);
     }
 }

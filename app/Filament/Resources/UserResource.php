@@ -26,6 +26,26 @@ class UserResource extends Resource
     protected static ?string $pluralModelLabel = 'Users';
     protected static ?int $navigationSort = 10;
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('access_manajemen_user');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('manage_manajemen_user');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->can('manage_manajemen_user');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->can('manage_manajemen_user');
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -71,7 +91,7 @@ class UserResource extends Resource
                             ])
                             ->required()
                             ->native(false)
-                            ->helperText('Role menentukan hak akses user dalam sistem')
+                            ->helperText('Role untuk menentukan hak akses user dalam sistem')
                             ->live(),
 
                         Forms\Components\Select::make('bagian_id')
@@ -81,7 +101,7 @@ class UserResource extends Resource
                             ->searchable()
                             ->preload()
                             ->native(false)
-                            ->helperText('Bagian tempat user bekerja'),
+                            ->helperText('Unit Kerja'),
                     ])->columns(2),
 
                 Forms\Components\Section::make('Informasi Role & Permission')

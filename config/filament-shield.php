@@ -4,13 +4,14 @@ return [
     'shield_resource' => [
         'should_register_navigation' => true,
         'slug' => 'shield/roles',
-        'navigation_sort' => -1,
+        'navigation_sort' => 101,
         'navigation_badge' => true,
-        'navigation_group' => true,
-        'sub_navigation_position' => null,
+        'navigation_group' => 'Pengaturan',
+        'navigation_label' => 'Roles & Permissions',
+        'navigation_icon' => 'heroicon-o-shield-check',
         'is_globally_searchable' => false,
         'show_model_path' => true,
-        'is_scoped_to_tenant' => true,
+        'is_scoped_to_tenant' => false,
         'cluster' => null,
     ],
 
@@ -53,10 +54,10 @@ return [
     ],
 
     'entities' => [
-        'pages' => true,
-        'widgets' => true,
-        'resources' => true,
-        'custom_permissions' => false,
+        'pages' => false,
+        'widgets' => false,
+        'resources' => false,
+        'custom_permissions' => true,
     ],
 
     'generator' => [
@@ -76,7 +77,14 @@ return [
             'AccountWidget', 'FilamentInfoWidget',
         ],
 
-        'resources' => [],
+        'resources' => [
+            'BarangResource',
+            'GudangResource',
+            'PermintaanResource',
+            'DetailPermintaanResource',
+            'LogAktivitasResource',
+            'UserResource',
+        ],
     ],
 
     'discovery' => [
