@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PermintaanResource\Pages;
 use App\Models\Permintaan;
-use App\Models\Barang;
+use App\Models\Gudang;
 use App\Models\DetailPermintaan;
 use Filament\Forms;
 use Filament\Forms\Form;
