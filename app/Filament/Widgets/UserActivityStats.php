@@ -31,7 +31,7 @@ class UserActivityStats extends BaseWidget
         Carbon::setLocale('id');
 
         $totalPermintaan = Permintaan::where('user_id', $user->id)
-            ->whereBetween('tanggal_permintaan', [
+            ->whereBetween('created_at', [
                 Carbon::now()->startOfMonth(),
                 Carbon::now()->endOfMonth(),
             ])
@@ -58,7 +58,7 @@ class UserActivityStats extends BaseWidget
             $date = Carbon::now()->subDays($i)->toDateString();
 
             $count = Permintaan::where('user_id', $user->id)
-                ->whereDate('tanggal_permintaan', $date)
+                ->whereDate('created_at', $date)
                 ->count();
 
             $data[] = $count;

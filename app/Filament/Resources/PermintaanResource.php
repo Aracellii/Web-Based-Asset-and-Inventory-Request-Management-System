@@ -20,7 +20,6 @@ use App\Traits\HasBagianScope;
 class PermintaanResource extends Resource
 {
     use HasBagianScope;
-
     protected static ?int $navigationSort = 4;
     protected static ?string $model = Permintaan::class;
     protected static ?string $modelLabel = 'Permintaan';
@@ -55,22 +54,21 @@ class PermintaanResource extends Resource
                 Forms\Components\Section::make('Informasi Utama')
                     ->schema([
                         Forms\Components\Select::make('user_id')
+                            ->label('Peminta')
                             ->relationship('user', 'name')
-                            ->required()
                             ->default(auth()->id())
-                            ->searchable()
                             ->disabled()
                             ->dehydrated(),
-                        Forms\Components\DatePicker::make('tanggal_permintaan')
-                            ->required()
+                        Forms\Components\DateTimePicker::make('created_at')
+                            ->label('Tanggal Permintaan')
                             ->default(now())
-                            ->disabled()
-                            ->dehydrated(),
+                            ->disabled(),
                     ])->columns(2),
 
                 Forms\Components\Section::make('Daftar Barang')
                     ->schema([
                         Forms\Components\Repeater::make('detailPermintaans')
+                            ->label('Detail Permintaan')
                             ->relationship()
                             ->schema([
                                 Forms\Components\Select::make('barang_id')
@@ -78,13 +76,23 @@ class PermintaanResource extends Resource
                                     ->relationship('barang', 'nama_barang')
                                     ->required()
                                     ->searchable()
-                                    ->preload(),
+                                    ->preload()
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        // Ambil stok langsung dari tabel GUDANG
+                                        $stokGudang = \App\Models\Gudang::where('barang_id', $state)->value('stok');
+                                        $set('stok_saat_ini', $stokGudang ?? 0);
+                                    }),
                                 Forms\Components\TextInput::make('jumlah')
+                                    ->label('Jumlah Minta')
                                     ->numeric()
                                     ->required()
                                     ->default(1)
                                     ->minValue(1)
-                                    ->reactive(),
+                                    ->reactive()
+                                    ->minValue(1)
+                                    // Validasi keras: tidak boleh lebih dari stok yang ada di gudang
+                                    ->maxValue(fn($get) => (int) $get('stok_saat_ini')),
                                 Forms\Components\Hidden::make('bagian_id')
                                     ->default(function (callable $get) {
                                         // Ambil user_id dari komponen di luar repeater
@@ -95,6 +103,22 @@ class PermintaanResource extends Resource
                                         return auth()->user()->bagian_id;
                                     })
                                     ->dehydrated(true),
+                                Forms\Components\TextInput::make('stok_saat_ini')
+                                    ->label('Stok Saat Ini')
+                                    ->numeric()
+                                    ->readOnly()
+                                    ->prefix('Qty:')
+                                    ->helperText('Sisa stok yang tersedia saat ini.')
+                                    ->placeholder('0')
+                                    // Load stok awal jika sedang dalam mode Edit
+                                    ->afterStateHydrated(function ($state, $set, $get) {
+                                        // Pastikan saat Edit, stok gudang tetap terisi
+                                        $barangId = $get('barang_id');
+                                        if ($barangId) {
+                                            $stok = Gudang::where('barang_id', $barangId)->value('stok');
+                                            $set('stok_saat_ini', $stok ?? 0);
+                                        }
+                                    }),
                             ])
                             ->columns(3)
                             ->addable(function ($livewire) {
@@ -127,7 +151,7 @@ class PermintaanResource extends Resource
                     ->label('ID Permintaan')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('permintaan.tanggal_permintaan')
+                Tables\Columns\TextColumn::make('permintaan.created_at')
                     ->label('Tgl Permintaan')
                     ->date()
                     ->sortable()
