@@ -6,6 +6,7 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use App\Models\Bagian;
+use Spatie\Permission\Models\Role;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -81,23 +82,27 @@ class UserResource extends Resource
                                     : 'Password harus minimal 8 karakter'
                             ),
 
-                        Forms\Components\Select::make('role')
+                        Forms\Components\Select::make('role_id')
                             ->label('Role / Jabatan')
-                            ->options([
-                                'user' => 'User / Staff',
-                                'admin' => 'Admin Gudang',
-                                'keuangan' => 'Keuangan',
-                                'superadmin' => 'Super Admin',
-                            ])
+                            ->relationship('role', 'name')
+                            ->options(Role::all()->pluck('name', 'id'))
                             ->required()
+                            ->searchable()
+                            ->preload()
                             ->native(false)
                             ->helperText('Role untuk menentukan hak akses user dalam sistem')
-                            ->live(),
+                            ->live()
+                            ->getOptionLabelFromRecordUsing(fn ($record) => match ($record->name) {
+                                'super_admin' => 'Super Admin',
+                                'keuangan' => 'Keuangan',
+                                'admin' => 'Admin Gudang',
+                                'user' => 'User/Staff',
+                                default => $record->name,
+                            }),
 
                         Forms\Components\Select::make('bagian_id')
                             ->label('Bagian')
                             ->options(Bagian::pluck('nama_bagian', 'id'))
-                            ->required()
                             ->searchable()
                             ->preload()
                             ->native(false)
@@ -110,16 +115,25 @@ class UserResource extends Resource
                         Forms\Components\Placeholder::make('role_info')
                             ->label('')
                             ->content(function (Get $get) {
-                                $role = $get('role');
+                                $roleId = $get('role_id');
+                                
+                                if (!$roleId) {
+                                    return 'Pilih role untuk melihat deskripsi';
+                                }
+                                
+                                $role = Role::find($roleId);
+                                if (!$role) {
+                                    return 'Pilih role untuk melihat deskripsi';
+                                }
                                 
                                 $roleDescriptions = [
                                     'user' => 'User/Staff: Dapat membuat permintaan barang dan melihat status permintaan sendiri',
                                     'admin' => 'Admin Gudang: Dapat mengelola stok gudang, approve/reject permintaan dari bagiannya, dan melihat data bagiannya',
                                     'keuangan' => 'Keuangan: Dapat melihat dan approve semua permintaan dari semua bagian, serta melihat laporan lengkap',
-                                    'superadmin' => 'Super Admin: Memiliki akses penuh ke seluruh sistem termasuk manajemen user dan role',
+                                    'super_admin' => 'Super Admin: Memiliki akses penuh ke seluruh sistem termasuk manajemen user dan role',
                                 ];
                                 
-                                return $roleDescriptions[$role] ?? 'Pilih role untuk melihat deskripsi';
+                                return $roleDescriptions[$role->name] ?? $role->name;
                             }),
                     ])
             ]);
@@ -142,22 +156,22 @@ class UserResource extends Resource
                     ->copyable()
                     ->icon('heroicon-m-envelope'),
 
-                Tables\Columns\BadgeColumn::make('role')
+                Tables\Columns\BadgeColumn::make('role.name')
                     ->label('Role')
                     ->colors([
-                        'danger' => 'superadmin',
+                        'danger' => 'super_admin',
                         'warning' => 'keuangan',
                         'success' => 'admin',
                         'primary' => 'user',
                     ])
                     ->icons([
-                        'heroicon-o-shield-check' => 'superadmin',
+                        'heroicon-o-shield-check' => 'super_admin',
                         'heroicon-o-currency-dollar' => 'keuangan',
                         'heroicon-o-wrench' => 'admin',
                         'heroicon-o-user' => 'user',
                     ])
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'superadmin' => 'Super Admin',
+                        'super_admin' => 'Super Admin',
                         'keuangan' => 'Keuangan',
                         'admin' => 'Admin Gudang',
                         'user' => 'User/Staff',
@@ -185,15 +199,18 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('role')
+                Tables\Filters\SelectFilter::make('role_id')
                     ->label('Filter Role')
-                    ->options([
-                        'user' => 'User/Staff',
-                        'admin' => 'Admin Gudang',
+                    ->relationship('role', 'name')
+                    ->options(Role::all()->pluck('name', 'id'))
+                    ->native(false)
+                    ->getOptionLabelFromRecordUsing(fn ($record) => match ($record->name) {
+                        'super_admin' => 'Super Admin',
                         'keuangan' => 'Keuangan',
-                        'superadmin' => 'Super Admin',
-                    ])
-                    ->native(false),
+                        'admin' => 'Admin Gudang',
+                        'user' => 'User/Staff',
+                        default => $record->name,
+                    }),
 
                 Tables\Filters\SelectFilter::make('bagian_id')
                     ->label('Filter Bagian')

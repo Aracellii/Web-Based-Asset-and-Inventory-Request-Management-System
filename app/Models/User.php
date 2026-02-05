@@ -26,7 +26,7 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
-        'role',
+        'role_id',
         'bagian_id',
     ];
 
@@ -52,35 +52,24 @@ class User extends Authenticatable implements FilamentUser
 
     protected static function booted(): void
     {
-        // Auto-assign Spatie role based on database 'role' column
+        // Auto-assign Spatie role based on role_id
         static::created(function (User $user) {
-            if ($user->role) {
-                $roleMap = [
-                    'superadmin' => 'super_admin',
-                    'keuangan' => 'keuangan',
-                    'admin' => 'admin',
-                    'user' => 'user',
-                ];
-                
-                $spatieRole = $roleMap[$user->role] ?? $user->role;
-                $user->assignRole($spatieRole);
+            if ($user->role_id) {
+                $role = \Spatie\Permission\Models\Role::find($user->role_id);
+                if ($role) {
+                    $user->assignRole($role->name);
+                }
             }
         });
 
         // Sync role when updated
         static::updated(function (User $user) {
-            if ($user->isDirty('role') && $user->role) {
-                $roleMap = [
-                    'superadmin' => 'super_admin',
-                    'keuangan' => 'keuangan',
-                    'admin' => 'admin',
-                    'user' => 'user',
-                ];
-                
-                $spatieRole = $roleMap[$user->role] ?? $user->role;
-                
-                // Remove all existing roles and assign new one
-                $user->syncRoles([$spatieRole]);
+            if ($user->isDirty('role_id') && $user->role_id) {
+                $role = \Spatie\Permission\Models\Role::find($user->role_id);
+                if ($role) {
+                    // Remove all existing roles and assign new one
+                    $user->syncRoles([$role->name]);
+                }
             }
         });
     }
@@ -93,6 +82,11 @@ class User extends Authenticatable implements FilamentUser
     public function bagian()
     {
         return $this->belongsTo(Bagian::class);
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(\Spatie\Permission\Models\Role::class);
     }
 
     // Helper methods untuk role checking

@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
         
         $this->call([
             BagianSeeder::class,              // 1. Setup 6 bagian
-            SimplePermissionSeeder::class,    // 2. Setup roles & permissions  
+            ShieldSeeder::class,              // 2. Setup roles & permissions (ganti dari SimplePermissionSeeder)  
             UserSeeder::class,                // 3. Buat 13 users
             BarangSeeder::class,              // 4. Buat 8 barang
             GudangSeeder::class,              // 5. Buat 48 stok gudang

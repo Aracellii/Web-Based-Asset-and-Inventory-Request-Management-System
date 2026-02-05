@@ -22,8 +22,9 @@ class PermintaanSeeder extends Seeder
     {
         $this->command->info('📋 Seeding Permintaan & Detail...');
 
-        // Get users per role
-        $userStaff = User::where('role', 'user')->get();
+        // Get users per role menggunakan role_id
+        $userRole = \Spatie\Permission\Models\Role::where('name', 'user')->first();
+        $userStaff = User::where('role_id', $userRole->id)->get();
         
         if ($userStaff->isEmpty()) {
             $this->command->warn('⚠️  Tidak ada user staff, skip seeding permintaan');
