@@ -37,7 +37,7 @@ class PermintaanResource extends Resource
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->hasPermissionTo('manage_permintaan');
+        return auth()->user()?->hasPermissionTo('akses_permintaan');
     }
 
     public static function canEdit($record): bool
