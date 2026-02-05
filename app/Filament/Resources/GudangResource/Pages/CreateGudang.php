@@ -49,10 +49,19 @@ class CreateGudang extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
         // ROLE KEUANGAN atau SUPER ADMIN
-        if (Auth::user()->isKeuangan() || Auth::user()->isSuperAdmin()) {
+        $user = Auth::user();
+
+        if ($user->hasRole('keuangan') || $user->hasRole('superadmin')) {
 
             $bagianIds = $data['bagian_ids'] ?? [];
             $stokInput = (int) ($data['stok'] ?? 0);
+
+            // Jika bagian_ids kosong, gunakan semua bagian
+            if (empty($bagianIds)) {
+                $bagianIds = Bagian::pluck('id')->toArray();
+            }
+
+            $firstGudang = null;
 
             foreach ($bagianIds as $bagianId) {
                 $gudang = Gudang::firstOrCreate(
@@ -70,6 +79,11 @@ class CreateGudang extends CreateRecord
                     $gudang->keteranganOtomatis = 'Pembelian';
                     $gudang->stok += $stokInput;
                     $gudang->save();
+                }
+
+                // Simpan gudang pertama untuk return
+                if ($firstGudang === null) {
+                    $firstGudang = $gudang;
                 }
             }
 
@@ -93,18 +107,37 @@ class CreateGudang extends CreateRecord
                 );
             }
 
-            return Gudang::where('barang_id', $data['barang_id'])->first();
+            return $firstGudang ?? Gudang::where('barang_id', $data['barang_id'])->first();
         }
 
         // ROLE SELAIN KEUANGAN
-        $data['bagian_id'] = Auth::user()->bagian_id;
-        $gudang = parent::handleRecordCreation($data);
+        // Gunakan bagian_id dari form, atau fallback ke bagian user
+        $bagianId = $data['bagian_id'] ?? Auth::user()->bagian_id;
+        $stokInput = (int) ($data['stok'] ?? 0);
+
+        // Cari atau buat gudang untuk bagian yang dipilih
+        $gudang = Gudang::firstOrCreate(
+            [
+                'barang_id' => $data['barang_id'],
+                'bagian_id' => $bagianId,
+            ],
+            [
+                'stok' => 0,
+            ]
+        );
+
+        // Penambahan stok
+        if ($stokInput > 0) {
+            $gudang->keteranganOtomatis = 'Pembelian';
+            $gudang->stok += $stokInput;
+            $gudang->save();
+        }
 
         // OTOMATIS BUAT DI SEMUA BAGIAN LAIN DENGAN STOK 0
         $semuaBagian = Bagian::all();
         foreach ($semuaBagian as $bagian) {
-            // Skip bagian user yang sedang input
-            if ($bagian->id === Auth::user()->bagian_id) {
+            // Skip bagian yang sudah diproses
+            if ($bagian->id === $bagianId) {
                 continue;
             }
 

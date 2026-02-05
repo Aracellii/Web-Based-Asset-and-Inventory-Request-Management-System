@@ -85,8 +85,7 @@ class GudangResource extends Resource
                             ->searchable()
                             ->preload()
                             ->visible(fn($context) => $context === 'create' && auth()->user()?->isKeuangan())
-                            ->required(fn($context) => $context === 'create' && auth()->user()?->isKeuangan())
-                            ->helperText('Pilih satu atau lebih bagian untuk menambahkan stok'),
+                            ->helperText('Pilih satu atau lebih bagian untuk menambahkan stok. Kosongkan untuk menambahkan ke semua bagian.'),
 
                     ])->columns(2),
             ]);
