@@ -9,7 +9,6 @@ use Illuminate\Support\Carbon;
 
 class UserApproved extends BaseWidget
 {
-    protected static ?int $sort = 0;
 
     protected int | string | array $columnSpan = 1;
 
@@ -21,7 +20,7 @@ class UserApproved extends BaseWidget
        public static function canView(): bool
     {
         $user = auth()->user();
-        return $user && $user->can('user_graphic');
+        return $user && $user->can('grafik_user');
     }
 
 

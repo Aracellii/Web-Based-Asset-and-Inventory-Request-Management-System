@@ -16,4 +16,10 @@ class EditGudang extends EditRecord
             // Actions\DeleteAction::make(),
         ];
     }
+     protected function getCreateFormAction(): Actions\Action
+        {
+            return parent::getCreateFormAction()
+                ->label('Simpan Perubahan');
+        }
 }
+

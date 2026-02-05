@@ -38,7 +38,11 @@ class EditRole extends EditRecord
 
         return Arr::only($data, ['name', 'guard_name']);
     }
-
+     protected function getCreateFormAction(): Actions\Action
+        {
+            return parent::getCreateFormAction()
+                ->label('Simpan Perubahan');
+        }
     protected function afterSave(): void
     {
         $permissionModels = collect();

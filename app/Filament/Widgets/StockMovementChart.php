@@ -24,7 +24,7 @@ class StockMovementChart extends ChartWidget
     public static function canView(): bool
     {
         $user = auth()->user();
-        return $user && $user->can('keuangan_graphic');
+        return $user && $user->can('grafik_stok');
     }
 
     protected function getFilters(): ?array

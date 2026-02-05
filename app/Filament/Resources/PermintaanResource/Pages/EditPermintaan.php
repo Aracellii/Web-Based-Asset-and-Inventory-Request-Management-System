@@ -8,7 +8,9 @@ use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
 
 class EditPermintaan extends EditRecord
-{
+
+{    protected static ?string $title = 'Ubah Permintaan';
+
     protected static string $resource = PermintaanResource::class;
 
     protected function getHeaderActions(): array
@@ -22,6 +24,11 @@ class EditPermintaan extends EditRecord
                 }),
         ];
     }
+     protected function getCreateFormAction(): Actions\Action
+        {
+            return parent::getCreateFormAction()
+                ->label('Simpan Perubahan');
+        }
     
     protected function getRedirectUrl(): string
     {

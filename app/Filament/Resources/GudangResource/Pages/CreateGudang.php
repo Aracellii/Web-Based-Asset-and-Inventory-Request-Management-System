@@ -11,9 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use EightyNine\ExcelImport\ExcelImportAction;
 use App\Imports\BarangImporter;
 use Filament\Forms\Components\Actions\Action;
-
+use Filament\Actions;
 class CreateGudang extends CreateRecord
-{
+{    protected static ?string $title = 'Tambah Stok Barang';
+
     protected static string $resource = GudangResource::class;
     protected function getHeaderActions(): array
     {
@@ -40,6 +41,14 @@ class CreateGudang extends CreateRecord
                 ->size('xl'),
         ];
     }
+
+
+
+    protected function getCreateFormAction(): Actions\Action
+        {
+            return parent::getCreateFormAction()
+                ->label('Tambah Stok Barang');
+        }
 
     protected function getRedirectUrl(): string
     {
@@ -155,4 +164,5 @@ class CreateGudang extends CreateRecord
 
         return $gudang;
     }
+    
 }

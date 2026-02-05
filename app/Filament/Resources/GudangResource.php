@@ -27,6 +27,7 @@ class GudangResource extends Resource
     protected static ?string $modelLabel = 'Stok Barang';
     protected static ?string $pluralModelLabel = 'Stok Barang';
 
+    
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasPermissionTo('akses_stok');

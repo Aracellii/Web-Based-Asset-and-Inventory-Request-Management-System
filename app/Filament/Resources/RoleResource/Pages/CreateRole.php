@@ -7,7 +7,8 @@ use BezhanSalleh\FilamentShield\Support\Utils;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-
+use Filament\Actions\Action;
+use Filament\Actions;
 class CreateRole extends CreateRecord
 {
     protected static string $resource = RoleResource::class;
@@ -30,6 +31,11 @@ class CreateRole extends CreateRecord
 
         return Arr::only($data, ['name', 'guard_name']);
     }
+    protected function getCreateFormAction(): Actions\Action
+        {
+            return parent::getCreateFormAction()
+                ->label('Buat Role');
+        }
 
     protected function afterCreate(): void
     {

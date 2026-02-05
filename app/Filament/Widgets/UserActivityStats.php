@@ -9,7 +9,6 @@ use Illuminate\Support\Carbon;
 
 class UserActivityStats extends BaseWidget
 {
-    protected static ?int $sort = 1;
 
     // setengah layar (kalau dashboard 2 kolom)
     protected int | string | array $columnSpan = 1;
@@ -22,7 +21,7 @@ class UserActivityStats extends BaseWidget
     public static function canView(): bool
     {
         $user = auth()->user();
-        return $user && $user->can('user_graphic');
+        return $user && $user->can('grafik_user');
     }
 
     protected function getStats(): array

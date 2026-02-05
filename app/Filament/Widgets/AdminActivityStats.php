@@ -21,7 +21,7 @@ class AdminActivityStats extends BaseWidget
     public static function canView(): bool
     {
         $user = auth()->user();
-        return $user && $user->can('admin_graphic');
+        return $user && $user->can('grafik_admin');
     }
 
     protected function getStats(): array
