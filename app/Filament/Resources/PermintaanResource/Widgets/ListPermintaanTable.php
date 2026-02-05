@@ -15,11 +15,10 @@ use App\Filament\Resources\DetailPermintaanResource\Widgets\DetailPermintaanTabl
 
 class ListPermintaanTable extends BaseWidget
 {
-    // Widget ini muncul jika user punya permission untuk melihat & approve permintaan
     public static function canView(): bool
     {
         $user = auth()->user();
-        return $user->hasPermissionTo('akses_permintaan') || $user->hasPermissionTo('manage_permintaan');
+        return $user->hasPermissionTo('manage_permintaan');
     }
     protected int | string | array $columnSpan = 'full';
     protected function getTableQuery(): Builder
