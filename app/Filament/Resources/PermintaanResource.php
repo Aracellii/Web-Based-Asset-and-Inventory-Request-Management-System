@@ -223,6 +223,8 @@ class PermintaanResource extends Resource
                         Livewire::make(DetailPermintaanTable::class, function ($record) {
                             return [
                                 'record' => $record,
+                                'canAction' => 'true', //bisa edit dan hapus
+                                'canApproval' => false, //tidak bisa approve/reject
                             ];
                         }),
                     ])

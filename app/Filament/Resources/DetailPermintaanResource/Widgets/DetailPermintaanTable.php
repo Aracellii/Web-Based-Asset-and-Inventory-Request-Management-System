@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\DetailPermintaanResource\Widgets;
 
 use App\Models\DetailPermintaan;
+use App\Filament\Resources\DetailPermintaanResource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -14,12 +15,14 @@ use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\Grid;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use App\Models\Permintaan;
+use Filament\Tables\Actions\DeleteAction;
 
 class DetailPermintaanTable extends BaseWidget
 {
-    // Ini sangat penting: Properti untuk menerima data dari tombol "Lihat"
     public $record;
-    public bool $canAction = false; // Atur tombol approval
+    public bool $canApproval = false; // Atur tombol approval (diatur di detailpermintaanpolicy)
+    public bool $canAction = false; // Atur tombol edit dan hapus (diatur di detailpermintaanpolicy)
     public function table(Table $table): Table
     {
         return $table
@@ -92,8 +95,7 @@ class DetailPermintaanTable extends BaseWidget
             ])
             ->actions([
                 Action::make('approve')
-                    ->visible(fn($record) => $this->canAction && $record->approved === 'pending')
-                    // ->visible(fn($record) => auth()->user()->hasPermissionTo('update_permintaan') && $record->approved === 'pending')
+                    ->visible(fn($record) => $this->canApproval && $record->approved === 'pending')
                     ->label('Approve')
                     ->color('success')
                     ->icon('heroicon-o-check-circle')
@@ -101,6 +103,7 @@ class DetailPermintaanTable extends BaseWidget
                     ->modalHeading('Approve Permintaan')
 
                     ->action(function ($record, $livewire) {
+                        $this->authorize('approve', $record);
                         $success = false;
                         DB::transaction(function () use ($record, &$success) {
                             $stokGudang = $record->gudang;
@@ -145,7 +148,7 @@ class DetailPermintaanTable extends BaseWidget
                     }),
 
                 Action::make('reject')
-                    ->visible(fn($record) => $this->canAction && $record->approved === 'pending')
+                    ->visible(fn($record) => $this->canApproval && $record->approved === 'pending')
                     // ->visible(fn($record) => auth()->user()->hasPermissionTo('update_permintaan') && $record->approved === 'pending')
                     ->label('Reject')
                     ->color('danger')
@@ -154,6 +157,7 @@ class DetailPermintaanTable extends BaseWidget
                     ->modalHeading('Reject Permintaan')
 
                     ->action(function ($record, $livewire) {
+                        $this->authorize('reject', $record);
                         DB::transaction(function () use ($record) {
                             // INSERT detail_terverifikasis
                             DetailTerverifikasi::create([
@@ -173,8 +177,48 @@ class DetailPermintaanTable extends BaseWidget
                             ->title('Permintaan berhasil di-reject')
                             ->success()
                             ->send();
-
                         $livewire->dispatch('refreshPermintaanSaya');
+                    }),
+
+                Action::make('edit_detail')
+                    ->label('Edit')
+                    ->icon('heroicon-m-pencil-square')
+                    ->color('warning')
+                    ->url(fn($record): string => DetailPermintaanResource::getUrl('edit', ['record' => $record]))
+                    ->visible(fn($record) => $this->canAction && $record->approved === 'pending'),
+
+                DeleteAction::make()
+                    ->label('Hapus')
+                    ->color('danger')
+                    ->icon('heroicon-m-trash')
+                    ->requiresConfirmation()
+                    ->visible(fn($record) => $this->canAction && $record->approved === 'pending')
+                    ->after(function ($record, $livewire) {
+                        $permintaanId = $record->permintaan_id;
+
+                        // Cek apakah masih ada detail lain untuk permintaan yang sama
+                        $sisaDetail = DetailPermintaan::where('permintaan_id', $permintaanId)->count();
+
+                        if ($sisaDetail === 0) {
+                            // Hapus induk (Permintaan) jika sudah kosong
+                            Permintaan::find($permintaanId)?->delete();
+
+                            $livewire->dispatch('refreshPermintaanSaya');
+
+                            $livewire->dispatch('close-modal', id: 'view_details');
+
+                            Notification::make()
+                                ->title('Seluruh permintaan telah dihapus karena tidak ada item tersisa.')
+                                ->info()
+                                ->send();
+                        } else {
+                            $livewire->dispatch('refreshTable');
+
+                            Notification::make()
+                                ->title('Item berhasil dihapus.')
+                                ->success()
+                                ->send();
+                        }
                     }),
             ])
             ->paginated(false);

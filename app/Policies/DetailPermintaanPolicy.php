@@ -39,7 +39,7 @@ class DetailPermintaanPolicy
      */
     public function update(User $user, DetailPermintaan $detailPermintaan): bool
     {
-        return $user->hasPermissionTo('manage_permintaan');
+        return $user->hasPermissionTo('manage_permintaan') && $detailPermintaan->approved === 'pending';
     }
 
     /**
@@ -47,7 +47,7 @@ class DetailPermintaanPolicy
      */
     public function delete(User $user, DetailPermintaan $detailPermintaan): bool
     {
-        return $user->hasPermissionTo('manage_permintaan');
+        return $user->hasPermissionTo('manage_permintaan') && $detailPermintaan->approved === 'pending';
     }
 
     /**
@@ -104,5 +104,23 @@ class DetailPermintaanPolicy
     public function reorder(User $user): bool
     {
         return $user->hasPermissionTo('manage_permintaan');
+    }
+
+    /**
+     * Determine whether the user can approve the detail permintaan.
+     */
+    public function approve(User $user, DetailPermintaan $detailPermintaan): bool
+    {
+        return $user->hasPermissionTo('manage_permintaan')
+            && $detailPermintaan->approved === 'pending';
+    }
+
+    /**
+     * Determine whether the user can reject the detail permintaan.
+     */
+    public function reject(User $user, DetailPermintaan $detailPermintaan): bool
+    {
+        return $user->hasPermissionTo('manage_permintaan')
+            && $detailPermintaan->approved === 'pending';
     }
 }

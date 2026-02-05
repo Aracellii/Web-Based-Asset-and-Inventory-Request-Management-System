@@ -112,7 +112,8 @@ class ListPermintaanTable extends BaseWidget
                         Livewire::make(DetailPermintaanTable::class, function ($record) {
                             return [
                                 'record' => $record,
-                                'canAction' => true, // Kirim TRUE agar tombol approve dan reject di list permintaan muncul
+                                'canApproval' => true, // bisa approve/reject
+                                'canAction' => false, // tidak bisa edit
                             ];
                         }),
                     ])
