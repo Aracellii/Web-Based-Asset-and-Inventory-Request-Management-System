@@ -280,7 +280,7 @@ class PermintaanResource extends Resource
         $user = auth()->user();
         $query = parent::getEloquentQuery();
         // Jika BUKAN admin/verifikator (hanya user biasa)
-        if (!$user->hasPermissionTo('access_permintaan')) {
+        if (!$user->hasPermissionTo('akses_permintaan')) {
             return $query->where('user_id', $user->id);
         }
         return static::applyUserScope($query, 'user_id');

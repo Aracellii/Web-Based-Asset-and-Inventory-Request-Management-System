@@ -63,7 +63,7 @@ class RolePolicy
      */
     public function forceDelete(User $user, Role $role): bool
     {
-        return $user->hasPermissionTo('{{ ForceDelete }}');
+        return $user->hasPermissionTo('manage_roles');
     }
 
     /**
@@ -71,7 +71,7 @@ class RolePolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->hasPermissionTo('{{ ForceDeleteAny }}');
+        return $user->hasPermissionTo('manage_roles');
     }
 
     /**
@@ -79,7 +79,7 @@ class RolePolicy
      */
     public function restore(User $user, Role $role): bool
     {
-        return $user->hasPermissionTo('{{ Restore }}');
+        return $user->hasPermissionTo('manage_roles');
     }
 
     /**
@@ -87,7 +87,7 @@ class RolePolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->hasPermissionTo('{{ RestoreAny }}');
+        return $user->hasPermissionTo('manage_roles');
     }
 
     /**
@@ -95,7 +95,7 @@ class RolePolicy
      */
     public function replicate(User $user, Role $role): bool
     {
-        return $user->hasPermissionTo('{{ Replicate }}');
+        return $user->hasPermissionTo('manage_roles');
     }
 
     /**
@@ -103,6 +103,6 @@ class RolePolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->hasPermissionTo('{{ Reorder }}');
+        return $user->hasPermissionTo('manage_roles');
     }
 }

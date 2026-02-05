@@ -15,7 +15,7 @@ class GudangPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('access_stok_barang');
+        return $user->hasPermissionTo('akses_stok');
     }
 
     /**

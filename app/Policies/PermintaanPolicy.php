@@ -15,7 +15,7 @@ class PermintaanPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('access_permintaan');
+        return $user->hasPermissionTo('akses_permintaan');
     }
 
     /**
@@ -23,7 +23,7 @@ class PermintaanPolicy
      */
     public function view(User $user, Permintaan $permintaan): bool
     {
-        return $user->hasPermissionTo('access_permintaan');
+        return $user->hasPermissionTo('akses_permintaan');
     }
 
     /**
