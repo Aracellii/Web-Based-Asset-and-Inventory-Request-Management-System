@@ -29,7 +29,7 @@ class GudangResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasPermissionTo('access_stok_barang');
+        return auth()->user()?->hasPermissionTo('akses_stok');
     }
 
     public static function canCreate(): bool
@@ -300,8 +300,8 @@ class GudangResource extends Resource
         $user = auth()->user();
         if (!$user) return null;
 
-        // User tanpa permission access_stok_barang tidak dapat badge
-        if (!$user->hasPermissionTo('access_stok_barang')) {
+        // User tanpa permission akses_stok tidak dapat badge
+        if (!$user->hasPermissionTo('akses_stok')) {
             return null;
         }
 

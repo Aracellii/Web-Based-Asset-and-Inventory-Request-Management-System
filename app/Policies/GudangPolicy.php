@@ -55,7 +55,7 @@ class GudangPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->hasPermissionTo('delete_any_gudang');
+        return $user->hasPermissionTo('manage_stok_barang');
     }
 
     /**
