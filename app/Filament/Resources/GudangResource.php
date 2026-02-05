@@ -20,8 +20,10 @@ class GudangResource extends Resource
 
     use HasBagianScope;
     
-    protected static ?int $navigationSort = 2;
+   
     protected static ?string $model = Gudang::class;
+     protected static ?string $navigationGroup = 'Gudang';
+     protected static ?int $navigationSort = 2;
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
     protected static ?string $navigationLabel = 'Stok Barang';
     protected static ?string $modelLabel = 'Stok Barang';

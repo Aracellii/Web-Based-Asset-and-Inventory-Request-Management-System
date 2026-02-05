@@ -23,6 +23,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Pages\Auth\EditProfile;
+use Filament\Navigation\NavigationGroup;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -34,9 +35,9 @@ class AdminPanelProvider extends PanelProvider
             ->path('app')
             ->login()
             ->passwordReset()
-            
+
             ->registration(Register::class)
-            ->brandName(fn () => view('filament.components.logo'))
+            ->brandName(fn() => view('filament.components.logo'))
             ->favicon(asset('build/assets/logo.svg'))
             ->colors([
                 'primary' => Color::Indigo,
@@ -48,6 +49,18 @@ class AdminPanelProvider extends PanelProvider
                     ->label('Akun Saya')
                     ->icon('heroicon-m-user-circle'),
             ])
+
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label('Gudang')
+                    ->collapsed(),
+                // ->icon('heroicon-o-shopping-cart'),
+                NavigationGroup::make()
+                    ->label('Akun dan Hak Akses')
+                    // ->icon('heroicon-o-cog')
+                    ->collapsed(),
+            ])
+
             // Hooks
             ->renderHook(
                 \Filament\View\PanelsRenderHook::TOPBAR_START,
@@ -77,8 +90,8 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
-            
-            
+
+
             ->widgets([
                 StockMovementChart::class,
                 TopRequestedItemsChart::class,
@@ -180,6 +193,29 @@ class AdminPanelProvider extends PanelProvider
                     .dark .fi-sidebar-item-active .fi-sidebar-item-icon {
                         color: white !important;
                     }
+
+
+                    /* Styling Induk Group - TEMA TERANG */
+                    html:not(.dark) .fi-sidebar-group-label {
+                        color: #eef4f7 !important; /* Sama dengan fi-sidebar-item-label */
+                        font-weight: 500 !important; /* Sama dengan fi-sidebar-item-label */
+                        font-size: 0.875rem !important; /* Ukuran standar teks menu */
+                        letter-spacing: normal !important; 
+                        text-transform: none !important; /* Hilangkan uppercase agar sama dengan menu */
+                    }
+                        html:not(.dark) .fi-sidebar-group-button:hover {
+                        background-color: #bae6fd !important; /* Biru muda hover Anda */
+                        border-radius: 0.5rem; /* Menyamakan lengkungan pojok dengan menu */
+                    }
+
+                    html:not(.dark) .fi-sidebar-group-button:hover .fi-sidebar-group-label {
+                        color: #0284c7 !important; /* Biru teks hover Anda */
+                    }
+
+                    html:not(.dark) .fi-sidebar-group-button:hover .fi-sidebar-group-icon {
+                        color: #0284c7 !important;
+                    }
+                        
                 </style>
             '),
         );

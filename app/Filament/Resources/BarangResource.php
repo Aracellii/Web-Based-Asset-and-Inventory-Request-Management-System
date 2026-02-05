@@ -21,9 +21,10 @@ class BarangResource extends Resource
     use HasBagianScope;
     
     protected static ?string $model = Barang::class;
+    protected static ?string $navigationGroup = 'Gudang';
     protected static ?int $navigationSort = 3;
-    protected static ?string $navigationIcon = 'heroicon-o-cube';
     protected static ?string $navigationLabel = 'Katalog Barang';
+    protected static ?string $navigationIcon = 'heroicon-o-cube';
     protected static ?string $modelLabel = 'Barang';
     protected static ?string $pluralModelLabel = 'Katalog Barang';
 

@@ -23,6 +23,7 @@ use App\Filament\Resources\DetailPermintaanResource\Widgets\DetailPermintaanTabl
 class PermintaanResource extends Resource
 {
     use HasBagianScope;
+    protected static ?string $navigationGroup = 'Gudang';
     protected static ?int $navigationSort = 4;
     protected static ?string $model = Permintaan::class;
     protected static ?string $modelLabel = 'Permintaan';
@@ -283,11 +284,8 @@ class PermintaanResource extends Resource
     {
         $user = auth()->user();
         $query = parent::getEloquentQuery();
-        // Jika BUKAN admin/verifikator (hanya user biasa)
-        if (!$user->hasPermissionTo('akses_permintaan')) {
-            return $query->where('user_id', $user->id);
-        }
-        return static::applyUserScope($query, 'user_id');
+
+        return $query->where('user_id', $user->id);
     }
 
 
