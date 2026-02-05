@@ -21,21 +21,25 @@ class ListPermintaanTable extends BaseWidget
         return $user->hasPermissionTo('manage_permintaan');
     }
     protected int | string | array $columnSpan = 'full';
-    protected function getTableQuery(): Builder
-    {
-        $user = auth()->user();
-        $query = Permintaan::query();
-        // batasi hanya per bagian (Unit Kerja)
-        if (!$user->hasPermissionTo('akses_permintaan')) {
-            $query->where('bagian_id', $user->bagian_id);
-        }
+   protected function getTableQuery(): Builder
+{
+    $user = auth()->user();
 
-        $query->whereHas('detailPermintaans', function ($q) {
-            $q->where('approved', 'pending');
-        });
+    $query = Permintaan::query();
 
-        return $query;
+    if ($user->can('lihat_bagian_sendiri') && !$user->can('lihat_semua_bagian')) {
+        $query->whereHas('user', fn ($q) =>
+            $q->where('bagian_id', $user->bagian_id)
+        );
     }
+
+    $query->whereHas('detailPermintaans', fn ($q) =>
+        $q->where('approved', 'pending')
+    );
+
+    return $query;
+}
+
 
     public function table(Table $table): Table
     {

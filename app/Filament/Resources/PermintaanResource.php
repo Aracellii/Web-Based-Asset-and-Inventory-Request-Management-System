@@ -90,17 +90,19 @@ class PermintaanResource extends Resource
                                     ->preload()
                                     ->live()
                                     ->rules([
-                                        fn($get): \Closure => function ($value, \Closure $fail) use ($get) {
-                                            $selectedBarang = collect($get('../../detailPermintaans'))
-                                                ->pluck('barang_id')
-                                                ->filter();
+                                     fn ($get): \Closure =>
+                                    function ($attribute, $value, \Closure $fail) use ($get) {
+                                        $selectedBarang = collect($get('../../detailPermintaans'))
+                                            ->pluck('barang_id')
+                                            ->filter();
 
-                                            $counts = $selectedBarang->countBy();
+                                        $counts = $selectedBarang->countBy();
 
-                                            if ($counts->get($value) > 1) {
-                                                $fail('Barang ini sudah dipilih di baris lain.');
-                                            }
-                                        },
+                                        if ($counts->get($value) > 1) {
+                                            $fail('Barang ini sudah dipilih di baris lain.');
+                                        }
+                                    },
+
                                     ])
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         $stokGudang = Gudang::where('barang_id', $state)->value('stok');

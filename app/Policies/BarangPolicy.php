@@ -23,7 +23,7 @@ class BarangPolicy
      */
     public function view(User $user, Barang $barang): bool
     {
-        return $user->hasPermissionTo('view_katalog_barang');
+        return $user->hasPermissionTo('akses_katalog');
     }
 
     /**

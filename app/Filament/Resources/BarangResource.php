@@ -237,8 +237,8 @@ class BarangResource extends Resource
             return $query;
         }
         
-        // Jika hanya punya view_katalog_barang, lihat barang yang ada di gudang bagiannya
-        if ($user && $user->hasPermissionTo('view_katalog_barang') && $user->bagian_id) {
+        // Jika hanya punya akses_katalog, lihat barang yang ada di gudang bagiannya
+        if ($user && $user->hasPermissionTo('akses_katalog') && $user->bagian_id) {
             return $query->whereHas('gudangs', function ($q) use ($user) {
                 $q->where('bagian_id', $user->bagian_id);
             });

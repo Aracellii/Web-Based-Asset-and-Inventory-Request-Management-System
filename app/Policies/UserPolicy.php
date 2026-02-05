@@ -29,7 +29,7 @@ class UserPolicy
      */
     public function view(User $user): bool
     {
-        return $user->hasPermissionTo('view_manajemen_user');
+        return $user->hasPermissionTo('manage_manajemen_user');
     }
 
     /**

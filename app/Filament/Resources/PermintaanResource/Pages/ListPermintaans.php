@@ -17,6 +17,7 @@ class ListPermintaans extends ListRecords
             Actions\CreateAction::make()
             ->Label('Buat Permintaan')
             ->icon('heroicon-o-plus')
+            ->visible(fn (): bool => auth()->user()?->hasPermissionTo('buat_permintaan') ?? false)
             ->size('xl'),
         ];
     }
