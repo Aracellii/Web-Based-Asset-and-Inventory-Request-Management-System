@@ -159,25 +159,6 @@ class PermintaanResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-            ->query(function () {
-                $user = auth()->user();
-                $query = Permintaan::query()->where('user_id', $user->id);
-
-                // Batasi berdasarkan permission
-                if (!$user->hasPermissionTo('akses_permintaan')) {
-                    $query->where('bagian_id', $user->bagian_id);
-                }
-                return $query->latest();
-            })
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
             ->heading('Permintaan Saya')
             ->columns([
                 Tables\Columns\TextColumn::make('id')
