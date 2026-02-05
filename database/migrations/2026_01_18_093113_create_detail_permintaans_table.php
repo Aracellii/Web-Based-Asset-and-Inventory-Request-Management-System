@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('barang_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('permintaan_id')->nullable()->constrained()->onDelete('set null');
             $table->integer('jumlah');
-            $table->enum('approved', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->enum('approved', ['pending', 'approved', 'rejected', 'approved_sebagian'])->default('pending');
             $table->timestamps();
         });
     }

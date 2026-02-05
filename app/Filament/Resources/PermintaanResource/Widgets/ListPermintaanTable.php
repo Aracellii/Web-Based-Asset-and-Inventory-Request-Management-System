@@ -21,24 +21,28 @@ class ListPermintaanTable extends BaseWidget
         return $user->hasPermissionTo('manage_permintaan');
     }
     protected int | string | array $columnSpan = 'full';
-   protected function getTableQuery(): Builder
-{
-    $user = auth()->user();
+    protected function getTableQuery(): Builder
+    {
+        $user = auth()->user();
 
-    $query = Permintaan::query();
+        $query = Permintaan::query();
 
-    if ($user->can('lihat_bagian_sendiri') && !$user->can('lihat_semua_bagian')) {
-        $query->whereHas('user', fn ($q) =>
-            $q->where('bagian_id', $user->bagian_id)
+        if ($user->can('lihat_bagian_sendiri') && !$user->can('lihat_semua_bagian')) {
+            $query->whereHas(
+                'user',
+                fn($q) =>
+                $q->where('bagian_id', $user->bagian_id)
+            );
+        }
+
+        $query->whereHas(
+            'detailPermintaans',
+            fn($q) =>
+            $q->where('approved', 'pending')
         );
+
+        return $query;
     }
-
-    $query->whereHas('detailPermintaans', fn ($q) =>
-        $q->where('approved', 'pending')
-    );
-
-    return $query;
-}
 
 
     public function table(Table $table): Table
@@ -76,7 +80,7 @@ class ListPermintaanTable extends BaseWidget
                     ->getStateUsing(function ($record) {
                         $total = $record->detailPermintaans()->count();
                         $processed = $record->detailPermintaans()
-                            ->whereIn('approved', ['approved', 'rejected'])
+                            ->where('approved', '!=', 'pending')
                             ->count();
 
                         return "{$processed} / {$total}";

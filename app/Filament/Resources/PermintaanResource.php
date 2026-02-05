@@ -90,18 +90,18 @@ class PermintaanResource extends Resource
                                     ->preload()
                                     ->live()
                                     ->rules([
-                                     fn ($get): \Closure =>
-                                    function ($attribute, $value, \Closure $fail) use ($get) {
-                                        $selectedBarang = collect($get('../../detailPermintaans'))
-                                            ->pluck('barang_id')
-                                            ->filter();
+                                        fn($get): \Closure =>
+                                        function ($attribute, $value, \Closure $fail) use ($get) {
+                                            $selectedBarang = collect($get('../../detailPermintaans'))
+                                                ->pluck('barang_id')
+                                                ->filter();
 
-                                        $counts = $selectedBarang->countBy();
+                                            $counts = $selectedBarang->countBy();
 
-                                        if ($counts->get($value) > 1) {
-                                            $fail('Barang ini sudah dipilih di baris lain.');
-                                        }
-                                    },
+                                            if ($counts->get($value) > 1) {
+                                                $fail('Barang ini sudah dipilih di baris lain.');
+                                            }
+                                        },
 
                                     ])
                                     ->afterStateUpdated(function ($state, callable $set) {
@@ -189,7 +189,7 @@ class PermintaanResource extends Resource
                     ->getStateUsing(function ($record) {
                         $total = $record->detailPermintaans()->count();
                         $processed = $record->detailPermintaans()
-                            ->whereIn('approved', ['approved', 'rejected'])
+                            ->where('approved', '!=', 'pending')
                             ->count();
 
                         return "{$processed} / {$total}";

@@ -30,6 +30,10 @@ class DetailPermintaan extends Model
     public function gudang(): BelongsTo
     {
         return $this->belongsTo(Gudang::class, 'barang_id', 'barang_id')
-        ->where('bagian_id', $this->bagian_id);
-    }   
+            ->where('bagian_id', $this->bagian_id);
+    }
+    public function verifikasi()
+    {
+        return $this->hasOne(DetailTerverifikasi::class, 'detail_permintaan_id');
+    }
 }

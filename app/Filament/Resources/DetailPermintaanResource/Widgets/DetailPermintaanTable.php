@@ -87,19 +87,52 @@ class DetailPermintaanTable extends BaseWidget
                     ->colors([
                         'warning' => 'pending',
                         'success' => 'approved',
+                        'info' => 'approved_sebagian',
                         'danger' => 'rejected',
                     ])
                     ->formatStateUsing(fn(string $state): string => ucfirst($state))
-                    ->sortable()
+                    ->sortable(),
+                Tables\Columns\TextInputColumn::make('verifikasi.jumlah')
+                    ->label('Jumlah Disetujui')
+                    ->type('number')
+                    ->extraAttributes(['style' => 'width: 100px;'])
+                    ->disabled(fn($record) => $record->approved !== 'pending')
+                    ->state(function ($record) {
+                        // Jika sudah ada draft di tabel verifikasi
+                        if ($record->verifikasi?->exists) {
+                            return $record->verifikasi->jumlah;
+                        }
+                        // Jika belum ada
+                        $maxMinta = (int) $record->jumlah;
+                        $maxStok = (int) ($record->gudang->stok ?? 0);
 
+                        return min($maxMinta, $maxStok);
+                    })
+                    ->rules(fn($record) => [
+                        'required',
+                        'numeric',
+                        'min:0',
+                        'max:' . min((int)$record->jumlah, (int)($record->gudang->stok ?? 0)),
+                    ])
+                    ->validationAttribute('input')
+                    ->updateStateUsing(function ($record, $state) {
+                        $input = (int) $state;
+                        $record->verifikasi()->updateOrCreate(
+                            ['detail_permintaan_id' => $record->id],
+                            ['jumlah' => $input]
+                        );
+
+                        return $input;
+                    })
             ])
             ->actions([
                 Action::make('approve')
-                ->visible(fn ($record) =>
-                    $this->canApproval
-                    && $record->approved === 'pending'
-                    && auth()->user()?->can('approve_permintaan')
-                )
+                    ->visible(
+                        fn($record) =>
+                        $this->canApproval
+                            && $record->approved === 'pending'
+                            && auth()->user()?->can('approve_permintaan')
+                    )
                     ->label('Approve')
                     ->color('success')
                     ->icon('heroicon-o-check-circle')
@@ -109,37 +142,57 @@ class DetailPermintaanTable extends BaseWidget
                     ->action(function ($record, $livewire) {
                         $this->authorize('approve', $record);
                         $success = false;
+
                         DB::transaction(function () use ($record, &$success) {
+                            // 1. Ambil angka draft dari tabel verifikasi. 
+                            // Jika admin belum ngetik sama sekali, default ke jumlah permintaan asli.
+                            $jumlahFinal = $record->verifikasi?->jumlah ?? $record->jumlah;
                             $stokGudang = $record->gudang;
-                            if (!$stokGudang || $stokGudang->stok < $record->jumlah) {
+
+                            // 2. Validasi Stok terhadap jumlah yang baru saja diinput
+                            if (!$stokGudang || $stokGudang->stok < $jumlahFinal) {
                                 Notification::make()
                                     ->title('Gagal Approve')
-                                    ->body($stokGudang ? 'Stok tidak mencukupi!' : 'Barang tidak terdaftar di gudang bagian ini.')
+                                    ->body($stokGudang ? "Stok tidak mencukupi! Tersedia: {$stokGudang->stok}" : 'Barang tidak terdaftar di gudang.')
                                     ->danger()
                                     ->send();
-                                return;
+                                return; // Gagalkan transaksi
                             }
 
-                            // INSERT detail_terverifikasis
-                            DetailTerverifikasi::create([
-                                'detail_permintaan_id' => $record->id,
-                                'bagian_id'    => $record->bagian_id,
-                                'barang_id' => $record->barang_id,
-                                'jumlah'    => $record->jumlah,
-                                'approved'  => 'approved',
-                            ]);
-                            // UPDATE status approved di detail_permintaans
+                            // 3. Tentukan status secara dinamis
+                            $statusFinal = 'approved';
+                            if ($jumlahFinal == 0) {
+                                $statusFinal = 'rejected';
+                            } elseif ($jumlahFinal < $record->jumlah) {
+                                $statusFinal = 'approved_sebagian';
+                            }
+
+                            // 4. Update atau Create tabel verifikasi (Finalisasi)
+                            $record->verifikasi()->updateOrCreate(
+                                ['detail_permintaan_id' => $record->id],
+                                [
+                                    'bagian_id' => $record->bagian_id,
+                                    'barang_id' => $record->barang_id,
+                                    'jumlah'    => $jumlahFinal,
+                                    'approved'  => $statusFinal,
+                                ]
+                            );
+
+                            // 5. Update status di tabel permintaan utama
                             $record->update([
-                                'approved' => 'approved',
+                                'approved' => $statusFinal,
                             ]);
-                            //set keterangan ke "Pemakaian"
-                            $stokGudang->keteranganOtomatis = 'Pemakaian';
-                            // Kurangi stok di tabel gudangs
-                            $stokGudang->stok -= $record->jumlah;
-                            $stokGudang->save();
+
+                            // 6. Potong stok gudang (Hanya jika statusnya disetujui/sebagian)
+                            if ($jumlahFinal > 0) {
+                                $stokGudang->keteranganOtomatis = 'Pemakaian';
+                                $stokGudang->stok -= $jumlahFinal;
+                                $stokGudang->save();
+                            }
 
                             Notification::make()
-                                ->title('Permintaan berhasil di-approve')
+                                ->title('Berhasil')
+                                ->body("Permintaan telah di-{$statusFinal}")
                                 ->success()
                                 ->send();
 
@@ -147,16 +200,19 @@ class DetailPermintaanTable extends BaseWidget
                         });
 
                         if ($success) {
+                            $this->record->refresh();
                             $livewire->dispatch('refreshPermintaanSaya');
+                            $livewire->dispatch('refreshTable');
                         }
                     }),
 
                 Action::make('reject')
-                    ->visible(fn ($record) =>
+                    ->visible(
+                        fn($record) =>
                         $this->canApproval
-                        && $record->approved === 'pending'
-                        && auth()->user()?->can('approve_permintaan')
-                    )                    
+                            && $record->approved === 'pending'
+                            && auth()->user()?->can('approve_permintaan')
+                    )
                     ->label('Reject')
                     ->color('danger')
                     ->icon('heroicon-o-x-circle')
@@ -167,13 +223,15 @@ class DetailPermintaanTable extends BaseWidget
                         $this->authorize('reject', $record);
                         DB::transaction(function () use ($record) {
                             // INSERT detail_terverifikasis
-                            DetailTerverifikasi::create([
-                                'detail_permintaan_id' => $record->id,
-                                'bagian_id'    => $record->bagian_id,
-                                'barang_id' => $record->barang_id,
-                                'jumlah'    => $record->jumlah,
-                                'approved'  => 'rejected',
-                            ]);
+                            $record->verifikasi()->updateOrCreate(
+                                ['detail_permintaan_id' => $record->id],
+                                [
+                                    'jumlah' => 0,
+                                    'approved' => 'rejected', // Simpan format DB
+                                    'bagian_id' => $record->bagian_id,
+                                    'barang_id' => $record->barang_id,
+                                ]
+                            );
 
                             $record->update([
                                 'approved' => 'rejected',
