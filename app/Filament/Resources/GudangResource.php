@@ -29,22 +29,22 @@ class GudangResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('access_stok_barang');
+        return auth()->user()?->hasPermissionTo('access_stok_barang');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->can('manage_stok_barang');
+        return auth()->user()?->hasPermissionTo('manage_stok_barang');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->can('manage_stok_barang');
+        return auth()->user()?->hasPermissionTo('manage_stok_barang');
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->can('manage_stok_barang');
+        return auth()->user()?->hasPermissionTo('manage_stok_barang');
     }
 
     public static function form(Form $form): Form
@@ -52,7 +52,7 @@ class GudangResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make('Input Stok Gudang')
-                    ->disabled(fn($context) => $context === 'edit' && !auth()->user()?->can('manage_stok_barang'))
+                    ->disabled(fn($context) => $context === 'edit' && !auth()->user()?->hasPermissionTo('manage_stok_barang'))
                     ->description('Pilih barang dan tentukan stok')
                     ->schema([
                         Forms\Components\Select::make('barang_id')
@@ -130,7 +130,7 @@ class GudangResource extends Resource
             ->headerActions([
                 // 1. ACTION EXCEL 
                 Tables\Actions\Action::make('export_excel')
-                    ->visible(fn() => auth()->user()?->can('export_stok_barang'))
+                    ->visible(fn() => auth()->user()?->hasPermissionTo('export_stok_barang'))
                     ->label('Excel')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('success')
@@ -205,7 +205,7 @@ class GudangResource extends Resource
 
                 // 2. ACTION PDF )
                 Tables\Actions\Action::make('export_pdf')
-                    ->visible(fn() => auth()->user()?->can('export_stok_barang'))
+                    ->visible(fn() => auth()->user()?->hasPermissionTo('export_stok_barang'))
                     ->label('PDF')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('danger')
@@ -254,10 +254,10 @@ class GudangResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->visible(fn() => auth()->user()?->can('manage_stok_barang')),
+                    ->visible(fn() => auth()->user()?->hasPermissionTo('manage_stok_barang')),
                 Tables\Actions\DeleteAction::make()
                     ->label('Kosongkan')
-                    ->visible(fn() => auth()->user()?->can('manage_stok_barang'))
+                    ->visible(fn() => auth()->user()?->hasPermissionTo('manage_stok_barang'))
                     ->modalHeading('Reset stok gudang?')
                     ->modalDescription('Stok akan dikosongkan')
                     ->modalSubmitActionLabel('Reset stok')
@@ -269,7 +269,7 @@ class GudangResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->visible(fn() => auth()->user()?->can('manage_stok_barang'))
+                        ->visible(fn() => auth()->user()?->hasPermissionTo('manage_stok_barang'))
                         ->modalHeading('Reset stok gudang yang dipilih?')
                         ->modalDescription('Stok akan di reset')
                         ->modalSubmitActionLabel('Reset stok')
@@ -301,7 +301,7 @@ class GudangResource extends Resource
         if (!$user) return null;
 
         // User tanpa permission access_stok_barang tidak dapat badge
-        if (!$user->can('access_stok_barang')) {
+        if (!$user->hasPermissionTo('access_stok_barang')) {
             return null;
         }
 

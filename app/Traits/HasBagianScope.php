@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Builder;
  * Trait untuk filtering data berdasarkan bagian user dengan permission system
  * 
  * Permissions:
- * - view_own_bagian_only: User hanya bisa lihat data bagiannya sendiri
- * - view_all_bagian: User bisa lihat data semua bagian
+ * - lihat_bagian_sendiri: User hanya bisa lihat data bagiannya sendiri
+ * - lihat_semua_bagian: User bisa lihat data semua bagian
  * 
  * Usage di Filament Resource:
  * ```php
@@ -46,13 +46,13 @@ trait HasBagianScope
             return $query;
         }
 
-        // Jika user punya permission view_all_bagian, bisa lihat semua data
-        if ($user->can('view_all_bagian')) {
+        // Jika user punya permission lihat_semua_bagian, bisa lihat semua data
+        if ($user->can('lihat_semua_bagian')) {
             return $query;
         }
 
-        // Jika user punya permission view_own_bagian_only, filter by bagian_id
-        if ($user->can('view_own_bagian_only')) {
+        // Jika user punya permission lihat_bagian_sendiri, filter by bagian_id
+        if ($user->can('lihat_bagian_sendiri')) {
             if ($user->bagian_id) {
                 return $query->where($bagianColumn, $user->bagian_id);
             }
@@ -85,13 +85,13 @@ trait HasBagianScope
             return $query;
         }
 
-        // Jika user punya permission view_all_bagian, bisa lihat semua data
-        if ($user->can('view_all_bagian')) {
+        // Jika user punya permission lihat_semua_bagian, bisa lihat semua data
+        if ($user->can('lihat_semua_bagian')) {
             return $query;
         }
 
-        // Jika user punya permission view_own_bagian_only
-        if ($user->can('view_own_bagian_only')) {
+        // Jika user punya permission lihat_bagian_sendiri
+        if ($user->can('lihat_bagian_sendiri')) {
             // Admin dapat melihat data dari bagiannya
             if ($user->hasRole('admin') && $user->bagian_id) {
                 return $query->whereHas('user', function ($q) use ($user) {
@@ -127,13 +127,13 @@ trait HasBagianScope
             return true;
         }
 
-        // Jika punya permission view_all_bagian, bisa modify semua
-        if ($user->can('view_all_bagian')) {
+        // Jika punya permission lihat_semua_bagian, bisa modify semua
+        if ($user->can('lihat_semua_bagian')) {
             return true;
         }
 
-        // Jika punya permission view_own_bagian_only, cek ownership
-        if ($user->can('view_own_bagian_only')) {
+        // Jika punya permission lihat_bagian_sendiri, cek ownership
+        if ($user->can('lihat_bagian_sendiri')) {
             if ($ownerColumn === 'user_id') {
                 // Hanya owner yang bisa modify
                 return $record->user_id === $user->id;

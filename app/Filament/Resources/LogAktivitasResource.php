@@ -36,25 +36,25 @@ class LogAktivitasResource extends Resource
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->can('clear_log_aktivitas');
+        return auth()->user()?->hasPermissionTo('clear_log_aktivitas');
     }
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('access_log_aktivitas');
+        return auth()->user()?->hasPermissionTo('akses_log');
     }
     public static function getEloquentQuery(): Builder
     {
         $user = auth()->user();
         $query = static::getModel()::query();
 
-        // Jika punya access_log_aktivitas, bisa lihat semua log
-        if ($user && $user->can('access_log_aktivitas')) {
+        // Jika punya akses_log, bisa lihat semua log
+        if ($user && $user->hasPermissionTo('akses_log')) {
             return $query;
         }
 
         // Jika hanya punya view_log_aktivitas
-        if ($user && $user->can('view_log_aktivitas')) {
+        if ($user && $user->hasPermissionTo('view_log_aktivitas')) {
             // Admin - lihat log dari users di bagiannya (exclude keuangan)
             if ($user->isAdmin() && $user->bagian_id) {
                 return $query->whereIn('user_id', function ($q) use ($user) {
@@ -149,7 +149,7 @@ class LogAktivitasResource extends Resource
                     ->label('Export PDF')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('danger')
-                    ->visible(fn() => auth()->user()?->can('export_log_aktivitas'))
+                    ->visible(fn() => auth()->user()?->hasPermissionTo('export_log_aktivitas'))
                     ->form([
                         Forms\Components\TextInput::make('title')
                             ->label('Judul Laporan')

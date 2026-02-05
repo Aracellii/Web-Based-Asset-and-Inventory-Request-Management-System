@@ -29,22 +29,22 @@ class BarangResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('access_katalog_barang');
+        return auth()->user()?->hasPermissionTo('akses_katalog') ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->can('manage_katalog_barang');
+        return auth()->user()?->hasPermissionTo('manage_katalog_barang') ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->can('manage_katalog_barang');
+        return auth()->user()?->hasPermissionTo('manage_katalog_barang') ?? false;
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->can('manage_katalog_barang');
+        return auth()->user()?->hasPermissionTo('manage_katalog_barang') ?? false;
     }
 
     public static function form(Form $form): Form
@@ -232,13 +232,13 @@ class BarangResource extends Resource
         $query = parent::getEloquentQuery();
         $user = auth()->user();
         
-        // Jika punya access_katalog_barang, bisa lihat semua barang
-        if ($user && $user->can('access_katalog_barang')) {
+        // Jika punya akses_katalog, bisa lihat semua barang
+        if ($user && $user->hasPermissionTo('akses_katalog')) {
             return $query;
         }
         
         // Jika hanya punya view_katalog_barang, lihat barang yang ada di gudang bagiannya
-        if ($user && $user->can('view_katalog_barang') && $user->bagian_id) {
+        if ($user && $user->hasPermissionTo('view_katalog_barang') && $user->bagian_id) {
             return $query->whereHas('gudangs', function ($q) use ($user) {
                 $q->where('bagian_id', $user->bagian_id);
             });

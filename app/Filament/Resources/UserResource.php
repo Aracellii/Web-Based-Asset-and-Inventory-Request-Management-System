@@ -28,22 +28,22 @@ class UserResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('access_manajemen_user');
+        return auth()->user()?->hasPermissionTo('akses_managemen_user');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->can('manage_manajemen_user');
+        return auth()->user()?->hasPermissionTo('manage_manajemen_user');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->can('manage_manajemen_user');
+        return auth()->user()?->hasPermissionTo('manage_manajemen_user');
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->can('manage_manajemen_user');
+        return auth()->user()?->hasPermissionTo('manage_manajemen_user');
     }
 
     public static function form(Form $form): Form

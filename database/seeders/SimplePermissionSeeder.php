@@ -16,10 +16,7 @@ class SimplePermissionSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // ============================================
-        // PERMISSIONS BERDASARKAN FITUR/MENU
-        // ============================================
-        
+   
         $permissions = [
             // Dashboard
             'access_dashboard' => 'Akses Dashboard',
@@ -33,38 +30,38 @@ class SimplePermissionSeeder extends Seeder
             'widget_TopRequestedItemsChart' => 'Widget Grafik Barang Terbanyak Diminta (Dashboard)',
             
             // Scope Permissions - Batasan Data Bagian
-            'view_own_bagian_only' => 'Hanya Lihat Data Bagian Sendiri',
-            'view_all_bagian' => 'Lihat Data Semua Bagian',
+            'lihat_bagian_sendiri' => 'Hanya Lihat Data Bagian Sendiri',
+            'lihat_semua_bagian' => 'Lihat Data Semua Bagian',
             
             // Stok Barang
-            'access_stok_barang' => 'Akses Menu Stok Barang',
+            'akses_stok' => 'Akses Menu Stok Barang',
             'view_stok_barang' => 'Lihat Stok Barang',
             'manage_stok_barang' => 'Kelola Stok Barang (Tambah/Edit/Hapus)',
             'export_stok_barang' => 'Export Stok Barang',
             
             // Katalog Barang
-            'access_katalog_barang' => 'Akses Menu Katalog Barang',
+            'akses_katalog' => 'Akses Menu Katalog Barang',
             'view_katalog_barang' => 'Lihat Katalog Barang',
             'manage_katalog_barang' => 'Kelola Katalog Barang (Tambah/Edit/Hapus)',
             'import_katalog_barang' => 'Import Katalog Barang',
             'export_katalog_barang' => 'Export Katalog Barang',
             
             // Permintaan
-            'access_permintaan' => 'Akses Menu Permintaan',
+            'akses_permintaan' => 'Akses Menu Permintaan',
             'view_permintaan' => 'Lihat Permintaan',
-            'create_permintaan' => 'Buat Permintaan',
+            'buat_permintaan' => 'Buat Permintaan',
             'manage_permintaan' => 'Kelola Permintaan (Edit/Hapus)',
             'approve_permintaan' => 'Approve/Reject Permintaan',
             'export_permintaan' => 'Export Permintaan',
             
             // Log Aktivitas
-            'access_log_aktivitas' => 'Akses Menu Log Aktivitas',
+            'akses_log' => 'Akses Menu Log Aktivitas',
             'view_log_aktivitas' => 'Lihat Log Aktivitas',
             'export_log_aktivitas' => 'Export Log Aktivitas',
             'clear_log_aktivitas' => 'Hapus Log Aktivitas',
             
             // Manajemen User
-            'access_manajemen_user' => 'Akses Menu Manajemen User',
+            'akses_managemen_user' => 'Akses Menu Manajemen User',
             'view_manajemen_user' => 'Lihat User',
             'manage_manajemen_user' => 'Kelola User (Tambah/Edit/Hapus)',
             'export_manajemen_user' => 'Export Data User',
@@ -105,29 +102,29 @@ class SimplePermissionSeeder extends Seeder
             'widget_AdminActivityStats',
             'widget_StockMovementChart',
             'widget_TopRequestedItemsChart',
-            'view_all_bagian', // Admin bisa lihat semua bagian
+            'lihat_semua_bagian', // Admin bisa lihat semua bagian
             
-            'access_stok_barang',
+            'akses_stok',
             'view_stok_barang',
             'manage_stok_barang',
             'export_stok_barang',
             
-            'access_katalog_barang',
+            'akses_katalog',
             'view_katalog_barang',
             'manage_katalog_barang',
             'export_katalog_barang',
             
-            'access_permintaan',
+            'akses_permintaan',
             'view_permintaan',
             'manage_permintaan',
             'approve_permintaan',
             'export_permintaan',
             
-            'access_log_aktivitas',
+            'akses_log',
             'view_log_aktivitas',
             'export_log_aktivitas',
             
-            'access_manajemen_user',
+            'akses_managemen_user',
             'view_manajemen_user',
             'manage_manajemen_user',
             'export_manajemen_user',
@@ -148,30 +145,30 @@ class SimplePermissionSeeder extends Seeder
             'widget_KeuanganActivityStats',
             'widget_StockMovementChart',
             'widget_TopRequestedItemsChart',
-            'view_all_bagian', // Keuangan bisa lihat semua bagian
+            'lihat_semua_bagian', // Keuangan bisa lihat semua bagian
             
-            'access_stok_barang',
+            'akses_stok',
             'view_stok_barang',
             'manage_stok_barang',
             'export_stok_barang',
             
-            'access_katalog_barang',
+            'akses_katalog',
             'view_katalog_barang',
             'manage_katalog_barang',
             'import_katalog_barang',
             'export_katalog_barang',
             
-            'access_permintaan',
+            'akses_permintaan',
             'view_permintaan',
             'manage_permintaan',
             'approve_permintaan',
             'export_permintaan',
             
-            'access_log_aktivitas',
+            'akses_log',
             'view_log_aktivitas',
             'export_log_aktivitas',
             
-            'access_manajemen_user',
+            'akses_managemen_user',
             'view_manajemen_user',
             
             'manage_roles',
@@ -184,25 +181,22 @@ class SimplePermissionSeeder extends Seeder
             'widget_UserActivityStats',
             'widget_UserApproved',
             'widget_TopRequestedItemsChart',
-            'view_own_bagian_only', // User hanya lihat bagian sendiri
+            'lihat_bagian_sendiri', // User hanya lihat bagian sendiri
             
-            'access_stok_barang',
+            'akses_stok',
             'view_stok_barang',
             
-            'access_katalog_barang',
+            'akses_katalog',
             'view_katalog_barang',
             
-            'access_permintaan',
+            'akses_permintaan',
             'view_permintaan',
-            'create_permintaan',
+            'buat_permintaan',
             
-            'access_log_aktivitas',
+            'akses_log',
             'view_log_aktivitas',
         ]);
 
-        $this->command->info('');
-        $this->command->info('✅ Simple Permission System berhasil dibuat!');
-        $this->command->info('');
         $this->command->table(
             ['Role', 'Permissions'],
             [
@@ -212,7 +206,6 @@ class SimplePermissionSeeder extends Seeder
                 ['user', $user->permissions->count()],
             ]
         );
-        $this->command->info('');
-        $this->command->info('💡 Permission berdasarkan FITUR/MENU bukan per model CRUD');
+   
     }
 }

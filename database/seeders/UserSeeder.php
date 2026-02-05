@@ -138,8 +138,6 @@ class UserSeeder extends Seeder
             'bagian_id' => 1,
         ]);
         $user14->assignRole('super_admin');
-        
-        $this->command->info('✅ 14 users berhasil dibuat (1 super admin, 1 keuangan, 6 admin, 6 user)');
-        $this->command->info('   Password semua user: 12345678');
+
     }
 }

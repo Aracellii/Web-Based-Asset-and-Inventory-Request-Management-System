@@ -32,22 +32,22 @@ class PermintaanResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('access_permintaan');
+        return auth()->user()?->hasPermissionTo('akses_permintaan');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->can('create_permintaan');
+        return auth()->user()?->hasPermissionTo('create_permintaan');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->can('manage_permintaan');
+        return auth()->user()?->hasPermissionTo('manage_permintaan');
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->can('manage_permintaan');
+        return auth()->user()?->hasPermissionTo('manage_permintaan');
     }
 
     public static function form(Form $form): Form
@@ -164,7 +164,7 @@ class PermintaanResource extends Resource
                 $query = Permintaan::query()->where('user_id', $user->id);
 
                 // Batasi berdasarkan permission
-                if (!$user->hasPermissionTo('access_permintaan')) {
+                if (!$user->hasPermissionTo('akses_permintaan')) {
                     $query->where('bagian_id', $user->bagian_id);
                 }
                 return $query->latest();
