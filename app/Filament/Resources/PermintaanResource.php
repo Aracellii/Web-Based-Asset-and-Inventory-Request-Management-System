@@ -159,6 +159,7 @@ class PermintaanResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+<<<<<<< Updated upstream
             ->query(function () {
                 $user = auth()->user();
                 $query = Permintaan::query()->where('user_id', $user->id);
@@ -169,6 +170,8 @@ class PermintaanResource extends Resource
                 }
                 return $query->latest();
             })
+=======
+>>>>>>> Stashed changes
             ->heading('Permintaan Saya')
             ->columns([
                 Tables\Columns\TextColumn::make('id')
@@ -287,8 +290,12 @@ class PermintaanResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
+        $user = auth()->user();
         $query = parent::getEloquentQuery();
-
+        // Jika BUKAN admin/verifikator (hanya user biasa)
+        if (!$user->hasPermissionTo('access_permintaan')) {
+            return $query->where('user_id', $user->id);
+        }
         return static::applyUserScope($query, 'user_id');
     }
 
@@ -326,7 +333,6 @@ class PermintaanResource extends Resource
         return [
             'index' => Pages\ListPermintaans::route('/'),
             'create' => Pages\CreatePermintaan::route('/create'),
-            'edit' => Pages\EditPermintaan::route('/{record}/edit'),
         ];
     }
 }
