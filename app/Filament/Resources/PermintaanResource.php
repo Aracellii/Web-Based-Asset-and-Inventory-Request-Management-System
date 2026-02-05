@@ -160,6 +160,7 @@ class PermintaanResource extends Resource
     {
         return $table
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             ->query(function () {
                 $user = auth()->user();
                 $query = Permintaan::query()->where('user_id', $user->id);
@@ -170,6 +171,8 @@ class PermintaanResource extends Resource
                 }
                 return $query->latest();
             })
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
             ->heading('Permintaan Saya')
