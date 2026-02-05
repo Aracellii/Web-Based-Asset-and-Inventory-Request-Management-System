@@ -51,7 +51,13 @@ class EditRole extends EditRecord
 
         // Untuk super_admin, pastikan permission role resource tetap ada
         if ($this->record->name === 'super_admin') {
-            $rolePermissions = ['view_role', 'view_any_role', 'create_role', 'update_role', 'delete_role', 'delete_any_role'];
+            $rolePermissions = [
+                'manage_roles',
+                'view_managemen_user',
+                'manage_managemen_user',
+                'view_log_aktivitas',
+                'clear_log_aktivitas',
+            ];
             foreach ($rolePermissions as $perm) {
                 $permModel = Utils::getPermissionModel()::firstOrCreate([
                     'name' => $perm,
