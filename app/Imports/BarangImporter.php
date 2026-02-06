@@ -5,9 +5,9 @@ namespace App\Imports;
 use App\Models\Barang;
 use App\Models\Bagian;
 use App\Models\Gudang;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\Importable;
@@ -19,129 +19,100 @@ class BarangImporter implements ToCollection, WithHeadingRow
     use Importable;
 
     public $successCount = 0;
-    public $failedCount = 0;
-    public $errors = [];
     public $rowNumber = 0;
+    protected $daftarBagian;
 
     public function collection(Collection $rows)
     {
+        // 1. CACHING: Ambil semua bagian sekali saja di awal
+        // Ini kunci agar import 1000 data tidak lemot/timeout
+        $this->daftarBagian = Bagian::all();
+
+        if ($this->daftarBagian->isEmpty()) {
+            Notification::make()->danger()->title('Gagal!')->body('Data Bagian tidak ditemukan.')->send();
+            return;
+        }
+
         try {
-            // Wrap seluruh import dalam transaction untuk rollback total jika ada error
             DB::transaction(function () use ($rows) {
                 foreach ($rows as $row) {
-                    $this->model($row->toArray());
-                }
-
-                // Jika ada error, throw exception untuk rollback
-                if (count($this->errors) > 0) {
-                    throw new Exception(implode("\n", $this->errors));
+                    $this->prosesBaris($row);
                 }
             });
 
-            // Jika semua berhasil, tampilkan notifikasi sukses
             Notification::make()
                 ->success()
                 ->title('Import Berhasil!')
-                ->body("Total {$this->successCount} barang berhasil diimport.")
+                ->body("Total {$this->successCount} barang diproses. Log aktivitas tercatat.")
                 ->send();
+
         } catch (Exception $e) {
-            // Jika ada error, tampilkan notifikasi gagal
+            Log::error('BarangImporter Error: ' . $e->getMessage());
             Notification::make()
                 ->danger()
                 ->title('Import Gagal!')
                 ->body($e->getMessage())
+                ->persistent()
                 ->send();
         }
     }
 
-    public function model(array $row)
+    private function prosesBaris($row)
     {
-        try {
-            $this->rowNumber++;
+        $this->rowNumber++;
 
-            // 1. Ambil data dari kolom Excel
-            $kodeBarang  = trim($row['kode_barang'] ?? '');
-            $namaBarang  = trim($row['nama_barang'] ?? '');
-            $stokInput   = (int) ($row['stok'] ?? 0);
-            $namaBagian  = trim($row['nama_bagian'] ?? '');
+        // Ambil data kolom excel
+        $kodeBarang = trim($row['kode_barang'] ?? '');
+        $namaBarang = trim($row['nama_barang'] ?? '');
+        $stokInput  = (int) ($row['stok'] ?? 0);
+        $namaBagianInput = trim($row['nama_bagian'] ?? '');
 
-            // Validasi data
-            if (!$kodeBarang) {
-                throw new Exception("Baris {$this->rowNumber}: Kode barang tidak boleh kosong");
-            }
-            if (!$namaBarang) {
-                throw new Exception("Baris {$this->rowNumber}: Nama barang tidak boleh kosong");
-            }
-            if (!$namaBagian) {
-                throw new Exception("Baris {$this->rowNumber}: Nama bagian tidak boleh kosong");
-            }
-
-            // 2. Simpan/Update data Barang
-            $barang = Barang::withTrashed()->where('kode_barang', $kodeBarang)->first();
-
-            if ($barang) {
-                $barang->restore();
-                $barang->update([
-                    'nama_barang' => $namaBarang
-                ]);
-            } else {
-                $barang = Barang::create([
-                    'kode_barang' => $kodeBarang,
-                    'nama_barang' => $namaBarang,
-                ]);
-            }
-
-            // 3. Cari Bagian secara Case-Insensitive
-            $bagian = Bagian::whereRaw('LOWER(nama_bagian) = ?', [
-                strtolower($namaBagian)
-            ])->first();
-
-            if (!$bagian) {
-                throw new Exception("Baris {$this->rowNumber}: Bagian '{$namaBagian}' tidak ditemukan");
-            }
-
-            // 4. Update stok di tabel Gudang
-            $gudang = Gudang::firstOrNew([
-                'barang_id' => $barang->id,
-                'bagian_id' => $bagian->id,
-            ]);
-
-            $gudang->keteranganOtomatis = 'Pembelian';
-            $gudang->stok = ($gudang->stok ?? 0) + $stokInput;
-            $gudang->save();
-
-            // 5. OTOMATIS BUAT BARANG DI SEMUA BAGIAN LAIN DENGAN STOK 0
-            $semuaBagian = Bagian::all();
-            foreach ($semuaBagian as $bagianLain) {
-                if ($bagianLain->id === $bagian->id) {
-                    continue;
-                }
-
-                $gudangLain = Gudang::where('barang_id', $barang->id)
-                    ->where('bagian_id', $bagianLain->id)
-                    ->first();
-
-                if (!$gudangLain) {
-                    Gudang::create([
-                        'barang_id' => $barang->id,
-                        'bagian_id' => $bagianLain->id,
-                        'stok' => 0,
-                    ]);
-                }
-            }
-
-            $this->successCount++;
-            return null;
-        } catch (Exception $e) {
-            $this->failedCount++;
-            $this->errors[] = $e->getMessage();
-            Log::error('BarangImporter Error: ' . $e->getMessage());
-            throw $e; // Lempar error agar transaction bisa rollback
+        // Validasi Dasar
+        if (!$kodeBarang || !$namaBarang || !$namaBagianInput) {
+            throw new Exception("Baris {$this->rowNumber}: Kode/Nama/Bagian tidak boleh kosong.");
         }
-    }
 
-    public function chunkSize(): int
-    {
-        return 100;
+        // 2. SIMPAN BARANG
+        // Menggunakan Eloquent agar event booted() di model Barang tetap terpanggil
+        $barang = Barang::withTrashed()->updateOrCreate(
+            ['kode_barang' => $kodeBarang],
+            ['nama_barang' => $namaBarang]
+        );
+        if ($barang->trashed()) $barang->restore();
+
+        // 3. CARI BAGIAN (Dari Memori/Cache)
+        $bagianTujuan = $this->daftarBagian->first(fn($item) => 
+            strtolower($item->nama_bagian) === strtolower($namaBagianInput)
+        );
+
+        if (!$bagianTujuan) {
+            throw new Exception("Baris {$this->rowNumber}: Bagian '{$namaBagianInput}' tidak terdaftar.");
+        }
+
+        // 4. UPDATE STOK UTAMA (Memicu booted() model Gudang)
+        // Kita gunakan save() agar model event 'saved' atau 'updated' ketrigger
+        $gudangUtama = Gudang::firstOrNew([
+            'barang_id' => $barang->id,
+            'bagian_id' => $bagianTujuan->id,
+        ]);
+
+        // Perbaikan TypeError: Pastikan stok lama dikonversi ke int sebelum dijumlah
+        $stokLama = (int) ($gudangUtama->stok ?? 0);
+        $gudangUtama->stok = $stokLama + $stokInput;
+        $gudangUtama->keteranganOtomatis = 'Pembelian';
+        $gudangUtama->save(); 
+
+        // 5. INISIALISASI BAGIAN LAIN (Memicu booted() model Gudang)
+        foreach ($this->daftarBagian as $b) {
+            if ($b->id === $bagianTujuan->id) continue;
+
+            // firstOrCreate menjamin data ada, dan memicu event 'created' jika baru dibuat
+            Gudang::firstOrCreate(
+                ['barang_id' => $barang->id, 'bagian_id' => $b->id],
+                ['stok' => 0, 'keteranganOtomatis' => 'Inisialisasi Sistem']
+            );
+        }
+
+        $this->successCount++;
     }
 }
