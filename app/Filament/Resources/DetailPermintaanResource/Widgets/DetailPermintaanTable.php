@@ -144,12 +144,11 @@ class DetailPermintaanTable extends BaseWidget
                         $success = false;
 
                         DB::transaction(function () use ($record, &$success) {
-                            // 1. Ambil angka draft dari tabel verifikasi. 
+                            
                             // Jika admin belum ngetik sama sekali, default ke jumlah permintaan asli.
                             $jumlahFinal = $record->verifikasi?->jumlah ?? $record->jumlah;
                             $stokGudang = $record->gudang;
 
-                            // 2. Validasi Stok terhadap jumlah yang baru saja diinput
                             if (!$stokGudang || $stokGudang->stok < $jumlahFinal) {
                                 Notification::make()
                                     ->title('Gagal Approve')
@@ -159,7 +158,6 @@ class DetailPermintaanTable extends BaseWidget
                                 return; // Gagalkan transaksi
                             }
 
-                            // 3. Tentukan status secara dinamis
                             $statusFinal = 'approved';
                             if ($jumlahFinal == 0) {
                                 $statusFinal = 'rejected';
@@ -167,7 +165,6 @@ class DetailPermintaanTable extends BaseWidget
                                 $statusFinal = 'approved_sebagian';
                             }
 
-                            // 4. Update atau Create tabel verifikasi (Finalisasi)
                             $record->verifikasi()->updateOrCreate(
                                 ['detail_permintaan_id' => $record->id],
                                 [
@@ -178,12 +175,10 @@ class DetailPermintaanTable extends BaseWidget
                                 ]
                             );
 
-                            // 5. Update status di tabel permintaan utama
                             $record->update([
                                 'approved' => $statusFinal,
                             ]);
 
-                            // 6. Potong stok gudang (Hanya jika statusnya disetujui/sebagian)
                             if ($jumlahFinal > 0) {
                                 $stokGudang->keteranganOtomatis = 'Pemakaian';
                                 $stokGudang->stok -= $jumlahFinal;
