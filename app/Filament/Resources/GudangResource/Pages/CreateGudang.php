@@ -20,10 +20,12 @@ class CreateGudang extends CreateRecord
     {
         return [
             ExcelImportAction::make()
-                ->label('Import dari Excel')
+                ->label('Upload Excel')
                 ->color('success')
+                ->icon('heroicon-m-arrow-up-tray')
                 ->use(BarangImporter::class)
-                ->modalHeading('Tambahkan barang sekaligus dari file Excel')
+                ->modalHeading('Upload file Excel')
+                ->modalIcon('heroicon-m-arrow-up-tray')
                 ->modalDescription('Pastikan dalam file excel terdapat kolom: kode_barang, nama_barang, stok, dan nama_bagian. Semua baris harus valid atau import akan ditolak total.')
                 ->uploadField(
                     fn($upload) => $upload
@@ -38,7 +40,10 @@ class CreateGudang extends CreateRecord
                         )
                 )
                 ->modalWidth('3xl')
-                ->size('xl'),
+                ->size('xl')
+                ->after(function () {
+                    return redirect(request()->header('Referer'));
+                }),
         ];
     }
 

@@ -46,31 +46,27 @@ class LogAktivitasResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $user = auth()->user();
-        $query = static::getModel()::query();
+        $query = static::getModel()::query()->with(['user']);
 
-        // Jika punya akses_log, bisa lihat semua log
-        if ($user && $user->hasPermissionTo('akses_log')) {
+        if (!$user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        // 1. Jika Super Admin bisa lihat semua
+        if ($user->hasPermissionTo('akses_log') && $user->role === 'super_admin') {
             return $query;
         }
 
-        // Jika hanya punya 
-        if ($user && $user->hasPermissionTo('akses_log')) {
-            // Admin - lihat log dari users di bagiannya (exclude keuangan)
-            if ($user->isAdmin() && $user->bagian_id) {
-                return $query->whereIn('user_id', function ($q) use ($user) {
-                    $q->select('id')
-                        ->from('users')
-                        ->where('bagian_id', $user->bagian_id)
-                        ->where('role', '!=', 'keuangan');
-                });
-            }
-
-            // User biasa - lihat log miliknya sendiri
-            return $query->where('user_id', $user->id);
+        // 2. Jika Admin Bagian
+        if ($user->isAdmin() && $user->bagian_id) {
+            return $query->whereIn('user_id', function ($q) use ($user) {
+                $q->select('id')
+                    ->from('users')
+                    ->where('bagian_id', $user->bagian_id)
+                    ->where('role', '!=', 'keuangan');
+            });
         }
-
-        // Tidak punya akses
-        return $query->whereRaw('1 = 0');
+        return $query->where('user_id', $user->id);
     }
 
     public static function table(Table $table): Table

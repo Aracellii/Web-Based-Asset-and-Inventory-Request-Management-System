@@ -10,6 +10,7 @@ use Filament\Notifications\Notification;
 use EightyNine\ExcelImport\ExcelImportAction;
 use App\Imports\BarangImporter;
 use Filament\Forms\Components\Actions\Action;
+
 class CreateBarang extends CreateRecord
 {
     protected static string $resource = BarangResource::class;
@@ -17,10 +18,12 @@ class CreateBarang extends CreateRecord
     {
         return [
             ExcelImportAction::make()
-                ->label('Import dari Excel')
+                ->label('Upload Excel')
                 ->color('success')
+                ->icon('heroicon-m-arrow-up-tray')
                 ->use(BarangImporter::class)
-                ->modalHeading('Tambahkan barang sekaligus dari file Excel')
+                ->modalHeading('Upload file Excel')
+                ->modalIcon('heroicon-m-arrow-up-tray')
                 ->modalDescription('Pastikan dalam file excel terdapat kolom: kode_barang, nama_barang, stok, dan nama_bagian. Jika nama_bagian tidak ditemukan, stok tidak akan ditambahkan.')
                 ->uploadField(
                     fn($upload) => $upload
@@ -35,7 +38,10 @@ class CreateBarang extends CreateRecord
                         )
                 )
                 ->modalWidth('3xl')
-                ->size('xl'),
+                ->size('xl')
+                ->after(function () {
+                    return redirect(request()->header('Referer'));
+                }),
         ];
     }
     protected function getRedirectUrl(): string
