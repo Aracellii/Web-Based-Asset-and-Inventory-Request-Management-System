@@ -17,7 +17,7 @@ use App\Traits\HasBagianScope;
 class LogAktivitasResource extends Resource
 {
     use HasBagianScope;
-    
+    protected static ?string $navigationGroup = 'Gudang';
     protected static ?int $navigationSort = 5;
     protected static ?string $model = LogAktivitas::class;
 
@@ -86,13 +86,13 @@ class LogAktivitasResource extends Resource
                     ->dateTime('d M Y, H:i')
                     ->sortable(),
 
-    Tables\Columns\TextColumn::make('nama_barang_snapshot')
-        ->label('Barang')
-        ->description(fn($record) => "Kode: {$record->kode_barang_snapshot}")
-        ->searchable([
-            'nama_barang_snapshot',
-            'kode_barang_snapshot',
-        ]),
+                Tables\Columns\TextColumn::make('nama_barang_snapshot')
+                    ->label('Barang')
+                    ->description(fn($record) => "Kode: {$record->kode_barang_snapshot}")
+                    ->searchable([
+                        'nama_barang_snapshot',
+                        'kode_barang_snapshot',
+                    ]),
 
                 Tables\Columns\TextColumn::make('nama_bagian_snapshot')
                     ->label('Bidang / Bagian')
@@ -171,7 +171,7 @@ class LogAktivitasResource extends Resource
                     ->action(function (array $data) {
                         // Increase memory limit for PDF generation
                         ini_set('memory_limit', '1028M');
-                        
+
                         $records = static::getEloquentQuery()
                             ->whereBetween('created_at', [
                                 Carbon::parse($data['tanggal_mulai'])->startOfDay(),
@@ -195,20 +195,16 @@ class LogAktivitasResource extends Resource
                         $response = response()->streamDownload(function () use ($pdf) {
                             echo $pdf->output();
                         }, 'log-aktivitas-' . now()->format('Y-m-d') . '.pdf');
-                        
+
                         // Free memory after PDF generation
                         unset($pdf, $records, $groupedRecords);
                         gc_collect_cycles();
-                        
+
                         return $response;
                     }),
             ])
-            ->actions([
-                
-            ])
-            ->bulkActions([
-          
-            ]);
+            ->actions([])
+            ->bulkActions([]);
     }
 
     public static function getPages(): array

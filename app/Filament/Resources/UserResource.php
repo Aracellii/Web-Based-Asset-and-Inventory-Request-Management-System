@@ -20,12 +20,12 @@ use Filament\Forms\Get;
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
-
+      protected static ?string $navigationGroup = 'Akun';
     protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?string $navigationLabel = 'Manajemen User';
     protected static ?string $modelLabel = 'User';
     protected static ?string $pluralModelLabel = 'Users';
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 2;
 
     public static function canViewAny(): bool
     {

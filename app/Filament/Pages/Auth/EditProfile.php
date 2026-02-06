@@ -14,13 +14,16 @@ use Illuminate\Support\Facades\Auth;
 
 class EditProfile extends BaseEditProfile
 {
+    protected static ?string $navigationGroup = 'Akun';
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
-    protected static ?string $navigationLabel = 'Akun';
-    protected static ?int $navigationSort = 10;
+    protected static ?string $navigationLabel = 'Akun Saya';
+    protected static ?int $navigationSort = 1;
     public function getHeading(): string
     {
         return 'Pengaturan Akun';
     }
+
+    
 
     public function getMaxContentWidth(): MaxWidth
     {
