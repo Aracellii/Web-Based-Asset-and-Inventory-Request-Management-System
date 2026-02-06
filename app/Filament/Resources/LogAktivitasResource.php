@@ -57,15 +57,6 @@ class LogAktivitasResource extends Resource
             return $query;
         }
 
-        // 2. Jika Admin Bagian
-        if ($user->isAdmin() && $user->bagian_id) {
-            return $query->whereIn('user_id', function ($q) use ($user) {
-                $q->select('id')
-                    ->from('users')
-                    ->where('bagian_id', $user->bagian_id)
-                    ->where('role', '!=', 'keuangan');
-            });
-        }
         return $query->where('user_id', $user->id);
     }
 
