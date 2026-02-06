@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Pages\Auth\EditProfile;
 use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -35,7 +36,6 @@ class AdminPanelProvider extends PanelProvider
             ->path('app')
             ->login()
             ->passwordReset()
-
             ->registration(Register::class)
             ->brandName(fn() => view('filament.components.logo'))
             ->favicon(asset('build/assets/logo.svg'))
@@ -49,15 +49,21 @@ class AdminPanelProvider extends PanelProvider
                     ->label('Akun Saya')
                     ->icon('heroicon-m-user-circle'),
             ])
+            ->navigationItems([
+                NavigationItem::make('Akun Saya')
+                    ->url(fn(): string => EditProfile::getUrl())
+                    ->icon('heroicon-o-user-circle')
+                    ->group('Akun') // Harus sama dengan nama group yang kamu buat
+                    ->sort(1)
+                    ->isActiveWhen(fn() => request()->routeIs('filament.admin.auth.profile')),
+            ])
 
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('Gudang')
                     ->collapsed(),
-                // ->icon('heroicon-o-shopping-cart'),
                 NavigationGroup::make()
-                    ->label('Akun dan Hak Akses')
-                    // ->icon('heroicon-o-cog')
+                    ->label('Akun')
                     ->collapsed(),
             ])
 
@@ -104,6 +110,7 @@ class AdminPanelProvider extends PanelProvider
                 AuthenticateSession::class,
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
+
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
