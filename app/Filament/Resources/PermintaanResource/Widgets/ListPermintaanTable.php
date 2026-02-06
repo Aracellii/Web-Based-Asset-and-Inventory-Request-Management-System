@@ -4,14 +4,13 @@ namespace App\Filament\Resources\PermintaanResource\Widgets;
 
 use App\Models\Permintaan;
 use Illuminate\Database\Eloquent\Builder;
-use Carbon\Carbon;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
 use Filament\Widgets\TableWidget as BaseWidget;
-use Filament\Forms\Components\Select;
 use Filament\Infolists\Components\Livewire;
 use App\Filament\Resources\DetailPermintaanResource\Widgets\DetailPermintaanTable;
+use App\Services\FilterService;
 
 class ListPermintaanTable extends BaseWidget
 {
@@ -51,6 +50,9 @@ class ListPermintaanTable extends BaseWidget
             ->query($this->getTableQuery())
             ->heading('List Permintaan')
             ->columns([
+                Tables\Columns\TextColumn::make('index')
+                    ->label('No')
+                    ->rowIndex(),
                 Tables\Columns\TextColumn::make('id')
                     ->label('ID Permintaan')
                     ->sortable()
@@ -127,42 +129,9 @@ class ListPermintaanTable extends BaseWidget
 
             ->defaultSort('created_at', 'desc')
             ->filters([
-                Tables\Filters\SelectFilter::make('created_at')
-                    ->label('Rentang Waktu')
-                    ->form([
-                        Select::make('rentang')
-                            ->label('Pilih Waktu')
-                            ->options([
-                                'all' => 'All',
-                                '7' => '7 Hari Terakhir',
-                                '30' => '30 Hari Terakhir',
-                                '60' => '60 Hari Terakhir',
-                                'this_year' => 'Tahun Ini',
-                            ])
-                            ->reactive()
-                            ->default('all'),
 
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        if (!$data['rentang'] || $data['rentang'] === 'all') {
-                            return $query;
-                        }
-                        // Jika pilih Tahun Ini
-                        if ($data['rentang'] === 'this_year') {
-                            return $query->whereYear('created_at', Carbon::now()->year);
-                        }
-                        // Jika pilih rentang hari (7, 30, 60)
-                        return $query->where('created_at', '>=', Carbon::now()->subDays((int) $data['rentang']));
-                    })
-                    ->indicateUsing(function (array $data): ?string {
-                        if (!$data['rentang'] || $data['rentang'] === 'all') {
-                            return null;
-                        }
-                        if ($data['rentang'] === 'this_year') {
-                            return 'Rentang: Tahun Ini (' . Carbon::now()->year . ')';
-                        }
-                        return 'Rentang: ' . $data['rentang'] . ' Hari Terakhir';
-                    }),
+                FilterService::dateRangeFilter('created_at'),
+                
                 Tables\Filters\SelectFilter::make('filter_bagian')
                     ->relationship('user.bagian', 'nama_bagian')
                     ->label('Filter Unit Kerja')

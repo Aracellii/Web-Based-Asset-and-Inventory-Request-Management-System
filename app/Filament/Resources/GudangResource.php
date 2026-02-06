@@ -250,9 +250,20 @@ class GudangResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('bagian_id')
                     ->relationship('bagian', 'nama_bagian')
-                    ->label('Filter Unit Kerja')
+                    ->label('Unit Kerja')
                     ->preload()
-                    ->multiple(),
+                    ->multiple()
+                    ->searchable(),
+                Tables\Filters\SelectFilter::make('barang_nama')
+                    ->relationship('barang', 'nama_barang')
+                    ->label('Nama Barang')
+                    ->preload()
+                    ->searchable(),
+                Tables\Filters\SelectFilter::make('barang_kode')
+                    ->relationship('barang', 'kode_barang')
+                    ->label('Kode Barang')
+                    ->preload()
+                    ->searchable(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
