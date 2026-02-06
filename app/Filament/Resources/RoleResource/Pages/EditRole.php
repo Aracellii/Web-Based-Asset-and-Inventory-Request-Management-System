@@ -57,10 +57,9 @@ class EditRole extends EditRecord
         if ($this->record->name === 'super_admin') {
             $rolePermissions = [
                 'manage_roles',
-                'view_managemen_user',
+                'akses_managemen_user',
                 'manage_managemen_user',
-                'view_log_aktivitas',
-                'clear_log_aktivitas',
+                'akses_log',
             ];
             foreach ($rolePermissions as $perm) {
                 $permModel = Utils::getPermissionModel()::firstOrCreate([

@@ -53,8 +53,8 @@ class LogAktivitasResource extends Resource
             return $query;
         }
 
-        // Jika hanya punya view_log_aktivitas
-        if ($user && $user->hasPermissionTo('view_log_aktivitas')) {
+        // Jika hanya punya 
+        if ($user && $user->hasPermissionTo('akses_log')) {
             // Admin - lihat log dari users di bagiannya (exclude keuangan)
             if ($user->isAdmin() && $user->bagian_id) {
                 return $query->whereIn('user_id', function ($q) use ($user) {

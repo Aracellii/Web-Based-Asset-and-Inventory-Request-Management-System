@@ -23,7 +23,7 @@ class GudangPolicy
      */
     public function view(User $user, Gudang $gudang): bool
     {
-        return $user->hasPermissionTo('view_stok_barang');
+        return $user->hasPermissionTo('akses_stok');
     }
 
     /**

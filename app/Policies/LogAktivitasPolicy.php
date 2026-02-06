@@ -23,7 +23,7 @@ class LogAktivitasPolicy
      */
     public function view(User $user, LogAktivitas $logAktivitas): bool
     {
-        return $user->hasPermissionTo('view_log_aktivitas');
+        return $user->hasPermissionTo('akses_log');
     }
 
     /**
