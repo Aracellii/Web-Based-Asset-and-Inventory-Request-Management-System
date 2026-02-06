@@ -149,7 +149,7 @@ class LogAktivitasResource extends Resource
                     ->label('Export PDF')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('danger')
-                    ->visible(fn() => auth()->user()?->hasPermissionTo('export_log_aktivitas'))
+                    ->visible(fn() => auth()->user()?->hasPermissionTo('akses_log'))
                     ->form([
                         Forms\Components\TextInput::make('title')
                             ->label('Judul Laporan')
