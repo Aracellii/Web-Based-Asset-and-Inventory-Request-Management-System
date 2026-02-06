@@ -14,7 +14,7 @@ class Barang extends Model
         'kode_barang',
         'nama_barang',
     ];
-
+    
     protected static function booted(): void
     {
         static::deleting(function (Barang $barang) {

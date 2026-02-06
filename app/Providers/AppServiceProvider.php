@@ -26,8 +26,8 @@ class AppServiceProvider extends ServiceProvider
         Carbon::setLocale('id');
         date_default_timezone_set('Asia/Jakarta');
 
-        // if (Request::header('x-forwarded-proto') === 'https' || str_contains(Request::header('host'), 'ngrok-free.app')) {
-        //     URL::forceScheme('https');
-        // }
+        if (Request::header('x-forwarded-proto') === 'https' || str_contains(Request::header('host'), 'ngrok-free.app')) {
+            URL::forceScheme('https');
+        }
     }
 }
