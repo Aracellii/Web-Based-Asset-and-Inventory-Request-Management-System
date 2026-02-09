@@ -237,7 +237,7 @@ class PermintaanResource extends Resource
 
             ->defaultSort('created_at', 'desc')
             ->filters([
-                FilterService::dateRangeFilter('created_at', 'Tanggal Permintaan'),
+                FilterService::dateRangeFilter('created_at'),
                 Tables\Filters\SelectFilter::make('filter_bagian')
                     ->relationship('user.bagian', 'nama_bagian')
                     ->label('Filter Unit Kerja')
