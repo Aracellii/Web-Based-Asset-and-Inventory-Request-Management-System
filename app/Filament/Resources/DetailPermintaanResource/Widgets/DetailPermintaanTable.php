@@ -96,7 +96,7 @@ class DetailPermintaanTable extends BaseWidget
                     ->label('Jumlah Disetujui')
                     ->type('number')
                     ->extraAttributes(['style' => 'width: 100px;'])
-                    ->disabled(fn($record) => $record->approved !== 'pending')
+                    ->disabled(fn($record) => $record->approved !== 'pending' || !$this->canApproval)
                     ->state(function ($record) {
                         // Jika sudah ada draft di tabel verifikasi
                         if ($record->verifikasi?->exists) {
@@ -144,7 +144,7 @@ class DetailPermintaanTable extends BaseWidget
                         $success = false;
 
                         DB::transaction(function () use ($record, &$success) {
-                            
+
                             // Jika admin belum ngetik sama sekali, default ke jumlah permintaan asli.
                             $jumlahFinal = $record->verifikasi?->jumlah ?? $record->jumlah;
                             $stokGudang = $record->gudang;
@@ -282,5 +282,12 @@ class DetailPermintaanTable extends BaseWidget
                     }),
             ])
             ->paginated(false);
+    }
+
+    public function mount($record = null, $canAction = false, $canApproval = false): void
+    {
+        $this->record = $record;
+        $this->canAction = $canAction;
+        $this->canApproval = $canApproval;
     }
 }
