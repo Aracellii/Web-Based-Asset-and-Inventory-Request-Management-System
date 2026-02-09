@@ -98,6 +98,10 @@ class DetailPermintaanTable extends BaseWidget
                     ->extraAttributes(['style' => 'width: 100px;'])
                     ->disabled(fn($record) => $record->approved !== 'pending' || !$this->canApproval)
                     ->state(function ($record) {
+                        
+                        if (!$this->canApproval && $record->approved === 'pending') {
+                            return null;
+                        }
                         // Jika sudah ada draft di tabel verifikasi
                         if ($record->verifikasi?->exists) {
                             return $record->verifikasi->jumlah;
