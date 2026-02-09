@@ -56,7 +56,7 @@ class LogAktivitasResource extends Resource
         if ($user->hasPermissionTo('akses_log') && $user->role === 'super_admin') {
             return $query;
         }
-
+    
         return $query->where('user_id', $user->id);
     }
 
