@@ -6,6 +6,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Request;
+use Livewire\Livewire;
+use Illuminate\Support\Facades\Route;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,8 +28,18 @@ class AppServiceProvider extends ServiceProvider
         Carbon::setLocale('id');
         date_default_timezone_set('Asia/Jakarta');
 
-        if (Request::header('x-forwarded-proto') === 'https' || str_contains(Request::header('host'), 'ngrok-free.app')) {
-            URL::forceScheme('https');
-        }
-    }
+        // if (Request::header('x-forwarded-proto') === 'https' || str_contains(Request::header('host'), 'ngrok-free.app')) {
+        //    URL::forceScheme('https');}
+		// 1. Paksa Laravel sadar dia ada di sub-folder /SIATK
+    \Illuminate\Support\Facades\URL::forceRootUrl(config('app.url'));
+
+    // 2. Beritahu Livewire rutenya juga harus lewat /SIATK
+    \Livewire\Livewire::setUpdateRoute(function ($handle) {
+        return \Illuminate\Support\Facades\Route::post('/SIATK/livewire/update', $handle);
+    });
+
+    \Livewire\Livewire::setScriptRoute(function ($handle) {
+        return \Illuminate\Support\Facades\Route::get('/SIATK/livewire/livewire.js', $handle);
+    });
+	}
 }
