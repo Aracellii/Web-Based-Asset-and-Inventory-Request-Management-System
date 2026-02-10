@@ -17,6 +17,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use App\Models\Permintaan;
 use Filament\Tables\Actions\DeleteAction;
+use Filament\Forms\Components\Hidden;
 
 class DetailPermintaanTable extends BaseWidget
 {
@@ -98,7 +99,7 @@ class DetailPermintaanTable extends BaseWidget
                     ->extraAttributes(['style' => 'width: 100px;'])
                     ->disabled(fn($record) => $record->approved !== 'pending' || !$this->canApproval)
                     ->state(function ($record) {
-                        
+
                         if (!$this->canApproval && $record->approved === 'pending') {
                             return null;
                         }
@@ -143,10 +144,32 @@ class DetailPermintaanTable extends BaseWidget
                     ->requiresConfirmation()
                     ->modalHeading('Approve Permintaan')
 
-                    ->action(function ($record, $livewire) {
+                    // Validation utk mencegah Race Condition dimana data jumlah diedit user tepat saat admin mau approve.
+                    ->form([
+                        Hidden::make('jumlah_snapshot')
+                            ->default(fn($record) => $record->jumlah),
+                    ])
+
+                    ->action(function ($record, $livewire, array $data) {
                         $this->authorize('approve', $record);
                         $success = false;
 
+                        // Lanjutan validation
+                        $jumlahSaatModalDibuka = (int) $data['jumlah_snapshot'];
+                        $record->refresh();
+                        $jumlahTerbaruDiDatabase = (int) $record->jumlah;
+
+                        if ($jumlahSaatModalDibuka !== $jumlahTerbaruDiDatabase) {
+                            Notification::make()
+                                ->title('Gagal: Data Sudah Berubah')
+                                ->body("User baru saja mengubah jumlah permintaan dari {$jumlahSaatModalDibuka} menjadi {$jumlahTerbaruDiDatabase}. Silakan refresh halaman sebelum melakukan verifikasi ulang.")
+                                ->danger()
+                                ->persistent()
+                                ->send();
+                            return;
+                        }
+                        
+                        $record->refresh();
                         DB::transaction(function () use ($record, &$success) {
 
                             // Jika admin belum ngetik sama sekali, default ke jumlah permintaan asli.

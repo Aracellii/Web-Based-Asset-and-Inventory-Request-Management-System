@@ -31,15 +31,15 @@ class AppServiceProvider extends ServiceProvider
         // if (Request::header('x-forwarded-proto') === 'https' || str_contains(Request::header('host'), 'ngrok-free.app')) {
         //    URL::forceScheme('https');}
 		// 1. Paksa Laravel sadar dia ada di sub-folder /SIATK
-    \Illuminate\Support\Facades\URL::forceRootUrl(config('app.url'));
+    URL::forceRootUrl(config('app.url'));
 
     // 2. Beritahu Livewire rutenya juga harus lewat /SIATK
-    \Livewire\Livewire::setUpdateRoute(function ($handle) {
-        return \Illuminate\Support\Facades\Route::post('/SIATK/livewire/update', $handle);
+    Livewire::setUpdateRoute(function ($handle) {
+        return Route::post('/SIATK/livewire/update', $handle);
     });
 
-    \Livewire\Livewire::setScriptRoute(function ($handle) {
-        return \Illuminate\Support\Facades\Route::get('/SIATK/livewire/livewire.js', $handle);
+    Livewire::setScriptRoute(function ($handle) {
+        return Route::get('/SIATK/livewire/livewire.js', $handle);
     });
 	}
 }
