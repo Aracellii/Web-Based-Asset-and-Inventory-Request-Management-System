@@ -57,6 +57,13 @@ class ListPermintaanTable extends BaseWidget
                     ->label('ID Permintaan')
                     ->sortable()
                     ->weight('bold')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('user.bagian.nama_bagian')
+                    ->label('Unit Kerja')
+                    ->sortable()
+                    ->color('gray')
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->searchable(),
 
@@ -131,7 +138,7 @@ class ListPermintaanTable extends BaseWidget
             ->filters([
 
                 FilterService::dateRangeFilter('created_at'),
-                
+
                 Tables\Filters\SelectFilter::make('filter_bagian')
                     ->relationship('user.bagian', 'nama_bagian')
                     ->label('Filter Unit Kerja')
