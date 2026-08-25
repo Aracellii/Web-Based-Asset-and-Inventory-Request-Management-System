@@ -7,7 +7,7 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Carbon;
 
-class KeuanganActivityStats extends BaseWidget
+class FinanceActivityStats extends BaseWidget
 {
     protected static ?int $sort = 1;
 
@@ -21,7 +21,7 @@ class KeuanganActivityStats extends BaseWidget
    public static function canView(): bool
     {
         $user = auth()->user();
-        return $user && $user->can('grafik_keuangan');
+        return $user && $user->can('chart_finance');
     }
 
     protected function getStats(): array

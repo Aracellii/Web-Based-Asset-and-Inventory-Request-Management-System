@@ -15,7 +15,7 @@ class LogAktivitasPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('akses_log');
+        return $user->hasPermissionTo('access_log');
     }
 
     /**
@@ -23,7 +23,7 @@ class LogAktivitasPolicy
      */
     public function view(User $user, LogAktivitas $logAktivitas): bool
     {
-        return $user->hasPermissionTo('akses_log');
+        return $user->hasPermissionTo('access_log');
     }
 
     /**
@@ -31,7 +31,7 @@ class LogAktivitasPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('akses_log');
+        return $user->hasPermissionTo('access_log');
     }
 
     /**
@@ -39,7 +39,7 @@ class LogAktivitasPolicy
      */
     public function update(User $user, LogAktivitas $logAktivitas): bool
     {
-        return $user->hasPermissionTo('akses_log');
+        return $user->hasPermissionTo('access_log');
     }
 
     /**
@@ -79,7 +79,7 @@ class LogAktivitasPolicy
      */
     public function restore(User $user, LogAktivitas $logAktivitas): bool
     {
-        return $user->hasPermissionTo('akses_log');
+        return $user->hasPermissionTo('access_log');
     }
 
     /**
@@ -87,7 +87,7 @@ class LogAktivitasPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->hasPermissionTo('akses_log');
+        return $user->hasPermissionTo('access_log');
     }
 
     /**
@@ -95,7 +95,7 @@ class LogAktivitasPolicy
      */
     public function replicate(User $user, LogAktivitas $logAktivitas): bool
     {
-        return $user->hasPermissionTo('akses_log');
+        return $user->hasPermissionTo('access_log');
     }
 
     /**
@@ -103,6 +103,6 @@ class LogAktivitasPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->hasPermissionTo('akses_log');
+        return $user->hasPermissionTo('access_log');
     }
 }

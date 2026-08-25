@@ -50,8 +50,8 @@ class DetailPermintaanResource extends Resource
     {
         $query = parent::getEloquentQuery();
         
-        // DetailPermintaan di-scope berdasarkan user yang membuat permintaan
-        // Super Admin & Keuangan lihat semua, Admin lihat bagiannya, User lihat miliknya
+        // DetailPermintaan is scoped to the user who created the request
+        // Super Admin & Finance see everything, Admin sees their division, User sees their own
         return static::applyUserScope($query, 'user_id');
     }
     

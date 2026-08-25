@@ -5,19 +5,19 @@ namespace App\Traits;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Trait untuk filtering data berdasarkan bagian user dengan permission system
- * 
+ * Filters data by the user's division through the permission system.
+ *
  * Permissions:
- * - lihat_bagian_sendiri: User hanya bisa lihat data bagiannya sendiri
- * - lihat_semua_bagian: User bisa lihat data semua bagian
- * 
- * Usage di Filament Resource:
+ * - view_own_division: The user can only see data from their own division.
+ * - view_all_divisions: The user can see data from every division.
+ *
+ * Usage in a Filament Resource:
  * ```php
  * use App\Traits\HasBagianScope;
- * 
+ *
  * class YourResource extends Resource {
  *     use HasBagianScope;
- *     
+ *
  *     public static function getEloquentQuery(): Builder {
  *         return static::applyBagianScope(parent::getEloquentQuery(), 'bagian_id');
  *     }
@@ -27,118 +27,119 @@ use Illuminate\Database\Eloquent\Builder;
 trait HasBagianScope
 {
     /**
-     * Apply bagian scope ke query berdasarkan permission
-     * 
+     * Apply the division scope to the query based on permissions.
+     *
      * @param Builder $query
-     * @param string $bagianColumn - nama kolom bagian_id (default: 'bagian_id')
+     * @param string $bagianColumn - the division column name (default: 'bagian_id')
      * @return Builder
      */
     public static function applyBagianScope(Builder $query, string $bagianColumn = 'bagian_id'): Builder
     {
         $user = auth()->user();
-        
+
         if (!$user) {
             return $query->whereRaw('1 = 0'); // No access if not authenticated
         }
 
-        // Super Admin dapat melihat semua data (bypass permission check)
+        // Super admins can see everything (permission checks are bypassed).
         if ($user->hasRole('super_admin')) {
             return $query;
         }
 
-        // Jika user punya permission lihat_semua_bagian, bisa lihat semua data
-        if ($user->can('lihat_semua_bagian')) {
+        // Users with view_all_divisions can see all data.
+        if ($user->can('view_all_divisions')) {
             return $query;
         }
 
-        // Jika user punya permission lihat_bagian_sendiri, filter by bagian_id
-        if ($user->can('lihat_bagian_sendiri')) {
+        // Users with view_own_division are filtered by their division id.
+        if ($user->can('view_own_division')) {
             if ($user->bagian_id) {
                 return $query->where($bagianColumn, $user->bagian_id);
             }
-            // Jika user tidak punya bagian_id, tidak bisa akses apa-apa
+
+            // Users without a division id cannot access anything.
             return $query->whereRaw('1 = 0');
         }
 
-        // Default: jika tidak punya permission apapun, tidak bisa akses
+        // Default: no permission means no access.
         return $query->whereRaw('1 = 0');
     }
 
     /**
-     * Apply user scope ke query (untuk data yang dimiliki user sendiri)
-     * Digunakan untuk resource yang memiliki kolom user_id
-     * 
+     * Apply the user scope to the query (for data owned by the user).
+     * Used by resources that have a user_id column.
+     *
      * @param Builder $query
-     * @param string $userColumn - nama kolom user_id (default: 'user_id')
+     * @param string $userColumn - the user column name (default: 'user_id')
      * @return Builder
      */
     public static function applyUserScope(Builder $query, string $userColumn = 'user_id'): Builder
     {
         $user = auth()->user();
-        
+
         if (!$user) {
             return $query->whereRaw('1 = 0');
         }
 
-        // Super Admin dapat melihat semua data
+        // Super admins can see everything.
         if ($user->hasRole('super_admin')) {
             return $query;
         }
 
-        // Jika user punya permission lihat_semua_bagian, bisa lihat semua data
-        if ($user->can('lihat_semua_bagian')) {
+        // Users with view_all_divisions can see all data.
+        if ($user->can('view_all_divisions')) {
             return $query;
         }
 
-        // Jika user punya permission lihat_bagian_sendiri
-        if ($user->can('lihat_bagian_sendiri')) {
-            // Admin dapat melihat data dari bagiannya
+        // Users with view_own_division
+        if ($user->can('view_own_division')) {
+            // Admins can see data from their own division.
             if ($user->hasRole('admin') && $user->bagian_id) {
                 return $query->whereHas('user', function ($q) use ($user) {
                     $q->where('bagian_id', $user->bagian_id);
                 });
             }
-            
-            // User biasa hanya dapat melihat data miliknya sendiri
+
+            // Regular users can only see their own data.
             return $query->where($userColumn, $user->id);
         }
 
-        // Default: User hanya lihat data sendiri
+        // Default: users only see their own data.
         return $query->where($userColumn, $user->id);
     }
 
     /**
-     * Check apakah user bisa edit/delete record tertentu berdasarkan permission
-     * 
+     * Check whether the user can edit/delete a record based on permissions.
+     *
      * @param mixed $record - Model instance
-     * @param string $ownerColumn - kolom yang menunjukkan ownership ('user_id' atau 'bagian_id')
+     * @param string $ownerColumn - the ownership column ('user_id' or 'bagian_id')
      * @return bool
      */
     public static function canModifyRecord($record, string $ownerColumn = 'bagian_id'): bool
     {
         $user = auth()->user();
-        
+
         if (!$user) {
             return false;
         }
 
-        // Super Admin bisa edit/delete apapun
+        // Super admins can edit/delete anything.
         if ($user->hasRole('super_admin')) {
             return true;
         }
 
-        // Jika punya permission lihat_semua_bagian, bisa modify semua
-        if ($user->can('lihat_semua_bagian')) {
+        // Users with view_all_divisions can modify everything.
+        if ($user->can('view_all_divisions')) {
             return true;
         }
 
-        // Jika punya permission lihat_bagian_sendiri, cek ownership
-        if ($user->can('lihat_bagian_sendiri')) {
+        // Users with view_own_division must pass the ownership check.
+        if ($user->can('view_own_division')) {
             if ($ownerColumn === 'user_id') {
-                // Hanya owner yang bisa modify
+                // Only the owner can modify the record.
                 return $record->user_id === $user->id;
             } elseif ($ownerColumn === 'bagian_id') {
-                // Bisa modify data dari bagiannya
+                // The user can modify records from their own division.
                 return $record->bagian_id === $user->bagian_id;
             }
         }

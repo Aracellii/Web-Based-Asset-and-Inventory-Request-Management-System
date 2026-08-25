@@ -17,7 +17,7 @@ class ListPermintaanTable extends BaseWidget
     public static function canView(): bool
     {
         $user = auth()->user();
-        return $user->hasPermissionTo('manage_permintaan');
+        return $user->hasPermissionTo('manage_request');
     }
     protected int | string | array $columnSpan = 'full';
     protected function getTableQuery(): Builder
@@ -26,7 +26,7 @@ class ListPermintaanTable extends BaseWidget
 
         $query = Permintaan::query();
 
-        if ($user->can('lihat_bagian_sendiri') && !$user->can('lihat_semua_bagian')) {
+        if ($user->can('view_own_division') && !$user->can('view_all_divisions')) {
             $query->whereHas(
                 'user',
                 fn($q) =>

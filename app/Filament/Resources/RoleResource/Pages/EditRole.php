@@ -53,13 +53,13 @@ class EditRole extends EditRecord
             ]));
         });
 
-        // Untuk super_admin, pastikan permission role resource tetap ada
+        // Ensure the role resource permissions remain for super_admin
         if ($this->record->name === 'super_admin') {
             $rolePermissions = [
                 'manage_roles',
-                'akses_managemen_user',
-                'manage_managemen_user',
-                'akses_log',
+                'access_user_management',
+                'manage_user_management',
+                'access_log',
             ];
             foreach ($rolePermissions as $perm) {
                 $permModel = Utils::getPermissionModel()::firstOrCreate([

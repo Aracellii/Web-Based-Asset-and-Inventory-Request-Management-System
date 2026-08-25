@@ -62,10 +62,10 @@ class CreateGudang extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        // ROLE KEUANGAN atau SUPER ADMIN
+        // FINANCE or SUPER ADMIN role
         $user = Auth::user();
 
-        if ($user->hasRole('keuangan') || $user->hasRole('superadmin')) {
+        if ($user->hasRole('finance') || $user->hasRole('superadmin')) {
 
             $bagianIds = $data['bagian_ids'] ?? [];
             $stokInput = (int) ($data['stok'] ?? 0);
@@ -124,7 +124,7 @@ class CreateGudang extends CreateRecord
             return $firstGudang ?? Gudang::where('barang_id', $data['barang_id'])->first();
         }
 
-        // ROLE SELAIN KEUANGAN
+        // Roles other than FINANCE
         // Gunakan bagian_id dari form, atau fallback ke bagian user
         $bagianId = $data['bagian_id'] ?? Auth::user()->bagian_id;
         $stokInput = (int) ($data['stok'] ?? 0);

@@ -23,11 +23,11 @@ class ActivityLogSeeder extends Seeder
     {
         $this->command->info('📝 Seeding activity logs...');
 
-        $keuanganRole = \Spatie\Permission\Models\Role::where('name', 'keuangan')->first();
+        $financeRole = \Spatie\Permission\Models\Role::where('name', 'finance')->first();
         $adminRole = \Spatie\Permission\Models\Role::where('name', 'admin')->first();
         $userRole = \Spatie\Permission\Models\Role::where('name', 'user')->first();
 
-        $adminKeuangan = User::where('role_id', $keuanganRole->id)->first();
+        $adminFinance = User::where('role_id', $financeRole->id)->first();
         $adminTU = User::where('role_id', $adminRole->id)->where('bagian_id', 1)->first();
         $userTU = User::where('role_id', $userRole->id)->where('bagian_id', 1)->first();
 
@@ -35,15 +35,15 @@ class ActivityLogSeeder extends Seeder
 
         // 1. Inbound log - Finance admin adds Pencil stock in General Administration
         $gudang1 = Gudang::where('bagian_id', 1)->where('barang_id', 1)->first();
-        if ($gudang1 && $adminKeuangan) {
+        if ($gudang1 && $adminFinance) {
             $stokLama = $gudang1->stok - 10;
             LogAktivitas::create([
                 'barang_id' => 1,
-                'user_id' => $adminKeuangan->id,
+                'user_id' => $adminFinance->id,
                 'gudang_id' => $gudang1->id,
                 'nama_barang_snapshot' => 'Pencil',
                 'kode_barang_snapshot' => 'B001',
-                'user_snapshot' => $adminKeuangan->name,
+                'user_snapshot' => $adminFinance->name,
                 'nama_bagian_snapshot' => 'General Administration',
                 'tipe' => 'Inbound',
                 'jumlah' => 10,
@@ -100,15 +100,15 @@ class ActivityLogSeeder extends Seeder
 
         // 4. Adjustment log - Finance admin adjusts A4 Paper stock
         $gudang3 = Gudang::where('bagian_id', 2)->where('barang_id', 3)->first();
-        if ($gudang3 && $adminKeuangan) {
+        if ($gudang3 && $adminFinance) {
             $stokLama = $gudang3->stok - 5;
             LogAktivitas::create([
                 'barang_id' => 3,
-                'user_id' => $adminKeuangan->id,
+                'user_id' => $adminFinance->id,
                 'gudang_id' => $gudang3->id,
                 'nama_barang_snapshot' => 'A4 Paper',
                 'kode_barang_snapshot' => 'B003',
-                'user_snapshot' => $adminKeuangan->name,
+                'user_snapshot' => $adminFinance->name,
                 'nama_bagian_snapshot' => 'Survey and Mapping',
                 'tipe' => 'Adjustment',
                 'jumlah' => 5,
@@ -145,15 +145,15 @@ class ActivityLogSeeder extends Seeder
 
         // 6. Inbound log - finance adds Water Dispenser stock
         $gudang5 = Gudang::where('bagian_id', 4)->where('barang_id', 5)->first();
-        if ($gudang5 && $adminKeuangan) {
+        if ($gudang5 && $adminFinance) {
             $stokLama = $gudang5->stok - 15;
             LogAktivitas::create([
                 'barang_id' => 5,
-                'user_id' => $adminKeuangan->id,
+                'user_id' => $adminFinance->id,
                 'gudang_id' => $gudang5->id,
                 'nama_barang_snapshot' => 'Water Dispenser',
                 'kode_barang_snapshot' => 'B005',
-                'user_snapshot' => $adminKeuangan->name,
+                'user_snapshot' => $adminFinance->name,
                 'nama_bagian_snapshot' => 'Planning and Empowerment',
                 'tipe' => 'Inbound',
                 'jumlah' => 15,

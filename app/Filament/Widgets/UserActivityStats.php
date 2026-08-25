@@ -21,7 +21,7 @@ class UserActivityStats extends BaseWidget
     public static function canView(): bool
     {
         $user = auth()->user();
-        return $user && $user->can('grafik_user');
+        return $user && $user->can('chart_user');
     }
 
     protected function getStats(): array

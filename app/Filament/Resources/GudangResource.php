@@ -32,22 +32,22 @@ class GudangResource extends Resource
     
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasPermissionTo('akses_stok');
+        return auth()->user()?->hasPermissionTo('access_stock');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->hasPermissionTo('manage_stok_barang');
+        return auth()->user()?->hasPermissionTo('manage_stock');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->hasPermissionTo('manage_stok_barang');
+        return auth()->user()?->hasPermissionTo('manage_stock');
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->hasPermissionTo('manage_stok_barang');
+        return auth()->user()?->hasPermissionTo('manage_stock');
     }
 
     public static function form(Form $form): Form
@@ -55,7 +55,7 @@ class GudangResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make('Warehouse Stock Input')
-                    ->disabled(fn($context) => $context === 'edit' && !auth()->user()?->hasPermissionTo('manage_stok_barang'))
+                    ->disabled(fn($context) => $context === 'edit' && !auth()->user()?->hasPermissionTo('manage_stock'))
                     ->description('Choose an item and set the stock')
                     ->schema([
                         Forms\Components\Select::make('barang_id')
@@ -78,8 +78,8 @@ class GudangResource extends Resource
                             ->searchable()
                             ->preload()
                             ->disabled(fn($context) => $context === 'edit')
-                            ->visible(fn($context) => $context === 'edit' || (!auth()->user()?->isKeuangan()))
-                            ->required(fn($context) => $context === 'edit' || (!auth()->user()?->isKeuangan())),
+                            ->visible(fn($context) => $context === 'edit' || (!auth()->user()?->isFinance()))
+                            ->required(fn($context) => $context === 'edit' || (!auth()->user()?->isFinance())),
 
                         Forms\Components\Select::make('bagian_ids')
                             ->label('Select Units')
@@ -87,7 +87,7 @@ class GudangResource extends Resource
                             ->options(\App\Models\Bagian::pluck('nama_bagian', 'id'))
                             ->searchable()
                             ->preload()
-                            ->visible(fn($context) => $context === 'create' && auth()->user()?->isKeuangan())
+                            ->visible(fn($context) => $context === 'create' && auth()->user()?->isFinance())
                             ->helperText('Select one or more units to add stock. Leave empty to add stock to all units.'),
 
                     ])->columns(2),
@@ -132,7 +132,7 @@ class GudangResource extends Resource
             ->headerActions([
                 // 1. ACTION EXCEL 
                 Tables\Actions\Action::make('export_excel')
-                    ->visible(fn() => auth()->user()?->hasPermissionTo('export_stok_barang'))
+                    ->visible(fn() => auth()->user()?->hasPermissionTo('export_stock'))
                     ->label('Excel')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('success')
@@ -207,7 +207,7 @@ class GudangResource extends Resource
 
                 // 2. ACTION PDF )
                 Tables\Actions\Action::make('export_pdf')
-                    ->visible(fn() => auth()->user()?->hasPermissionTo('export_stok_barang'))
+                    ->visible(fn() => auth()->user()?->hasPermissionTo('export_stock'))
                     ->label('PDF')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('danger')
@@ -267,10 +267,10 @@ class GudangResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->visible(fn() => auth()->user()?->hasPermissionTo('manage_stok_barang')),
+                    ->visible(fn() => auth()->user()?->hasPermissionTo('manage_stock')),
                 Tables\Actions\DeleteAction::make()
                     ->label('Clear')
-                    ->visible(fn() => auth()->user()?->hasPermissionTo('manage_stok_barang'))
+                    ->visible(fn() => auth()->user()?->hasPermissionTo('manage_stock'))
                     ->modalHeading('Reset warehouse stock?')
                     ->modalDescription('The stock quantity will be cleared.')
                     ->modalSubmitActionLabel('Reset stock')
@@ -282,7 +282,7 @@ class GudangResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->visible(fn() => auth()->user()?->hasPermissionTo('manage_stok_barang'))
+                        ->visible(fn() => auth()->user()?->hasPermissionTo('manage_stock'))
                         ->modalHeading('Reset stok gudang yang dipilih?')
                         ->modalDescription('Stok akan di reset')
                         ->modalSubmitActionLabel('Reset stok')
@@ -313,8 +313,8 @@ class GudangResource extends Resource
         $user = auth()->user();
         if (!$user) return null;
 
-        // User tanpa permission akses_stok tidak dapat badge
-        if (!$user->hasPermissionTo('akses_stok')) {
+        // Users without the access_stock permission do not get the badge
+        if (!$user->hasPermissionTo('access_stock')) {
             return null;
         }
 

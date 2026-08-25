@@ -13,8 +13,8 @@ class UserSeeder extends Seeder
     {
         $this->command->info('👥 Seeding users...');
 
-        // Ambil role IDs
-        $keuanganRole = Role::where('name', 'keuangan')->first();
+        // Get role IDs
+        $financeRole = Role::where('name', 'finance')->first();
         $adminRole = Role::where('name', 'admin')->first();
         $userRole = Role::where('name', 'user')->first();
         $superAdminRole = Role::where('name', 'super_admin')->first();
@@ -23,10 +23,10 @@ class UserSeeder extends Seeder
             'name' => 'Finance Admin',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('12345678'),
-            'role_id' => $keuanganRole->id,
+            'role_id' => $financeRole->id,
             'bagian_id' => 1,
         ]);
-        $user1->assignRole('keuangan');
+        $user1->assignRole('finance');
 
         $user2 = User::create([
             'name' => 'Warehouse Admin - General Administration',

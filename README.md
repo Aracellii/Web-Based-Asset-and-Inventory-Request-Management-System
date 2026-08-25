@@ -8,7 +8,7 @@ SIATK is a web-based asset and inventory management system built with **Laravel 
 - **Warehouse stock** — per-division stock levels with movement charts and overview widgets.
 - **Requests & approvals** — staff submit item requests; admins verify details and approve/reject them, with race-condition-safe approval logic.
 - **Activity log** — every create, update, approve, and delete action is recorded and filterable.
-- **Role-based access control** — roles and permissions managed through Filament Shield (`super_admin`, `admin`, `keuangan`, `user`).
+- **Role-based access control** — roles and permissions managed through Filament Shield (`super_admin`, `admin`, `finance`, `user`).
 - **Division scoping** — users with restricted permissions only see data belonging to their own division.
 - **Excel import/export** — bulk import items from a downloadable template and export reports.
 - **PDF reports** — stock and activity reports rendered with Dompdf.
@@ -76,7 +76,7 @@ npm run build
 
 | Role      | Email             | Password   |
 |-----------|-------------------|------------|
-| keuangan  | `admin@gmail.com` | `12345678` |
+| finance  | `admin@gmail.com` | `12345678` |
 
 The remaining 12 demo accounts (warehouse admins and staff for each division) are created by `database/seeders/UserSeeder.php`; every account uses the password `12345678`.
 

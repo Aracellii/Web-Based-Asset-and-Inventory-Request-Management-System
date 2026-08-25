@@ -90,15 +90,15 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsTo(\Spatie\Permission\Models\Role::class);
     }
 
-    // Helper methods untuk role checking
+    // Role helper methods
     public function isSuperAdmin(): bool
     {
         return $this->hasRole('super_admin');
     }
 
-    public function isKeuangan(): bool
+    public function isFinance(): bool
     {
-        return $this->hasRole('keuangan');
+        return $this->hasRole('finance');
     }
 
     public function isAdmin(): bool

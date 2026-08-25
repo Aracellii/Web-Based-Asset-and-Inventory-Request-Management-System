@@ -35,7 +35,7 @@ return new class extends Migration
             $table->dropColumn('role_id');
             
             // Kembalikan kolom enum role
-            $table->enum('role', ['super_admin', 'keuangan', 'admin', 'user'])->default('user')->after('password');
+            $table->enum('role', ['super_admin', 'finance', 'admin', 'user'])->default('user')->after('password');
         });
     }
 };

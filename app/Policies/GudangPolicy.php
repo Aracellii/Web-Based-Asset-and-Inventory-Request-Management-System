@@ -15,7 +15,7 @@ class GudangPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('akses_stok');
+        return $user->hasPermissionTo('access_stock');
     }
 
     /**
@@ -23,7 +23,7 @@ class GudangPolicy
      */
     public function view(User $user, Gudang $gudang): bool
     {
-        return $user->hasPermissionTo('akses_stok');
+        return $user->hasPermissionTo('access_stock');
     }
 
     /**
@@ -31,7 +31,7 @@ class GudangPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('manage_stok_barang');
+        return $user->hasPermissionTo('manage_stock');
     }
 
     /**
@@ -39,7 +39,7 @@ class GudangPolicy
      */
     public function update(User $user, Gudang $gudang): bool
     {
-        return $user->hasPermissionTo('manage_stok_barang');
+        return $user->hasPermissionTo('manage_stock');
     }
 
     /**
@@ -47,7 +47,7 @@ class GudangPolicy
      */
     public function delete(User $user, Gudang $gudang): bool
     {
-        return $user->hasPermissionTo('manage_stok_barang');
+        return $user->hasPermissionTo('manage_stock');
     }
 
     /**
@@ -55,7 +55,7 @@ class GudangPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->hasPermissionTo('manage_stok_barang');
+        return $user->hasPermissionTo('manage_stock');
     }
 
     /**
@@ -63,7 +63,7 @@ class GudangPolicy
      */
     public function forceDelete(User $user, Gudang $gudang): bool
     {
-        return $user->hasPermissionTo('manage_stok_barang');
+        return $user->hasPermissionTo('manage_stock');
     }
 
     /**
@@ -71,7 +71,7 @@ class GudangPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->hasPermissionTo('manage_stok_barang');
+        return $user->hasPermissionTo('manage_stock');
     }
 
     /**
@@ -79,7 +79,7 @@ class GudangPolicy
      */
     public function restore(User $user, Gudang $gudang): bool
     {
-        return $user->hasPermissionTo('manage_stok_barang');
+        return $user->hasPermissionTo('manage_stock');
     }
 
     /**
@@ -87,7 +87,7 @@ class GudangPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->hasPermissionTo('manage_stok_barang');
+        return $user->hasPermissionTo('manage_stock');
     }
 
     /**
@@ -95,7 +95,7 @@ class GudangPolicy
      */
     public function replicate(User $user, Gudang $gudang): bool
     {
-        return $user->hasPermissionTo('manage_stok_barang');
+        return $user->hasPermissionTo('manage_stock');
     }
 
     /**
@@ -103,6 +103,6 @@ class GudangPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->hasPermissionTo('manage_stok_barang');
+        return $user->hasPermissionTo('manage_stock');
     }
 }

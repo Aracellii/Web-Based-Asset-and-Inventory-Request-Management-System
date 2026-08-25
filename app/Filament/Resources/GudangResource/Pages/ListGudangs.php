@@ -21,7 +21,7 @@ class ListGudangs extends ListRecords
                 ->label('Export PDF')
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('danger')
-                ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin']))
+                ->visible(fn() => in_array(auth()->user()?->role, ['finance', 'admin']))
                 ->action(function () {
                     $gudangs = \App\Models\Gudang::with(['barang', 'bagian'])->get();
                     
@@ -46,7 +46,7 @@ class ListGudangs extends ListRecords
                 ->label('Export Excel')
                 ->icon('heroicon-o-table-cells')
                 ->color('success')
-                ->visible(fn() => in_array(auth()->user()?->role, ['keuangan', 'admin']))
+                ->visible(fn() => in_array(auth()->user()?->role, ['finance', 'admin']))
                 ->action(function () {
                     return Excel::download(
                         new StokBarangExport(),

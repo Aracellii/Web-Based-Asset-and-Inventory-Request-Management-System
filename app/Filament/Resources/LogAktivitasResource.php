@@ -41,7 +41,7 @@ class LogAktivitasResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasPermissionTo('akses_log');
+        return auth()->user()?->hasPermissionTo('access_log');
     }
     public static function getEloquentQuery(): Builder
     {
@@ -53,7 +53,7 @@ class LogAktivitasResource extends Resource
         }
 
         // 1. Jika Super Admin bisa lihat semua
-        if ($user->hasPermissionTo('akses_log') && $user->role === 'super_admin') {
+        if ($user->hasPermissionTo('access_log') && $user->role === 'super_admin') {
             return $query;
         }
     
@@ -136,7 +136,7 @@ class LogAktivitasResource extends Resource
                     ->label('Export PDF')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('danger')
-                    ->visible(fn() => auth()->user()?->hasPermissionTo('akses_log'))
+                    ->visible(fn() => auth()->user()?->hasPermissionTo('access_log'))
                     ->form([
                         Forms\Components\TextInput::make('title')
                             ->label('Report Title')

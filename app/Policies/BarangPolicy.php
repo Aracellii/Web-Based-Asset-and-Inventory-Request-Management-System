@@ -15,7 +15,7 @@ class BarangPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('akses_katalog');
+        return $user->hasPermissionTo('access_catalog');
     }
 
     /**
@@ -23,7 +23,7 @@ class BarangPolicy
      */
     public function view(User $user, Barang $barang): bool
     {
-        return $user->hasPermissionTo('akses_katalog');
+        return $user->hasPermissionTo('access_catalog');
     }
 
     /**
@@ -31,7 +31,7 @@ class BarangPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('manage_katalog_barang');
+        return $user->hasPermissionTo('manage_item_catalog');
     }
 
     /**
@@ -39,7 +39,7 @@ class BarangPolicy
      */
     public function update(User $user, Barang $barang): bool
     {
-        return $user->hasPermissionTo('manage_katalog_barang');
+        return $user->hasPermissionTo('manage_item_catalog');
     }
 
     /**
@@ -47,7 +47,7 @@ class BarangPolicy
      */
     public function delete(User $user, Barang $barang): bool
     {
-        return $user->hasPermissionTo('manage_katalog_barang');
+        return $user->hasPermissionTo('manage_item_catalog');
     }
 
     /**
@@ -55,7 +55,7 @@ class BarangPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->hasPermissionTo('manage_katalog_barang');
+        return $user->hasPermissionTo('manage_item_catalog');
     }
 
     /**
@@ -63,7 +63,7 @@ class BarangPolicy
      */
     public function forceDelete(User $user, Barang $barang): bool
     {
-        return $user->hasPermissionTo('manage_katalog_barang');
+        return $user->hasPermissionTo('manage_item_catalog');
     }
 
     /**
@@ -71,7 +71,7 @@ class BarangPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->hasPermissionTo('manage_katalog_barang');
+        return $user->hasPermissionTo('manage_item_catalog');
     }
 
     /**
@@ -79,7 +79,7 @@ class BarangPolicy
      */
     public function restore(User $user, Barang $barang): bool
     {
-        return $user->hasPermissionTo('manage_katalog_barang');
+        return $user->hasPermissionTo('manage_item_catalog');
     }
 
     /**
@@ -87,7 +87,7 @@ class BarangPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->hasPermissionTo('manage_katalog_barang');
+        return $user->hasPermissionTo('manage_item_catalog');
     }
 
     /**
@@ -95,7 +95,7 @@ class BarangPolicy
      */
     public function replicate(User $user, Barang $barang): bool
     {
-        return $user->hasPermissionTo('manage_katalog_barang');
+        return $user->hasPermissionTo('manage_item_catalog');
     }
 
     /**
@@ -103,6 +103,6 @@ class BarangPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->hasPermissionTo('manage_katalog_barang');
+        return $user->hasPermissionTo('manage_item_catalog');
     }
 }

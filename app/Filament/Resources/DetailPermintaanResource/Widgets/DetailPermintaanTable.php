@@ -136,7 +136,7 @@ class DetailPermintaanTable extends BaseWidget
                         fn($record) =>
                         $this->canApproval
                             && $record->approved === 'pending'
-                            && auth()->user()?->can('approve_permintaan')
+                            && auth()->user()?->can('approve_request')
                     )
                     ->label('Approve')
                     ->color('success')
@@ -233,7 +233,7 @@ class DetailPermintaanTable extends BaseWidget
                         fn($record) =>
                         $this->canApproval
                             && $record->approved === 'pending'
-                            && auth()->user()?->can('approve_permintaan')
+                            && auth()->user()?->can('approve_request')
                     )
                     ->label('Reject')
                     ->color('danger')

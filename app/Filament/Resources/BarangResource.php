@@ -30,22 +30,22 @@ class BarangResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasPermissionTo('akses_katalog') ?? false;
+        return auth()->user()?->hasPermissionTo('access_catalog') ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->hasPermissionTo('manage_katalog_barang') ?? false;
+        return auth()->user()?->hasPermissionTo('manage_item_catalog') ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->hasPermissionTo('manage_katalog_barang') ?? false;
+        return auth()->user()?->hasPermissionTo('manage_item_catalog') ?? false;
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->hasPermissionTo('manage_katalog_barang') ?? false;
+        return auth()->user()?->hasPermissionTo('manage_item_catalog') ?? false;
     }
 
     public static function form(Form $form): Form
@@ -234,12 +234,12 @@ class BarangResource extends Resource
         $user = auth()->user();
         
         // If the user has catalog access, return all items
-        if ($user && $user->hasPermissionTo('akses_katalog')) {
+        if ($user && $user->hasPermissionTo('access_catalog')) {
             return $query;
         }
         
         // Otherwise, show only items in the user's warehouse unit
-        if ($user && $user->hasPermissionTo('akses_katalog') && $user->bagian_id) {
+        if ($user && $user->hasPermissionTo('access_catalog') && $user->bagian_id) {
             return $query->whereHas('gudangs', function ($q) use ($user) {
                 $q->where('bagian_id', $user->bagian_id);
             });

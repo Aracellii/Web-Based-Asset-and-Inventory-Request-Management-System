@@ -32,22 +32,22 @@ class PermintaanResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasPermissionTo('akses_permintaan');
+        return auth()->user()?->hasPermissionTo('access_request');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->hasPermissionTo('akses_permintaan');
+        return auth()->user()?->hasPermissionTo('access_request');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->hasPermissionTo('manage_permintaan');
+        return auth()->user()?->hasPermissionTo('manage_request');
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->hasPermissionTo('manage_permintaan');
+        return auth()->user()?->hasPermissionTo('manage_request');
     }
 
     public static function form(Form $form): Form

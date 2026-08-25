@@ -24,7 +24,7 @@ class StockMovementChart extends ChartWidget
     public static function canView(): bool
     {
         $user = auth()->user();
-        return $user && $user->can('grafik_stok');
+        return $user && $user->can('chart_stock');
     }
 
     protected function getFilters(): ?array
@@ -34,7 +34,7 @@ class StockMovementChart extends ChartWidget
         $user = Auth::user();
         
         // Show only items in the user's warehouse unit
-        if (!$user->isKeuangan() && !$user->isSuperAdmin()) {
+        if (!$user->isFinance() && !$user->isSuperAdmin()) {
             $barangIds = Gudang::where('bagian_id', $user->bagian_id)
                 ->pluck('barang_id')
                 ->toArray();
@@ -77,7 +77,7 @@ class StockMovementChart extends ChartWidget
         $bagianId = null;
         
         // Apply the user's warehouse filter
-        if (!$user->isKeuangan() && !$user->isSuperAdmin()) {
+        if (!$user->isFinance() && !$user->isSuperAdmin()) {
             $bagianId = $user->bagian_id;
             $gudangIds = Gudang::where('bagian_id', $bagianId)
                 ->pluck('id')

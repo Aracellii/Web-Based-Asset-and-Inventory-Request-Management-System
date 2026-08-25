@@ -25,7 +25,7 @@ class TopRequestedItemsChart extends ChartWidget
     public static function canView(): bool
     {
         $user = auth()->user();
-        return $user && $user->can('grafik_permintaan');
+        return $user && $user->can('chart_request');
     }
 
     public ?string $startDate = null;
@@ -99,8 +99,8 @@ class TopRequestedItemsChart extends ChartWidget
         $query = DetailPermintaan::select('barang_id', DB::raw('SUM(jumlah) as total_diminta'))
             ->with('barang');
 
-        // Filter by bagian if not keuangan or super_admin
-        if (!$user->isKeuangan() && !$user->isSuperAdmin()) {
+        // Filter by division if not finance or super_admin
+        if (!$user->isFinance() && !$user->isSuperAdmin()) {
             $query->where('bagian_id', $user->bagian_id);
         }
 

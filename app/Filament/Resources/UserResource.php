@@ -29,22 +29,22 @@ class UserResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasPermissionTo('akses_managemen_user');
+        return auth()->user()?->hasPermissionTo('access_user_management');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->hasPermissionTo('manage_manajemen_user');
+        return auth()->user()?->hasPermissionTo('manage_user_management');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->hasPermissionTo('manage_manajemen_user');
+        return auth()->user()?->hasPermissionTo('manage_user_management');
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->hasPermissionTo('manage_manajemen_user');
+        return auth()->user()?->hasPermissionTo('manage_user_management');
     }
 
     public static function form(Form $form): Form
@@ -94,7 +94,7 @@ class UserResource extends Resource
                             ->live()
                             ->getOptionLabelFromRecordUsing(fn ($record) => match ($record->name) {
                                 'super_admin' => 'Super Admin',
-                                'keuangan' => 'Keuangan',
+                                'finance' => 'Finance',
                                 'admin' => 'Warehouse Admin',
                                 'user' => 'User / Staff',
                                 default => $record->name,
@@ -129,7 +129,7 @@ class UserResource extends Resource
                                 $roleDescriptions = [
                                     'user' => 'User / Staff: Can create item requests and view their own request status',
                                     'admin' => 'Warehouse Admin: Can manage warehouse stock, approve or reject requests from their unit, and view their unit data',
-                                    'keuangan' => 'Finance: Can view and approve all requests from all units, and view full reports',
+                                    'finance' => 'Finance: Can view and approve all requests from all units, and view full reports',
                                     'super_admin' => 'Super Admin: Has full access to the entire system, including user and role management',
                                 ];
                                 
@@ -160,19 +160,19 @@ class UserResource extends Resource
                     ->label('Role')
                     ->colors([
                         'danger' => 'super_admin',
-                        'warning' => 'keuangan',
+                        'warning' => 'finance',
                         'success' => 'admin',
                         'primary' => 'user',
                     ])
                     ->icons([
                         'heroicon-o-shield-check' => 'super_admin',
-                        'heroicon-o-currency-dollar' => 'keuangan',
+                        'heroicon-o-currency-dollar' => 'finance',
                         'heroicon-o-wrench' => 'admin',
                         'heroicon-o-user' => 'user',
                     ])
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'super_admin' => 'Super Admin',
-                        'keuangan' => 'Keuangan',
+                        'finance' => 'Finance',
                         'admin' => 'Warehouse Admin',
                         'user' => 'User / Staff',
                         default => $state,
@@ -206,7 +206,7 @@ class UserResource extends Resource
                     ->native(false)
                     ->getOptionLabelFromRecordUsing(fn ($record) => match ($record->name) {
                         'super_admin' => 'Super Admin',
-                        'keuangan' => 'Keuangan',
+                        'finance' => 'Finance',
                         'admin' => 'Admin Gudang',
                         'user' => 'User/Staff',
                         default => $record->name,
