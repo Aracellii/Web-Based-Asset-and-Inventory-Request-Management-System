@@ -1,4 +1,4 @@
-Asset & Inventory Management System
+## Asset & Inventory Management System
 web-based asset and inventory management system built with **Laravel 10** and **Filament 3**. It covers the full flow of managing a catalog of items, warehouse stock per division, internal requests, multi-step approvals, and activity logging — all wrapped in a role-based permission system.
 
 ## Features
