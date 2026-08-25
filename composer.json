@@ -1,10 +1,13 @@
 {
-    "name": "laravel/laravel",
+    "name": "aracellii/siatk",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "SIATK — an asset and inventory management system built with Laravel and Filament.",
     "keywords": [
         "laravel",
-        "framework"
+        "filament",
+        "inventory",
+        "asset-management",
+        "warehouse"
     ],
     "license": "MIT",
     "require": {

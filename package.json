@@ -1,4 +1,5 @@
 {
+    "name": "siatk",
     "private": true,
     "type": "module",
     "scripts": {
