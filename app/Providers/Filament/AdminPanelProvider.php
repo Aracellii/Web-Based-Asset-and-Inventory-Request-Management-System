@@ -38,7 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->passwordReset()
             ->registration(Register::class)
             ->brandName(fn() => view('filament.components.logo'))
-            ->favicon(asset('build/assets/logo.svg'))
+            ->favicon(asset('favicon.ico'))
             ->colors([
                 'primary' => Color::Indigo,
             ])
@@ -72,13 +72,15 @@ class AdminPanelProvider extends PanelProvider
                 \Filament\View\PanelsRenderHook::TOPBAR_START,
                 fn(): string => Blade::render('
                     <div class="flex items-center ml-4 gap-3">
-                        <img
-                        src="' . asset('build/assets/logo.svg') . '"
-                        alt="SIATK"
-                        class="w-7 h-7 object-contain">
+                        <div class="flex h-7 w-7 items-center justify-center rounded-full bg-primary-600 text-xs font-bold text-white">
+                            SI
+                        </div>
                         <div class="flex flex-col leading-tight border-l-2 border-primary-600 pl-3">
                             <span class="text-lg font-bold text-gray-600 dark:text-white uppercase tracking-tight">
                                 SIATK
+                            </span>
+                            <span class="text-xs text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Asset and Inventory Management System
                             </span>
                         </div>
                     </div>

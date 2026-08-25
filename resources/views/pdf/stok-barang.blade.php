@@ -40,8 +40,8 @@
     <div class="header">
         <h1>{{ $title }}</h1>
         <p>
-            Tanggal Pembuatan Laporan :
-            {{ \Carbon\Carbon::parse($tanggal)->locale('id')->translatedFormat('d F Y') }}
+            Report Date:
+            {{ \Carbon\Carbon::parse($tanggal)->locale('en')->translatedFormat('d F Y') }}
         </p>
     </div>
 
@@ -54,9 +54,9 @@
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Kode Barang</th>
-                    <th>Nama Barang</th>
-                    <th>Jumlah Stok</th>
+                    <th>Item Code</th>
+                    <th>Item Name</th>
+                    <th>Stock Qty</th>
                 </tr>
             </thead>
             <tbody>

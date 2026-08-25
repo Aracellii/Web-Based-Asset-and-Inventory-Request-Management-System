@@ -17,7 +17,7 @@ use App\Traits\HasBagianScope;
 class LogAktivitasResource extends Resource
 {
     use HasBagianScope;
-    protected static ?string $navigationGroup = 'Gudang';
+    protected static ?string $navigationGroup = 'Warehouse';
     protected static ?int $navigationSort = 5;
     protected static ?string $model = LogAktivitas::class;
 
@@ -69,37 +69,37 @@ class LogAktivitasResource extends Resource
                     ->rowIndex(),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Waktu')
+                    ->label('Time')
                     ->dateTime('d M Y, H:i')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('nama_barang_snapshot')
-                    ->label('Barang')
-                    ->description(fn($record) => "Kode: {$record->kode_barang_snapshot}")
+                    ->label('Item')
+                    ->description(fn($record) => "Code: {$record->kode_barang_snapshot}")
                     ->searchable([
                         'nama_barang_snapshot',
                         'kode_barang_snapshot',
                     ]),
 
                 Tables\Columns\TextColumn::make('nama_bagian_snapshot')
-                    ->label('Bidang / Bagian')
+                    ->label('Unit / Section')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('tipe')
-                    ->label('Tipe')
+                    ->label('Type')
                     ->badge()
                     ->color(fn(string $state): string => match (strtolower($state)) {
-                        'masuk' => 'success',
-                        'keluar' => 'danger',
+                        'inbound' => 'success',
+                        'outbound' => 'danger',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn($state) => ucfirst($state)),
                 Tables\Columns\TextColumn::make('keterangan')
-                    ->label('Keterangan')
+                    ->label('Description')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('jumlah')
-                    ->label('Mutasi')
+                    ->label('Movement')
                     ->weight('bold')
                     ->color(function ($record) {
                         return $record->stok_akhir < $record->stok_awal ? 'danger' : 'success';
@@ -110,16 +110,16 @@ class LogAktivitasResource extends Resource
                     }),
 
                 Tables\Columns\TextColumn::make('stok_awal')
-                    ->label('Stok Awal')
+                    ->label('Opening Stock')
                     ->color('gray')
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('stok_akhir')
-                    ->label('Stok Akhir')
+                    ->label('Closing Stock')
                     ->weight('bold'),
 
                 Tables\Columns\TextColumn::make('user_snapshot')
-                    ->label('Oleh')
+                    ->label('By')
                     ->sortable()
                     ->description(fn($record) => ($record->user->email ?? 'Unknown')),
             ])
@@ -127,8 +127,8 @@ class LogAktivitasResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('tipe')
                     ->options([
-                        'masuk' => 'Masuk',
-                        'keluar' => 'Keluar',
+                        'Inbound' => 'Inbound',
+                        'Outbound' => 'Outbound',
                     ]),
             ])
             ->headerActions([
@@ -139,19 +139,19 @@ class LogAktivitasResource extends Resource
                     ->visible(fn() => auth()->user()?->hasPermissionTo('akses_log'))
                     ->form([
                         Forms\Components\TextInput::make('title')
-                            ->label('Judul Laporan')
-                            ->default('Laporan Log Aktivitas')
+                            ->label('Report Title')
+                            ->default('Activity Log Report')
                             ->required(),
                         Forms\Components\DatePicker::make('tanggal_mulai')
-                            ->label('Tanggal Mulai')
+                            ->label('Start Date')
                             ->default(now()->startOfMonth())
                             ->required(),
                         Forms\Components\DatePicker::make('tanggal_akhir')
-                            ->label('Tanggal Akhir')
+                            ->label('End Date')
                             ->default(now()->endOfMonth())
                             ->required(),
                         Forms\Components\DatePicker::make('tanggal_laporan')
-                            ->label('Tanggal Laporan')
+                            ->label('Report Date')
                             ->default(now())
                             ->required(),
                     ])
@@ -170,11 +170,11 @@ class LogAktivitasResource extends Resource
 
                         $groupedRecords = $records->groupBy('nama_bagian_snapshot');
 
-                        $periode = Carbon::parse($data['tanggal_mulai'])->locale('id')->translatedFormat('d F Y') . ' - ' . Carbon::parse($data['tanggal_akhir'])->locale('id')->translatedFormat('d F Y');
+                        $periode = Carbon::parse($data['tanggal_mulai'])->locale('en')->translatedFormat('d F Y') . ' - ' . Carbon::parse($data['tanggal_akhir'])->locale('en')->translatedFormat('d F Y');
 
                         $pdf = Pdf::loadView('pdf.log-aktivitas', [
                             'title' => $data['title'],
-                            'tanggal' => Carbon::parse($data['tanggal_laporan'])->locale('id')->translatedFormat('d F Y'),
+                            'tanggal' => Carbon::parse($data['tanggal_laporan'])->locale('en')->translatedFormat('d F Y'),
                             'periode' => $periode,
                             'groupedRecords' => $groupedRecords,
                         ])->setPaper('a4', 'landscape');

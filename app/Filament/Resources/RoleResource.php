@@ -22,7 +22,7 @@ use Illuminate\Validation\Rules\Unique;
 class RoleResource extends Resource implements HasShieldPermissions
 {
     use HasShieldFormComponents;
-    protected static ?string $navigationGroup = 'Akun';
+    protected static ?string $navigationGroup = 'Account';
     protected static ?string $recordTitleAttribute = 'name';
     protected static ?int $navigationSort = 3;
 

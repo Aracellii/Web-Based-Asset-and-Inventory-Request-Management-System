@@ -22,24 +22,20 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
-        // Set Carbon locale to Indonesian and timezone to WIB
-        Carbon::setLocale('id');
-        date_default_timezone_set('Asia/Jakarta');
+   public function boot(): void
+{
+    Carbon::setLocale('id');
+    date_default_timezone_set('Asia/Jakarta');
 
-        // if (Request::header('x-forwarded-proto') === 'https' || str_contains(Request::header('host'), 'ngrok-free.app')) {
-        //    URL::forceScheme('https');}
-		// 1. Paksa Laravel sadar dia ada di sub-folder /SIATK
-    URL::forceRootUrl(config('app.url'));
+    // HAPUS atau comment baris ini — ini penyebab utama looping
+    // URL::forceRootUrl(config('app.url'));
 
-    // 2. Beritahu Livewire rutenya juga harus lewat /SIATK
-    Livewire::setUpdateRoute(function ($handle) {
-        return Route::post('/SIATK/livewire/update', $handle);
-    });
-
-    Livewire::setScriptRoute(function ($handle) {
-        return Route::get('/SIATK/livewire/livewire.js', $handle);
-    });
-	}
+    // HAPUS juga Livewire custom route ini jika tidak deploy di subfolder /SIATK
+    // Livewire::setUpdateRoute(function ($handle) {
+    //     return Route::post('/SIATK/livewire/update', $handle);
+    // });
+    // Livewire::setScriptRoute(function ($handle) {
+    //     return Route::get('/SIATK/livewire/livewire.js', $handle);
+    // });
+}
 }

@@ -11,7 +11,7 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->command->info('👥 Seeding Users...');
+        $this->command->info('👥 Seeding users...');
 
         // Ambil role IDs
         $keuanganRole = Role::where('name', 'keuangan')->first();
@@ -29,7 +29,7 @@ class UserSeeder extends Seeder
         $user1->assignRole('keuangan');
 
         $user2 = User::create([
-            'name' => 'Admin Gudang General Administration',
+            'name' => 'Warehouse Admin - General Administration',
             'email' => 'gudangTU@gmail.com',
             'password' => Hash::make('12345678'),
             'role_id' => $adminRole->id,
@@ -38,7 +38,7 @@ class UserSeeder extends Seeder
         $user2->assignRole('admin');
 
         $user3 = User::create([
-            'name' => 'Staff General Administration',
+            'name' => 'General Administration Staff',
             'email' => 'userTU@gmail.com',
             'password' => Hash::make('12345678'),
             'role_id' => $userRole->id,
@@ -47,7 +47,7 @@ class UserSeeder extends Seeder
         $user3->assignRole('user');
 
         $user4 = User::create([
-            'name' => 'Admin Gudang Survey and Mapping',
+            'name' => 'Warehouse Admin - Survey and Mapping',
             'email' => 'gudangSP@gmail.com',
             'password' => Hash::make('12345678'),
             'role_id' => $adminRole->id,
@@ -56,7 +56,7 @@ class UserSeeder extends Seeder
         $user4->assignRole('admin');
 
         $user5 = User::create([
-            'name' => 'Staff Survey and Mapping',
+            'name' => 'Survey and Mapping Staff',
             'email' => 'userSP@gmail.com',
             'password' => Hash::make('12345678'),
             'role_id' => $userRole->id,
@@ -65,7 +65,7 @@ class UserSeeder extends Seeder
         $user5->assignRole('user');
 
         $user6 = User::create([
-            'name' => 'Admin Gudang Rights Determination and Registration',
+            'name' => 'Warehouse Admin - Rights Determination and Registration',
             'email' => 'gudangPHP@gmail.com',
             'password' => Hash::make('12345678'),
             'role_id' => $adminRole->id,
@@ -74,7 +74,7 @@ class UserSeeder extends Seeder
         $user6->assignRole('admin');
 
         $user7 = User::create([
-            'name' => 'Staff Rights Determination and Registration',
+            'name' => 'Rights Determination and Registration Staff',
             'email' => 'userPHP@gmail.com',
             'password' => Hash::make('12345678'),
             'role_id' => $userRole->id,
@@ -83,7 +83,7 @@ class UserSeeder extends Seeder
         $user7->assignRole('user');
 
         $user8 = User::create([
-            'name' => 'Admin Gudang Planning and Empowerment',
+            'name' => 'Warehouse Admin - Planning and Empowerment',
             'email' => 'gudangPP@gmail.com',
             'password' => Hash::make('12345678'),
             'role_id' => $adminRole->id,
@@ -92,7 +92,7 @@ class UserSeeder extends Seeder
         $user8->assignRole('admin');
 
         $user9 = User::create([
-            'name' => 'Staff Planning and Empowerment',
+            'name' => 'Planning and Empowerment Staff',
             'email' => 'userPP@gmail.com',
             'password' => Hash::make('12345678'),
             'role_id' => $userRole->id,
@@ -101,7 +101,7 @@ class UserSeeder extends Seeder
         $user9->assignRole('user');
 
         $user10 = User::create([
-            'name' => 'Admin Gudang Land Procurement and Development',
+            'name' => 'Warehouse Admin - Land Procurement and Development',
             'email' => 'gudangPTP@gmail.com',
             'password' => Hash::make('12345678'),
             'role_id' => $adminRole->id,
@@ -110,7 +110,7 @@ class UserSeeder extends Seeder
         $user10->assignRole('admin');
 
         $user11 = User::create([
-            'name' => 'Staff Land Procurement and Development',
+            'name' => 'Land Procurement and Development Staff',
             'email' => 'userPTP@gmail.com',
             'password' => Hash::make('12345678'),
             'role_id' => $userRole->id,
@@ -119,7 +119,7 @@ class UserSeeder extends Seeder
         $user11->assignRole('user');
 
         $user12 = User::create([
-            'name' => 'Admin Gudang Dispute Control and Handling',
+            'name' => 'Warehouse Admin - Dispute Control and Handling',
             'email' => 'gudangPPS@gmail.com',
             'password' => Hash::make('12345678'),
             'role_id' => $adminRole->id,
@@ -128,7 +128,7 @@ class UserSeeder extends Seeder
         $user12->assignRole('admin');
 
         $user13 = User::create([
-            'name' => 'Staff Dispute Control and Handling',
+            'name' => 'Dispute Control and Handling Staff',
             'email' => 'userPPS@gmail.com',
             'password' => Hash::make('12345678'),
             'role_id' => $userRole->id,

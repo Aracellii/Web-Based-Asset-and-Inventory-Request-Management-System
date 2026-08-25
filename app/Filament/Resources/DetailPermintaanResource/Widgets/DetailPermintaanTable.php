@@ -35,7 +35,7 @@ class DetailPermintaanTable extends BaseWidget
                 return Infolist::make()
                     ->record($this->record)
                     ->schema([
-                        Section::make('Informasi Umum')
+                        Section::make('General Information')
                             ->extraAttributes([
                                 'class' => '!border-none !shadow-none !bg-transparent !px-0 '
                             ])
@@ -47,17 +47,17 @@ class DetailPermintaanTable extends BaseWidget
                                             ->weight('bold')
                                             ->prefix('# '),
                                         TextEntry::make('user.name')
-                                            ->label('Peminta')
+                                            ->label('Requester')
                                             ->badge()
                                             ->color('gray')
                                             ->columnSpan(4),
                                         TextEntry::make('bagian.nama_bagian')
-                                            ->label('Unit Kerja')
+                                            ->label('Work Unit')
                                             ->badge()
                                             ->color('gray')
                                             ->columnSpan(4),
                                         TextEntry::make('created_at')
-                                            ->label('Tgl Permintaan')
+                                            ->label('Request Date')
                                             ->dateTime('d M Y, H:i')
                                             ->badge()
                                             ->color('gray')
@@ -71,15 +71,15 @@ class DetailPermintaanTable extends BaseWidget
 
             ->columns([
                 Tables\Columns\TextColumn::make('barang.nama_barang')
-                    ->label('Nama Barang')
+                    ->label('Item Name')
                     ->description(fn($record) => ($record->barang?->kode_barang ?? '-'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('jumlah')
-                    ->label('Jumlah Minta')
+                    ->label('Requested Qty')
                     ->badge()
                     ->color('gray'),
                 Tables\Columns\TextColumn::make('stok_gudang')
-                    ->label('Stok di Gudang')
+                    ->label('Warehouse Stock')
                     ->badge()
                     ->getStateUsing(fn($record) => $record->gudang?->stok ?? 0),
                 Tables\Columns\TextColumn::make('approved')
@@ -94,7 +94,7 @@ class DetailPermintaanTable extends BaseWidget
                     ->formatStateUsing(fn(string $state): string => ucfirst($state))
                     ->sortable(),
                 Tables\Columns\TextInputColumn::make('verifikasi.jumlah')
-                    ->label('Jumlah Disetujui')
+                    ->label('Approved Qty')
                     ->type('number')
                     ->extraAttributes(['style' => 'width: 100px;'])
                     ->disabled(fn($record) => $record->approved !== 'pending' || !$this->canApproval)
@@ -142,7 +142,7 @@ class DetailPermintaanTable extends BaseWidget
                     ->color('success')
                     ->icon('heroicon-o-check-circle')
                     ->requiresConfirmation()
-                    ->modalHeading('Approve Permintaan')
+                    ->modalHeading('Approve Request')
 
                     // Validation utk mencegah Race Condition dimana data jumlah diedit user tepat saat admin mau approve.
                     ->form([
@@ -161,8 +161,8 @@ class DetailPermintaanTable extends BaseWidget
 
                         if ($jumlahSaatModalDibuka !== $jumlahTerbaruDiDatabase) {
                             Notification::make()
-                                ->title('Gagal: Data Sudah Berubah')
-                                ->body("User baru saja mengubah jumlah permintaan dari {$jumlahSaatModalDibuka} menjadi {$jumlahTerbaruDiDatabase}. Silakan refresh halaman sebelum melakukan verifikasi ulang.")
+                                ->title('Failed: Data Has Changed')
+                                ->body("The requester just changed the quantity from {$jumlahSaatModalDibuka} to {$jumlahTerbaruDiDatabase}. Please refresh the page before verifying again.")
                                 ->danger()
                                 ->persistent()
                                 ->send();
@@ -178,8 +178,8 @@ class DetailPermintaanTable extends BaseWidget
 
                             if (!$stokGudang || $stokGudang->stok < $jumlahFinal) {
                                 Notification::make()
-                                    ->title('Gagal Approve')
-                                    ->body($stokGudang ? "Stok tidak mencukupi! Tersedia: {$stokGudang->stok}" : 'Barang tidak terdaftar di gudang.')
+                                    ->title('Approval Failed')
+                                    ->body($stokGudang ? "Insufficient stock. Available: {$stokGudang->stok}" : 'The item is not registered in the warehouse.')
                                     ->danger()
                                     ->send();
                                 return; // Gagalkan transaksi
@@ -213,8 +213,8 @@ class DetailPermintaanTable extends BaseWidget
                             }
 
                             Notification::make()
-                                ->title('Berhasil')
-                                ->body("Permintaan telah di-{$statusFinal}")
+                                ->title('Success')
+                                ->body("Request has been {$statusFinal}")
                                 ->success()
                                 ->send();
 
@@ -239,7 +239,7 @@ class DetailPermintaanTable extends BaseWidget
                     ->color('danger')
                     ->icon('heroicon-o-x-circle')
                     ->requiresConfirmation()
-                    ->modalHeading('Reject Permintaan')
+                    ->modalHeading('Reject Request')
 
                     ->action(function ($record, $livewire) {
                         $this->authorize('reject', $record);
@@ -249,7 +249,7 @@ class DetailPermintaanTable extends BaseWidget
                                 ['detail_permintaan_id' => $record->id],
                                 [
                                     'jumlah' => 0,
-                                    'approved' => 'rejected', // Simpan format DB
+                                    'approved' => 'rejected',
                                     'bagian_id' => $record->bagian_id,
                                     'barang_id' => $record->barang_id,
                                 ]

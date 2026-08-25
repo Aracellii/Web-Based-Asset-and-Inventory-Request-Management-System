@@ -22,7 +22,7 @@ use App\Services\FilterService;
 class PermintaanResource extends Resource
 {
     use HasBagianScope;
-    protected static ?string $navigationGroup = 'Gudang';
+    protected static ?string $navigationGroup = 'Warehouse';
     protected static ?int $navigationSort = 4;
     protected static ?string $model = Permintaan::class;
     protected static ?string $modelLabel = 'Permintaan';
@@ -54,10 +54,10 @@ class PermintaanResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Informasi Utama')
+                Forms\Components\Section::make('Main Information')
                     ->schema([
                         Forms\Components\Select::make('user_id')
-                            ->label('Peminta')
+                            ->label('Requester')
                             ->relationship('user', 'name')
                             ->default(auth()->id())
                             ->disabled()
@@ -65,7 +65,7 @@ class PermintaanResource extends Resource
                         Forms\Components\Grid::make(3)
                             ->schema([
                                 Forms\Components\DatePicker::make('created_at')
-                                    ->label('Tanggal Permintaan')
+                                    ->label('Request Date')
                                     ->default(now())
                                     ->disabled(),
                                 Forms\Components\TimePicker::make('created_at_time')
@@ -76,14 +76,14 @@ class PermintaanResource extends Resource
                             ->columnSpan(1),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Daftar Barang')
+                Forms\Components\Section::make('Requested Items')
                     ->schema([
                         Forms\Components\Repeater::make('detailPermintaans')
-                            ->label('Detail Permintaan')
+                            ->label('Request Details')
                             ->relationship()
                             ->schema([
                                 Forms\Components\Select::make('barang_id')
-                                    ->label('Barang')
+                                    ->label('Item')
                                     ->relationship('barang', 'nama_barang')
                                     ->required()
                                     ->searchable()
@@ -99,7 +99,7 @@ class PermintaanResource extends Resource
                                             $counts = $selectedBarang->countBy();
 
                                             if ($counts->get($value) > 1) {
-                                                $fail('Barang ini sudah dipilih di baris lain.');
+                                                $fail('This item has already been selected in another row.');
                                             }
                                         },
 
@@ -109,7 +109,7 @@ class PermintaanResource extends Resource
                                         $set('stok_saat_ini', $stokGudang ?? 0);
                                     }),
                                 Forms\Components\TextInput::make('jumlah')
-                                    ->label('Jumlah Minta')
+                                    ->label('Requested Quantity')
                                     ->numeric()
                                     ->required()
                                     ->prefix('Qty:')
@@ -117,11 +117,11 @@ class PermintaanResource extends Resource
                                     ->minValue(1)
                                     ->reactive()
                                     ->minValue(1)
-                                    // Validasi tidak boleh lebih dari stok yang ada di gudang
+                                    // Validation: cannot exceed available warehouse stock
                                     ->maxValue(fn($get) => (int) $get('stok_saat_ini')),
                                 Forms\Components\Hidden::make('bagian_id')
                                     ->default(function (callable $get) {
-                                        // Ambil user_id dari komponen di luar repeater
+                                        // Get user_id from outside the repeater
                                         $userId = $get('../../user_id');
                                         if ($userId) {
                                             return User::find($userId)?->bagian_id;
@@ -130,14 +130,14 @@ class PermintaanResource extends Resource
                                     })
                                     ->dehydrated(true),
                                 Forms\Components\TextInput::make('stok_saat_ini')
-                                    ->label('Stok Saat Ini')
+                                    ->label('Current Stock')
                                     ->numeric()
                                     ->readOnly()
                                     ->prefix('Qty:')
-                                    ->helperText('Sisa stok yang tersedia saat ini.')
+                                    ->helperText('Remaining stock currently available.')
                                     ->placeholder('-')
 
-                                    // Load stok awal jika sedang dalam mode Edit
+                                    // Load current stock when editing
                                     ->afterStateHydrated(function ($state, $set, $get) {
                                         $barangId = $get('barang_id');
                                         if ($barangId) {
@@ -153,7 +153,7 @@ class PermintaanResource extends Resource
                                 }
                                 return true;
                             })
-                            ->addActionLabel('Tambah Baris Barang')
+                            ->addActionLabel('Add Item Row')
                     ])
             ]);
     }
@@ -161,19 +161,19 @@ class PermintaanResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->heading('Permintaan Saya')
+            ->heading('My Requests')
             ->columns([
                 Tables\Columns\TextColumn::make('index')
                     ->label('No')
                     ->rowIndex(),
                 Tables\Columns\TextColumn::make('id')
-                    ->label('ID Permintaan')
+                    ->label('Request ID')
                     ->sortable()
                     ->weight('bold')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('detailPermintaans.barang.nama_barang')
-                    ->label('Preview Barang')
+                    ->label('Item Preview')
                     ->listWithLineBreaks()
                     ->bulleted()
                     ->limitList(2)
@@ -182,7 +182,7 @@ class PermintaanResource extends Resource
                     ->size('sm')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Tgl Permintaan')
+                    ->label('Request Date')
                     ->dateTime('d M Y, H:i')
                     ->sortable()
                     ->searchable(),
@@ -207,21 +207,21 @@ class PermintaanResource extends Resource
                     ->description(function ($state) {
                         [$processed, $total] = explode(' / ', $state);
 
-                        if ($total == 0) return 'Tidak ada item';
-                        if ($processed == 0) return 'Belum diproses';
-                        if ($processed == $total) return 'Selesai';
+                        if ($total == 0) return 'No items';
+                        if ($processed == 0) return 'Not started';
+                        if ($processed == $total) return 'Completed';
 
-                        return 'Dalam proses';
+                        return 'In progress';
                     }),
             ])
 
             ->actions([
                 Action::make('view_details')
-                    ->label('Detail')
+                    ->label('View Details')
                     ->icon('heroicon-m-eye')
                     ->color('info')
                     ->modalWidth('5xl')
-                    ->modalHeading('Detail Permintaan')
+                    ->modalHeading('Request Details')
                     ->infolist([
                         Livewire::make(DetailPermintaanTable::class, function ($record) {
                             return [
@@ -232,7 +232,7 @@ class PermintaanResource extends Resource
                         }),
                     ])
                     ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Tutup'),
+                    ->modalCancelActionLabel('Close'),
             ])
 
             ->defaultSort('created_at', 'desc')
@@ -240,11 +240,11 @@ class PermintaanResource extends Resource
                 FilterService::dateRangeFilter('created_at'),
                 Tables\Filters\SelectFilter::make('filter_bagian')
                     ->relationship('user.bagian', 'nama_bagian')
-                    ->label('Filter Unit Kerja')
+                    ->label('Filter Work Unit')
                     ->multiple(true)
                     ->preload(),
             ])
-            ->emptyStateHeading('Tidak ada permintaan');
+            ->emptyStateHeading('No requests yet');
     }
 
     public static function getEloquentQuery(): Builder

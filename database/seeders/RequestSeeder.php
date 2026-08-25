@@ -8,32 +8,32 @@ use App\Models\DetailTerverifikasi;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
-class PermintaanSeeder extends Seeder
+class RequestSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      * 
-     * Membuat sample permintaan dari berbagai user dengan status berbeda:
-     * - Pending (menunggu approval)
-     * - Approved (sudah disetujui)
-     * - Rejected (ditolak)
+     * Create sample requests from different users with multiple statuses:
+     * - Pending (waiting for approval)
+     * - Approved (approved)
+     * - Rejected (rejected)
      */
     public function run(): void
     {
-        $this->command->info('📋 Seeding Permintaan & Detail...');
+        $this->command->info('📋 Seeding requests and details...');
 
-        // Get users per role menggunakan role_id
+        // Get users by role using role_id
         $userRole = \Spatie\Permission\Models\Role::where('name', 'user')->first();
         $userStaff = User::where('role_id', $userRole->id)->get();
         
         if ($userStaff->isEmpty()) {
-            $this->command->warn('⚠️  Tidak ada user staff, skip seeding permintaan');
+            $this->command->warn('⚠️  No staff users found, skipping request seeding');
             return;
         }
 
         $permintaanData = [];
 
-        // 1. Permintaan APPROVED dari User TU (Pensil 10, Buku 5)
+        // 1. Approved request from the General Administration user (Pencil 10, Book 5)
         $user1 = $userStaff->where('bagian_id', 1)->first();
         if ($user1) {
             $p1 = Permintaan::create([
@@ -45,7 +45,7 @@ class PermintaanSeeder extends Seeder
             $detail1 = DetailPermintaan::create([
                 'permintaan_id' => $p1->id,
                 'bagian_id' => 1,
-                'barang_id' => 1, // Pensil
+                'barang_id' => 1,
                 'jumlah' => 10,
                 'approved' => 'approved',
                 'created_at' => now()->subDays(10),
@@ -64,7 +64,7 @@ class PermintaanSeeder extends Seeder
             $detail2 = DetailPermintaan::create([
                 'permintaan_id' => $p1->id,
                 'bagian_id' => 1,
-                'barang_id' => 2, // Buku
+                'barang_id' => 2,
                 'jumlah' => 5,
                 'approved' => 'approved',
                 'created_at' => now()->subDays(10),
@@ -80,10 +80,10 @@ class PermintaanSeeder extends Seeder
                 'created_at' => now()->subDays(9),
             ]);
 
-            $permintaanData[] = "✓ Permintaan #{$p1->id} (APPROVED) - {$user1->name}";
+            $permintaanData[] = "✓ Request #{$p1->id} (APPROVED) - {$user1->name}";
         }
 
-        // 2. Permintaan PENDING dari User SP (Kertas A4 20)
+        // 2. Pending request from the Survey and Mapping user (A4 Paper 20)
         $user2 = $userStaff->where('bagian_id', 2)->first();
         if ($user2) {
             $p2 = Permintaan::create([
@@ -94,16 +94,16 @@ class PermintaanSeeder extends Seeder
             DetailPermintaan::create([
                 'permintaan_id' => $p2->id,
                 'bagian_id' => 2,
-                'barang_id' => 3, // Kertas A4
+                'barang_id' => 3,
                 'jumlah' => 20,
                 'approved' => 'pending',
                 'created_at' => now()->subDays(3),
             ]);
 
-            $permintaanData[] = "⏳ Permintaan #{$p2->id} (PENDING) - {$user2->name}";
+            $permintaanData[] = "⏳ Request #{$p2->id} (PENDING) - {$user2->name}";
         }
 
-        // 3. Permintaan REJECTED dari User PHP (Galon 15)
+        // 3. Rejected request from the Rights and Registration user (Water Container 15)
         $user3 = $userStaff->where('bagian_id', 3)->first();
         if ($user3) {
             $p3 = Permintaan::create([
@@ -115,17 +115,17 @@ class PermintaanSeeder extends Seeder
             DetailPermintaan::create([
                 'permintaan_id' => $p3->id,
                 'bagian_id' => 3,
-                'barang_id' => 4, // Galon
+                'barang_id' => 4,
                 'jumlah' => 15,
                 'approved' => 'rejected',
                 'created_at' => now()->subDays(7),
                 'updated_at' => now()->subDays(6),
             ]);
 
-            $permintaanData[] = "✗ Permintaan #{$p3->id} (REJECTED) - {$user3->name}";
+            $permintaanData[] = "✗ Request #{$p3->id} (REJECTED) - {$user3->name}";
         }
 
-        // 4. Permintaan APPROVED dari User PP (Dispenser 2, Binder 10)
+        // 4. Approved request from the Planning and Empowerment user (Water Dispenser 2, Binder 10)
         $user4 = $userStaff->where('bagian_id', 4)->first();
         if ($user4) {
             $p4 = Permintaan::create([
@@ -137,7 +137,7 @@ class PermintaanSeeder extends Seeder
             $detail4a = DetailPermintaan::create([
                 'permintaan_id' => $p4->id,
                 'bagian_id' => 4,
-                'barang_id' => 5, // Dispenser
+                'barang_id' => 5,
                 'jumlah' => 2,
                 'approved' => 'approved',
                 'created_at' => now()->subDays(5),
@@ -156,7 +156,7 @@ class PermintaanSeeder extends Seeder
             $detail4b = DetailPermintaan::create([
                 'permintaan_id' => $p4->id,
                 'bagian_id' => 4,
-                'barang_id' => 6, // Binder
+                'barang_id' => 6,
                 'jumlah' => 10,
                 'approved' => 'approved',
                 'created_at' => now()->subDays(5),
@@ -172,10 +172,10 @@ class PermintaanSeeder extends Seeder
                 'created_at' => now()->subDays(4),
             ]);
 
-            $permintaanData[] = "✓ Permintaan #{$p4->id} (APPROVED) - {$user4->name}";
+            $permintaanData[] = "✓ Request #{$p4->id} (APPROVED) - {$user4->name}";
         }
 
-        // 5. Permintaan PENDING dari User PTP (Kabel 25, Map 30)
+        // 5. Pending request from the Land Procurement and Development user (Cable 25, Folder 30)
         $user5 = $userStaff->where('bagian_id', 5)->first();
         if ($user5) {
             $p5 = Permintaan::create([
@@ -186,7 +186,7 @@ class PermintaanSeeder extends Seeder
             DetailPermintaan::create([
                 'permintaan_id' => $p5->id,
                 'bagian_id' => 5,
-                'barang_id' => 7, // Kabel
+                'barang_id' => 7,
                 'jumlah' => 25,
                 'approved' => 'pending',
                 'created_at' => now()->subDays(1),
@@ -195,20 +195,20 @@ class PermintaanSeeder extends Seeder
             DetailPermintaan::create([
                 'permintaan_id' => $p5->id,
                 'bagian_id' => 5,
-                'barang_id' => 8, // Map
+                'barang_id' => 8,
                 'jumlah' => 30,
                 'approved' => 'pending',
                 'created_at' => now()->subDays(1),
             ]);
 
-            $permintaanData[] = "⏳ Permintaan #{$p5->id} (PENDING) - {$user5->name}";
+            $permintaanData[] = "⏳ Request #{$p5->id} (PENDING) - {$user5->name}";
         }
 
-        $this->command->info('✅ ' . Permintaan::count() . ' permintaan berhasil dibuat');
+        $this->command->info('✅ ' . Permintaan::count() . ' requests created successfully');
         foreach ($permintaanData as $info) {
             $this->command->line('   ' . $info);
         }
-        $this->command->info('   Detail Permintaan: ' . DetailPermintaan::count() . ' items');
-        $this->command->info('   Detail Terverifikasi: ' . DetailTerverifikasi::count() . ' items');
+        $this->command->info('   Request Details: ' . DetailPermintaan::count() . ' items');
+        $this->command->info('   Verified Request Details: ' . DetailTerverifikasi::count() . ' items');
     }
 }

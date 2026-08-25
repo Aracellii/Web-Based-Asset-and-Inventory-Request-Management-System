@@ -18,7 +18,7 @@ class ListBarangs extends ListRecords
     {
         return [
             Actions\CreateAction::make()
-                ->label('Tambah Barang')
+                ->label('Add Item')
                 ->icon('heroicon-o-plus')
                 ->size('xl'),
         ];
@@ -38,9 +38,9 @@ class ListBarangs extends ListRecords
         })->count();
 
         return [
-            'semua' => Tab::make('Semua Barang')
+            'semua' => Tab::make('All Items')
                 ->icon('heroicon-o-cube'),
-            'stok_kosong' => Tab::make('Stok Kosong')
+            'stok_kosong' => Tab::make('Out of Stock')
                 ->icon('heroicon-o-exclamation-triangle')
                 ->modifyQueryUsing(fn (Builder $query) => $query->whereIn('id', function ($subQuery) {
                     $subQuery->select('barang_id')

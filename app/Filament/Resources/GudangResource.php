@@ -22,12 +22,12 @@ class GudangResource extends Resource
     
    
     protected static ?string $model = Gudang::class;
-     protected static ?string $navigationGroup = 'Gudang';
+    protected static ?string $navigationGroup = 'Warehouse';
      protected static ?int $navigationSort = 2;
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
-    protected static ?string $navigationLabel = 'Stok Barang';
-    protected static ?string $modelLabel = 'Stok Barang';
-    protected static ?string $pluralModelLabel = 'Stok Barang';
+    protected static ?string $navigationLabel = 'Stock';
+    protected static ?string $modelLabel = 'Stock';
+    protected static ?string $pluralModelLabel = 'Stock';
 
     
     public static function canViewAny(): bool
@@ -54,26 +54,26 @@ class GudangResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Input Stok Gudang')
+                Forms\Components\Section::make('Warehouse Stock Input')
                     ->disabled(fn($context) => $context === 'edit' && !auth()->user()?->hasPermissionTo('manage_stok_barang'))
-                    ->description('Pilih barang dan tentukan stok')
+                    ->description('Choose an item and set the stock')
                     ->schema([
                         Forms\Components\Select::make('barang_id')
-                            ->label('Nama Barang')
+                            ->label('Item Name')
                             ->relationship('barang', 'nama_barang')
                             ->searchable()
                             ->preload()
                             ->disabled(fn($context) => $context === 'edit')
                             ->required(),
                         Forms\Components\TextInput::make('stok')
-                            ->label('Jumlah Stok Terbaru')
+                            ->label('Latest Stock Quantity')
                             ->numeric()
                             ->default(0)
                             ->minValue(0)
                             ->required(),
 
                         Forms\Components\Select::make('bagian_id')
-                            ->label('Bagian')
+                            ->label('Unit')
                             ->relationship('bagian', 'nama_bagian')
                             ->searchable()
                             ->preload()
@@ -82,13 +82,13 @@ class GudangResource extends Resource
                             ->required(fn($context) => $context === 'edit' || (!auth()->user()?->isKeuangan())),
 
                         Forms\Components\Select::make('bagian_ids')
-                            ->label('Pilih Bagian')
+                            ->label('Select Units')
                             ->multiple()
                             ->options(\App\Models\Bagian::pluck('nama_bagian', 'id'))
                             ->searchable()
                             ->preload()
                             ->visible(fn($context) => $context === 'create' && auth()->user()?->isKeuangan())
-                            ->helperText('Pilih satu atau lebih bagian untuk menambahkan stok. Kosongkan untuk menambahkan ke semua bagian.'),
+                            ->helperText('Select one or more units to add stock. Leave empty to add stock to all units.'),
 
                     ])->columns(2),
             ]);
@@ -104,18 +104,18 @@ class GudangResource extends Resource
                     ->rowIndex(),
 
                 Tables\Columns\TextColumn::make('barang.kode_barang')
-                    ->label('Kode Barang')
+                    ->label('Item Code')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('barang.nama_barang')
-                    ->label('Nama Barang')
+                    ->label('Item Name')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('bagian.nama_bagian')
-                    ->label('Unit Kerja')
+                    ->label('Work Unit')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('stok')
-                    ->label('Jumlah Stok')
+                    ->label('Stock Qty')
                     ->sortable()
                     ->badge()
                     ->color(fn(int $state): string => match (true) {
@@ -124,7 +124,7 @@ class GudangResource extends Resource
                         default => 'success',
                     }),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Update Terakhir')
+                    ->label('Last Updated')
                     ->dateTime()
                     ->sortable(),
             ])
@@ -138,19 +138,19 @@ class GudangResource extends Resource
                     ->color('success')
                     ->form([
                         Forms\Components\DatePicker::make('tanggal_laporan')
-                            ->label('Pilih Tanggal Laporan')
+                            ->label('Select Report Date')
                             ->default(now())
                             ->required(),
                         Forms\Components\TextInput::make('custom_title')
-                            ->label('Judul Laporan')
-                            ->default('Laporan Stok Barang Gudang'),
+                            ->label('Report Title')
+                            ->default('Warehouse Stock Report'),
                     ])
                     ->action(function (Tables\Table $table, array $data) {
                         // Data yang sudah difilter di tabel
                         $records = $table->getLivewire()->getFilteredTableQuery()->with(['barang', 'bagian'])->get();
 
                         return response()->streamDownload(function () use ($records, $data) {
-                            $grouped = $records->groupBy(fn($item) => $item->bagian->nama_bagian ?? 'Tanpa Bagian');
+                            $grouped = $records->groupBy(fn($item) => $item->bagian->nama_bagian ?? 'Unassigned Unit');
 
                             $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
                             $first = true;
@@ -170,16 +170,16 @@ class GudangResource extends Resource
                                     $sheet->setTitle(mb_substr($title, 0, 31));
                                 }
 
-                                // Judul & Header Laporan per sheet
+                                // Sheet title and report header
                                 $sheet->setCellValue('A1', strtoupper($data['custom_title']));
-                                $sheet->setCellValue('A2', 'TANGGAL LAPORAN: ' . Carbon::parse($data['tanggal_laporan'])->translatedFormat('d F Y'));
-                                $sheet->setCellValue('A3', 'BAGIAN: ' . $bagianName);
+                                $sheet->setCellValue('A2', 'REPORT DATE: ' . Carbon::parse($data['tanggal_laporan'])->locale('en')->translatedFormat('d F Y'));
+                                $sheet->setCellValue('A3', 'UNIT: ' . $bagianName);
                                 $sheet->mergeCells('A1:D1');
                                 $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
 
                                 // Header Tabel 
-                                $headers = ['Nama Barang', 'Kode Barang', 'Jumlah Stok'];
-                                $sheet->fromArray(array_merge(['Lokasi Bagian'], $headers), null, 'A5');
+                                $headers = ['Item Name', 'Item Code', 'Stock Qty'];
+                                $sheet->fromArray(array_merge(['Unit Location'], $headers), null, 'A5');
                                 $sheet->getStyle('A5:D5')->getFont()->setBold(true);
 
                                 // Isi Data 
@@ -250,18 +250,18 @@ class GudangResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('bagian_id')
                     ->relationship('bagian', 'nama_bagian')
-                    ->label('Unit Kerja')
+                            ->label('Work Unit')
                     ->preload()
                     ->multiple()
                     ->searchable(),
                 Tables\Filters\SelectFilter::make('barang_nama')
                     ->relationship('barang', 'nama_barang')
-                    ->label('Nama Barang')
+                    ->label('Item Name')
                     ->preload()
                     ->searchable(),
                 Tables\Filters\SelectFilter::make('barang_kode')
                     ->relationship('barang', 'kode_barang')
-                    ->label('Kode Barang')
+                    ->label('Item Code')
                     ->preload()
                     ->searchable(),
             ])
@@ -269,12 +269,12 @@ class GudangResource extends Resource
                 Tables\Actions\EditAction::make()
                     ->visible(fn() => auth()->user()?->hasPermissionTo('manage_stok_barang')),
                 Tables\Actions\DeleteAction::make()
-                    ->label('Kosongkan')
+                    ->label('Clear')
                     ->visible(fn() => auth()->user()?->hasPermissionTo('manage_stok_barang'))
-                    ->modalHeading('Reset stok gudang?')
-                    ->modalDescription('Stok akan dikosongkan')
-                    ->modalSubmitActionLabel('Reset stok')
-                    ->successNotificationTitle('Stok berhasil di reset')
+                    ->modalHeading('Reset warehouse stock?')
+                    ->modalDescription('The stock quantity will be cleared.')
+                    ->modalSubmitActionLabel('Reset stock')
+                    ->successNotificationTitle('Stock reset successfully')
                     ->using(function (Gudang $record): bool {
                         return $record->update(['stok' => 0]);
                     }),

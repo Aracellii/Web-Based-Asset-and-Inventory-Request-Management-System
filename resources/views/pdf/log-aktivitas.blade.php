@@ -76,9 +76,9 @@
 
     <div class="header">
         <h1>{{ $title }}</h1>
-        <p>Tanggal Laporan: {{ $tanggal }}</p>
+        <p>Report Date: {{ $tanggal }}</p>
         @if(isset($periode))
-            <p>Periode Data: {{ $periode }}</p>
+            <p>Data Period: {{ $periode }}</p>
         @endif
     </div>
 
@@ -98,22 +98,22 @@
         @endphp
 
         <div class="bagian-title">
-            {{ $namaBagian ?? 'Tanpa Bagian' }}
+            {{ $namaBagian ?? 'Unassigned Unit' }}
         </div>
 
         <table>
             <thead>
                 <tr>
                     <th style="width: 30px;">No</th>
-                    <th style="width: 100px;">Waktu</th>
-                    <th>Barang</th>
-                    <th>Kode</th>
-                    <th style="width: 60px;">Tipe</th>
-                    <th>Keterangan</th>
-                    <th class="text-center" style="width: 50px;">Mutasi</th>
-                    <th class="text-center" style="width: 60px;">Stok Awal</th>
-                    <th class="text-center" style="width: 60px;">Stok Akhir</th>
-                    <th>Oleh</th>
+                    <th style="width: 100px;">Time</th>
+                    <th>Item</th>
+                    <th>Code</th>
+                    <th style="width: 60px;">Type</th>
+                    <th>Description</th>
+                    <th class="text-center" style="width: 50px;">Movement</th>
+                    <th class="text-center" style="width: 60px;">Opening Stock</th>
+                    <th class="text-center" style="width: 60px;">Closing Stock</th>
+                    <th>By</th>
                 </tr>
             </thead>
             <tbody>
@@ -123,7 +123,7 @@
                         <td>{{ \Carbon\Carbon::parse($record->created_at)->format('d M Y, H:i') }}</td>
                         <td>{{ $record->nama_barang_snapshot }}</td>
                         <td>{{ $record->kode_barang_snapshot }}</td>
-                        <td>{{ $record->tipe }}</td>
+                        <td>{{ $record->tipe === 'Masuk' ? 'Inbound' : ($record->tipe === 'Keluar' ? 'Outbound' : $record->tipe) }}</td>
                         
                         <td>{{ $record->keterangan }}</td>
                         <td class="text-center">
@@ -138,18 +138,18 @@
         </table>
 
         <div class="summary">
-            <strong>Subtotal {{ $namaBagian ?? 'Tanpa Bagian' }}:</strong>
+            <strong>Subtotal {{ $namaBagian ?? 'Unassigned Unit' }}:</strong>
             Total: {{ count($records) }} |
-            Masuk: {{ $bagianMasuk }} |
-            Keluar: {{ $bagianKeluar }}
+            Inbound: {{ $bagianMasuk }} |
+            Outbound: {{ $bagianKeluar }}
         </div>
     @endforeach
 
     <div class="total-summary">
-        <strong>RINGKASAN KESELURUHAN:</strong><br>
+        <strong>OVERALL SUMMARY:</strong><br>
         Total Data: {{ $totalData }} |
-        Total Barang Masuk: {{ $totalMasuk }} |
-        Total Barang Keluar: {{ $totalKeluar }}
+        Total Inbound Items: {{ $totalMasuk }} |
+        Total Outbound Items: {{ $totalKeluar }}
     </div>
 
 </body>

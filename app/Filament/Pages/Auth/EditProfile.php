@@ -14,13 +14,13 @@ use Illuminate\Support\Facades\Auth;
 
 class EditProfile extends BaseEditProfile
 {
-    protected static ?string $navigationGroup = 'Akun';
+    protected static ?string $navigationGroup = 'Account';
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
-    protected static ?string $navigationLabel = 'Akun Saya';
+    protected static ?string $navigationLabel = 'My Account';
     protected static ?int $navigationSort = 1;
     public function getHeading(): string
     {
-        return 'Pengaturan Akun';
+        return 'Account Settings';
     }
 
     
@@ -35,7 +35,7 @@ class EditProfile extends BaseEditProfile
     {
         return [
             $this->getSaveFormAction()
-                ->label('Simpan Perubahan Profil')
+                ->label('Save Profile Changes')
                 ->icon('heroicon-m-check-circle')
                 ->size('lg'),
         ];
@@ -45,56 +45,56 @@ class EditProfile extends BaseEditProfile
     {
         return $form
             ->schema([
-                Section::make('Informasi Pribadi')
-                    ->description('Perbarui nama dan email akun Anda.')
+                Section::make('Personal Information')
+                    ->description('Update your account name and email.')
                     ->icon('heroicon-o-user-circle')
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 $this->getNameFormComponent()
-                                    ->label('Username')
+                                    ->label('Name')
                                     ->prefixIcon('heroicon-m-user')
                                     ->columnSpan(1),
 
                                 $this->getEmailFormComponent()
-                                    ->label('Alamat Email')
+                                    ->label('Email Address')
                                     ->prefixIcon('heroicon-m-envelope')
                                     ->columnSpan(1),
                             ]),
                     ]),
 
-                Section::make('Kredensial Keamanan')
-                    ->description('Gunakan kata sandi yang kuat dan unik untuk keamanan akun.')
+                Section::make('Security Credentials')
+                    ->description('Use a strong, unique password to keep your account secure.')
                     ->icon('heroicon-o-lock-closed')
                     // ->aside() dihapus agar deskripsi pindah ke atas
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 $this->getPasswordFormComponent()
-                                    ->label('Password Baru')
+                                    ->label('New Password')
                                     ->prefixIcon('heroicon-m-key')
                                     ->columnSpan(1),
 
                                 $this->getPasswordConfirmationFormComponent()
-                                    ->label('Konfirmasi Password')
+                                    ->label('Confirm Password')
                                     ->prefixIcon('heroicon-m-shield-check')
                                     ->columnSpan(1),
                             ]),
                     ]),
                 // SECTION HAPUS AKUN (Manual)
-                Section::make('Hapus Akun')
-                    ->description('Menghapus akun Anda akan menghapus semua data terkait secara permanen.')
+                Section::make('Delete Account')
+                    ->description('Deleting your account will permanently remove all related data.')
                     ->icon('heroicon-o-exclamation-triangle')
                     ->schema([
                         Actions::make([
                             Action::make('deleteAccount')
-                                ->label('Hapus Akun Saya')
+                                ->label('Delete My Account')
                                 ->color('danger')
                                 ->icon('heroicon-m-trash')
                                 ->requiresConfirmation() // Menampilkan modal konfirmasi
-                                ->modalHeading('Hapus Akun?')
-                                ->modalDescription('Apakah Anda yakin ingin menghapus akun? Tindakan ini tidak dapat dibatalkan.')
-                                ->modalSubmitActionLabel('Ya, Hapus Permanen')
+                                ->modalHeading('Delete Account?')
+                                ->modalDescription('Are you sure you want to delete your account? This action cannot be undone.')
+                                ->modalSubmitActionLabel('Yes, Delete Permanently')
                                 ->action(function () {
                                     /** @var \App\Models\User $user  */
                                     $user = Auth::user();
@@ -102,7 +102,7 @@ class EditProfile extends BaseEditProfile
                                     $user->delete();
 
                                     Notification::make()
-                                        ->title('Akun berhasil dihapus')
+                                        ->title('Account deleted successfully')
                                         ->success()
                                         ->send();
 

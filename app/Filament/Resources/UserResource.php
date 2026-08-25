@@ -20,9 +20,9 @@ use Filament\Forms\Get;
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
-      protected static ?string $navigationGroup = 'Akun';
+    protected static ?string $navigationGroup = 'Account';
     protected static ?string $navigationIcon = 'heroicon-o-users';
-    protected static ?string $navigationLabel = 'Manajemen User';
+    protected static ?string $navigationLabel = 'User Management';
     protected static ?string $modelLabel = 'User';
     protected static ?string $pluralModelLabel = 'Users';
     protected static ?int $navigationSort = 2;
@@ -51,14 +51,14 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Informasi User')
-                    ->description('Data pengguna dan akses sistem')
+                Forms\Components\Section::make('User Information')
+                    ->description('User profile and system access data')
                     ->schema([
                         Forms\Components\TextInput::make('name')
-                            ->label('Nama Lengkap')
+                            ->label('Full Name')
                             ->required()
                             ->maxLength(255)
-                            ->placeholder('Masukkan nama lengkap'),
+                            ->placeholder('Enter full name'),
 
                         Forms\Components\TextInput::make('email')
                             ->label('Email')
@@ -75,42 +75,42 @@ class UserResource extends Resource
                             ->dehydrated(fn (?string $state): bool => filled($state))
                             ->required(fn (string $context): bool => $context === 'create')
                             ->minLength(8)
-                            ->placeholder('Minimal 8 karakter')
+                            ->placeholder('Minimum 8 characters')
                             ->helperText(fn (string $context): string => 
                                 $context === 'edit' 
-                                    ? 'Kosongkan jika tidak ingin mengubah password' 
-                                    : 'Password harus minimal 8 karakter'
+                                    ? 'Leave blank if you do not want to change the password' 
+                                    : 'Password must be at least 8 characters'
                             ),
 
                         Forms\Components\Select::make('role_id')
-                            ->label('Role / Jabatan')
+                            ->label('Role / Position')
                             ->relationship('role', 'name')
                             ->options(Role::all()->pluck('name', 'id'))
                             ->required()
                             ->searchable()
                             ->preload()
                             ->native(false)
-                            ->helperText('Role untuk menentukan hak akses user dalam sistem')
+                            ->helperText('The role determines the user permissions in the system')
                             ->live()
                             ->getOptionLabelFromRecordUsing(fn ($record) => match ($record->name) {
                                 'super_admin' => 'Super Admin',
                                 'keuangan' => 'Keuangan',
-                                'admin' => 'Admin Gudang',
-                                'user' => 'User/Staff',
+                                'admin' => 'Warehouse Admin',
+                                'user' => 'User / Staff',
                                 default => $record->name,
                             }),
 
                         Forms\Components\Select::make('bagian_id')
-                            ->label('Bagian')
+                            ->label('Unit')
                             ->options(Bagian::pluck('nama_bagian', 'id'))
                             ->searchable()
                             ->preload()
                             ->native(false)
-                            ->helperText('Unit Kerja'),
+                            ->helperText('Work unit'),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Informasi Role & Permission')
-                    ->description('Penjelasan hak akses berdasarkan role')
+                Forms\Components\Section::make('Role & Permission Information')
+                    ->description('Access rights explained by role')
                     ->schema([
                         Forms\Components\Placeholder::make('role_info')
                             ->label('')
@@ -118,19 +118,19 @@ class UserResource extends Resource
                                 $roleId = $get('role_id');
                                 
                                 if (!$roleId) {
-                                    return 'Pilih role untuk melihat deskripsi';
+                                    return 'Select a role to view its description';
                                 }
                                 
                                 $role = Role::find($roleId);
                                 if (!$role) {
-                                    return 'Pilih role untuk melihat deskripsi';
+                                    return 'Select a role to view its description';
                                 }
                                 
                                 $roleDescriptions = [
-                                    'user' => 'User/Staff: Dapat membuat permintaan barang dan melihat status permintaan sendiri',
-                                    'admin' => 'Admin Gudang: Dapat mengelola stok gudang, approve/reject permintaan dari bagiannya, dan melihat data bagiannya',
-                                    'keuangan' => 'Keuangan: Dapat melihat dan approve semua permintaan dari semua bagian, serta melihat laporan lengkap',
-                                    'super_admin' => 'Super Admin: Memiliki akses penuh ke seluruh sistem termasuk manajemen user dan role',
+                                    'user' => 'User / Staff: Can create item requests and view their own request status',
+                                    'admin' => 'Warehouse Admin: Can manage warehouse stock, approve or reject requests from their unit, and view their unit data',
+                                    'keuangan' => 'Finance: Can view and approve all requests from all units, and view full reports',
+                                    'super_admin' => 'Super Admin: Has full access to the entire system, including user and role management',
                                 ];
                                 
                                 return $roleDescriptions[$role->name] ?? $role->name;
@@ -144,7 +144,7 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Nama')
+                    ->label('Name')
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
@@ -173,27 +173,27 @@ class UserResource extends Resource
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'super_admin' => 'Super Admin',
                         'keuangan' => 'Keuangan',
-                        'admin' => 'Admin Gudang',
-                        'user' => 'User/Staff',
+                        'admin' => 'Warehouse Admin',
+                        'user' => 'User / Staff',
                         default => $state,
                     })
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('bagian.nama_bagian')
-                    ->label('Bagian')
+                    ->label('Unit')
                     ->searchable()
                     ->sortable()
                     ->badge()
                     ->color('info'),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Dibuat')
+                    ->label('Created At')
                     ->dateTime('d M Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Diperbarui')
+                    ->label('Last Updated')
                     ->dateTime('d M Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -226,18 +226,18 @@ class UserResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
-                    ->label('Lihat'),
+                    ->label('View'),
                 Tables\Actions\EditAction::make()
                     ->label('Edit'),
                 Tables\Actions\DeleteAction::make()
-                    ->label('Hapus'),
+                    ->label('Delete'),
                 Tables\Actions\RestoreAction::make()
-                    ->label('Pulihkan'),
+                    ->label('Restore'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->label('Hapus Terpilih'),
+                        ->label('Delete Selected'),
                     Tables\Actions\RestoreBulkAction::make()
                         ->label('Pulihkan Terpilih'),
                     Tables\Actions\ForceDeleteBulkAction::make()

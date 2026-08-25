@@ -39,9 +39,9 @@ class UserApproved extends BaseWidget
             ->count();
 
         return [
-            Stat::make('Barang Disetujui', $approvedCount)
-                ->label('Barang Saya Disetujui')
-                ->description('Total item barang yang telah di-approve')
+            Stat::make('Approved Items', $approvedCount)
+                ->label('My Approved Items')
+                ->description('Total items that have been approved')
                 ->descriptionIcon('heroicon-o-check-circle')
                 ->color('success')
                 ->chart($this->getApprovedChartData()),

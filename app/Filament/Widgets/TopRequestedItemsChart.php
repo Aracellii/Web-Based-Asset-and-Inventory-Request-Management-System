@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class TopRequestedItemsChart extends ChartWidget
 {
-    protected static ?string $heading = 'Barang Diminta';
+    protected static ?string $heading = 'Top Requested Items';
     
     protected static ?int $sort = 3;
 
@@ -34,11 +34,11 @@ class TopRequestedItemsChart extends ChartWidget
     protected function getFilters(): ?array
     {
         return [
-            'all_time' => 'Semua Waktu',
-            'this_month' => 'Bulan Ini',
-            'last_3_months' => '3 Bulan Terakhir',
-            'last_6_months' => '6 Bulan Terakhir',
-            'this_year' => 'Tahun Ini',
+            'all_time' => 'All Time',
+            'this_month' => 'This Month',
+            'last_3_months' => 'Last 3 Months',
+            'last_6_months' => 'Last 6 Months',
+            'this_year' => 'This Year',
         ];
     }
 
@@ -48,13 +48,13 @@ class TopRequestedItemsChart extends ChartWidget
             Section::make()
                 ->schema([
                     DatePicker::make('startDate')
-                        ->label('Dari Tanggal')
+                        ->label('From Date')
                         ->native(false)
                         ->displayFormat('d M Y')
                         ->reactive()
                         ->visible(fn () => $this->filter === 'custom'),
                     DatePicker::make('endDate')
-                        ->label('Sampai Tanggal')
+                        ->label('To Date')
                         ->native(false)
                         ->displayFormat('d M Y')
                         ->reactive()
@@ -123,7 +123,7 @@ class TopRequestedItemsChart extends ChartWidget
             ->get();
 
         $labels = $topItems->map(function ($item) {
-            return $item->barang?->nama_barang ?? 'Barang Dihapus';
+            return $item->barang?->nama_barang ?? 'Deleted Item';
         })->toArray();
 
         $data = $topItems->pluck('total_diminta')->toArray();

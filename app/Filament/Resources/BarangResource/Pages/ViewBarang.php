@@ -10,7 +10,7 @@ class ViewBarang extends ViewRecord
 {
     protected static string $resource = BarangResource::class;
 
-    protected ?string $heading = 'Detail Katalog Barang';
+    protected ?string $heading = 'Item Catalog Details';
 
     protected function getHeaderActions(): array
     {

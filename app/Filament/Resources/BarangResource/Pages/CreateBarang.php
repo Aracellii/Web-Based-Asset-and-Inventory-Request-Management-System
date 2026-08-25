@@ -22,13 +22,13 @@ class CreateBarang extends CreateRecord
                 ->color('success')
                 ->icon('heroicon-m-arrow-up-tray')
                 ->use(BarangImporter::class)
-                ->modalHeading('Upload file Excel')
+                ->modalHeading('Upload Excel File')
                 ->modalIcon('heroicon-m-arrow-up-tray')
-                ->modalDescription('Pastikan dalam file excel terdapat kolom: kode_barang, nama_barang, stok, dan nama_bagian. Jika nama_bagian tidak ditemukan, stok tidak akan ditambahkan.')
+                ->modalDescription('Make sure the Excel file contains the columns: item_code, item_name, stock, and unit_name. If the unit name is not found, stock will not be added.')
                 ->uploadField(
                     fn($upload) => $upload
-                        ->label("Pilih File Barang (.csv/.xlsx)")
-                        ->placeholder("Klik untuk cari atau Seret file ke sini")
+                        ->label("Choose Item File (.csv/.xlsx)")
+                        ->placeholder("Click to browse or drag a file here")
                         ->hintAction(
                             Action::make('downloadTemplate')
                                 ->label('Download Template')
@@ -51,7 +51,7 @@ class CreateBarang extends CreateRecord
 
     protected function getCreatedNotificationTitle(): ?string
     {
-        return 'Barang berhasil ditambahkan ke katalog';
+        return 'Item added to catalog successfully';
     }
 
     protected function afterCreate(): void
@@ -69,7 +69,7 @@ class CreateBarang extends CreateRecord
         }
 
         Notification::make()
-            ->title('Stok gudang otomatis dibuat')
+            ->title('Warehouse stock records created automatically')
             ->success()
             ->send();
     }

@@ -48,31 +48,31 @@ class ListPermintaanTable extends BaseWidget
     {
         return $table
             ->query($this->getTableQuery())
-            ->heading('List Permintaan')
+            ->heading('Request List')
             ->columns([
                 Tables\Columns\TextColumn::make('index')
                     ->label('No')
                     ->rowIndex(),
                 Tables\Columns\TextColumn::make('id')
-                    ->label('ID Permintaan')
+                    ->label('Request ID')
                     ->sortable()
                     ->weight('bold')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('user.bagian.nama_bagian')
-                    ->label('Unit Kerja')
+                    ->label('Work Unit')
                     ->sortable()
                     ->color('gray')
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('user.name')
-                    ->label('Peminta')
+                    ->label('Requester')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('detailPermintaans.barang.nama_barang')
-                    ->label('Preview Barang')
+                    ->label('Item Preview')
                     ->listWithLineBreaks()
                     ->bulleted()
                     ->limitList(2)
@@ -80,7 +80,7 @@ class ListPermintaanTable extends BaseWidget
                     ->color('gray')
                     ->size('sm'),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Tgl Permintaan')
+                    ->label('Request Date')
                     ->dateTime('d M Y, H:i')
                     ->sortable(),
 
@@ -106,11 +106,11 @@ class ListPermintaanTable extends BaseWidget
                     ->description(function ($state) {
                         [$processed, $total] = explode(' / ', $state);
 
-                        if ($total == 0) return 'Tidak ada item';
-                        if ($processed == 0) return 'Belum diproses';
-                        if ($processed == $total) return 'Selesai';
+                        if ($total == 0) return 'No items';
+                        if ($processed == 0) return 'Not started';
+                        if ($processed == $total) return 'Completed';
 
-                        return 'Dalam proses';
+                        return 'In progress';
                     }),
             ])
 
@@ -120,7 +120,7 @@ class ListPermintaanTable extends BaseWidget
                     ->icon('heroicon-m-eye')
                     ->color('info')
                     ->modalWidth('5xl')
-                    ->modalHeading('Detail Permintaan')
+                    ->modalHeading('Request Details')
                     ->infolist([
                         Livewire::make(DetailPermintaanTable::class, function ($record) {
                             return [
@@ -131,7 +131,7 @@ class ListPermintaanTable extends BaseWidget
                         }),
                     ])
                     ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Tutup'),
+                    ->modalCancelActionLabel('Close'),
             ])
 
             ->defaultSort('created_at', 'desc')
@@ -141,10 +141,10 @@ class ListPermintaanTable extends BaseWidget
 
                 Tables\Filters\SelectFilter::make('filter_bagian')
                     ->relationship('user.bagian', 'nama_bagian')
-                    ->label('Filter Unit Kerja')
+                    ->label('Filter Work Unit')
                     ->multiple(true)
                     ->preload(),
             ])
-            ->emptyStateHeading('Tidak ada permintaan');
+            ->emptyStateHeading('No requests yet');
     }
 }

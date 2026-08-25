@@ -13,7 +13,7 @@ use App\Imports\BarangImporter;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Actions;
 class CreateGudang extends CreateRecord
-{    protected static ?string $title = 'Tambah Stok Barang';
+{    protected static ?string $title = 'Add Warehouse Stock';
 
     protected static string $resource = GudangResource::class;
     protected function getHeaderActions(): array
@@ -24,13 +24,13 @@ class CreateGudang extends CreateRecord
                 ->color('success')
                 ->icon('heroicon-m-arrow-up-tray')
                 ->use(BarangImporter::class)
-                ->modalHeading('Upload file Excel')
+                ->modalHeading('Upload Excel File')
                 ->modalIcon('heroicon-m-arrow-up-tray')
-                ->modalDescription('Pastikan dalam file excel terdapat kolom: kode_barang, nama_barang, stok, dan nama_bagian. Semua baris harus valid atau import akan ditolak total.')
+                ->modalDescription('Make sure the Excel file contains the columns: item_code, item_name, stock, and unit_name. Every row must be valid or the import will be rejected.')
                 ->uploadField(
                     fn($upload) => $upload
-                        ->label("Pilih File Barang (.csv/.xlsx)")
-                        ->placeholder("Klik untuk cari atau Seret file ke sini")
+                        ->label("Choose Item File (.csv/.xlsx)")
+                        ->placeholder("Click to browse or drag a file here")
                         ->hintAction(
                             Action::make('downloadTemplate')
                                 ->label('Download Template')
@@ -52,7 +52,7 @@ class CreateGudang extends CreateRecord
     protected function getCreateFormAction(): Actions\Action
         {
             return parent::getCreateFormAction()
-                ->label('Tambah Stok Barang');
+                ->label('Add Warehouse Stock');
         }
 
     protected function getRedirectUrl(): string

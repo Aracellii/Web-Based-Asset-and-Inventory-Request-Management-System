@@ -21,12 +21,12 @@ class BarangResource extends Resource
     use HasBagianScope;
     
     protected static ?string $model = Barang::class;
-    protected static ?string $navigationGroup = 'Gudang';
+    protected static ?string $navigationGroup = 'Warehouse';
     protected static ?int $navigationSort = 3;
-    protected static ?string $navigationLabel = 'Katalog Barang';
+    protected static ?string $navigationLabel = 'Item Catalog';
     protected static ?string $navigationIcon = 'heroicon-o-cube';
-    protected static ?string $modelLabel = 'Barang';
-    protected static ?string $pluralModelLabel = 'Katalog Barang';
+    protected static ?string $modelLabel = 'Item';
+    protected static ?string $pluralModelLabel = 'Item Catalog';
 
     public static function canViewAny(): bool
     {
@@ -52,18 +52,18 @@ class BarangResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Informasi Barang')
-                    ->description('Tambahkan barang baru ke dalam katalog')
+                Forms\Components\Section::make('Item Information')
+                    ->description('Add a new item to the catalog')
                     ->schema([
                         Forms\Components\TextInput::make('kode_barang')
-                            ->label('Kode Barang')
-                            ->placeholder('Masukkan kode barang')
+                            ->label('Item Code')
+                            ->placeholder('Enter item code')
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(50),
                         Forms\Components\TextInput::make('nama_barang')
-                            ->label('Nama Barang')
-                            ->placeholder('Masukkan nama barang')
+                            ->label('Item Name')
+                            ->placeholder('Enter item name')
                             ->required()
                             ->maxLength(255),
                     ])->columns(2),
@@ -81,13 +81,13 @@ class BarangResource extends Resource
                 ->rowIndex(),
 
             Tables\Columns\TextColumn::make('kode_barang')
-                ->label('Kode Barang')
+                ->label('Item Code')
                 ->sortable()
                 ->searchable()
                 ->copyable()
                 ->weight('bold'),
             Tables\Columns\TextColumn::make('nama_barang')
-                ->label('Nama Barang')
+                ->label('Item Name')
                 ->sortable()
                 ->searchable()
                 ->wrap(),
@@ -95,7 +95,7 @@ class BarangResource extends Resource
 
         // Tambahkan kolom total stok
         $columns[] = Tables\Columns\TextColumn::make('total_stok')
-            ->label('Total Stok')
+            ->label('Total Stock')
             ->getStateUsing(function (Barang $record) {
                 return Gudang::where('barang_id', $record->id)->sum('stok');
             })
@@ -112,13 +112,13 @@ class BarangResource extends Resource
             ->weight('bold');
 
         $columns[] = Tables\Columns\TextColumn::make('created_at')
-            ->label('Tanggal Dibuat')
+            ->label('Created At')
             ->dateTime('d M Y')
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
 
         $columns[] = Tables\Columns\TextColumn::make('updated_at')
-            ->label('Terakhir Diubah')
+            ->label('Last Updated')
             ->dateTime('d M Y H:i')
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
@@ -129,23 +129,23 @@ class BarangResource extends Resource
             
             ->actions([
                 Tables\Actions\ViewAction::make()
-                    ->label('Detail'),
+                    ->label('View'),
                 Tables\Actions\EditAction::make()
                     ->label('Edit'),
                 Tables\Actions\DeleteAction::make()
-                    ->label('Hapus')
+                    ->label('Delete')
                     ->requiresConfirmation()
-                    ->modalHeading('Hapus Barang')
-                    ->modalDescription('Apakah Anda yakin ingin menghapus barang ini? Barang Ini akan dihapus secara permanen')
-                    ->modalSubmitActionLabel('Ya, Hapus'),
+                    ->modalHeading('Delete Item')
+                    ->modalDescription('Are you sure you want to delete this item? It will be removed permanently.')
+                    ->modalSubmitActionLabel('Yes, Delete'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->label('Hapus Terpilih'),
+                        ->label('Delete Selected'),
                 ]),
             ])
-            ->emptyStateHeading('Belum ada barang')
+            ->emptyStateHeading('No items yet')
             ->emptyStateDescription('')
             ->emptyStateIcon('heroicon-o-cube');
     }
@@ -154,19 +154,19 @@ class BarangResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('Informasi Barang')
+                Infolists\Components\Section::make('Item Information')
                     ->schema([
                         Infolists\Components\TextEntry::make('kode_barang')
-                            ->label('Kode Barang')
+                            ->label('Item Code')
                             ->weight('bold'),
                         Infolists\Components\TextEntry::make('nama_barang')
-                            ->label('Nama Barang'),
+                            ->label('Item Name'),
                         Infolists\Components\TextEntry::make('created_at')
-                            ->label('Tanggal Dibuat')
+                            ->label('Created At')
                             ->dateTime('d M Y H:i'),
                     ])->columns(3),
                 
-                Infolists\Components\Section::make('Stok Per Bidang')
+                Infolists\Components\Section::make('Stock by Unit')
                     ->schema(function (Barang $record): array {
                         $entries = [];
                         $gudangs = Gudang::where('barang_id', $record->id)
@@ -186,7 +186,7 @@ class BarangResource extends Resource
                         }
 
                         $entries[] = Infolists\Components\TextEntry::make('total_stok')
-                            ->label('Total Keseluruhan')
+                            ->label('Grand Total')
                             ->state(Gudang::where('barang_id', $record->id)->sum('stok'))
                             ->badge()
                             ->color('primary')
@@ -233,19 +233,19 @@ class BarangResource extends Resource
         $query = parent::getEloquentQuery();
         $user = auth()->user();
         
-        // Jika punya akses_katalog, bisa lihat semua barang
+        // If the user has catalog access, return all items
         if ($user && $user->hasPermissionTo('akses_katalog')) {
             return $query;
         }
         
-        // Jika hanya punya akses_katalog, lihat barang yang ada di gudang bagiannya
+        // Otherwise, show only items in the user's warehouse unit
         if ($user && $user->hasPermissionTo('akses_katalog') && $user->bagian_id) {
             return $query->whereHas('gudangs', function ($q) use ($user) {
                 $q->where('bagian_id', $user->bagian_id);
             });
         }
         
-        // Tidak punya akses
+        // No access
         return $query->whereRaw('1 = 0');
     }
 }

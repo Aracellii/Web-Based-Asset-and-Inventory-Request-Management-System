@@ -28,7 +28,7 @@ class UserActivityStats extends BaseWidget
     {
         $user = auth()->user();
 
-        Carbon::setLocale('id');
+        Carbon::setLocale('en');
 
 
         $totalPermintaan = Permintaan::where('user_id', $user->id)
@@ -40,10 +40,10 @@ class UserActivityStats extends BaseWidget
 
 
         return [
-            Stat::make('Total Permintaan', $totalPermintaan)
-                ->label('Permintaan Saya')
+            Stat::make('Total Requests', $totalPermintaan)
+                ->label('My Requests')
                 ->description(
-                    'Total pengajuan di bulan ' . Carbon::now()->translatedFormat('F Y')
+                    'Total submissions in ' . Carbon::now()->translatedFormat('F Y')
                 )
                 ->descriptionIcon('heroicon-o-document-text')
                 ->color('info')

@@ -27,11 +27,11 @@ class ListGudangs extends ListRecords
                     
                     // Group by bagian
                     $groupedRecords = $gudangs->groupBy(function($item) {
-                        return $item->bagian->nama_bagian ?? 'Tanpa Bagian';
+                        return $item->bagian->nama_bagian ?? 'Unassigned Unit';
                     });
                     
                     $pdf = Pdf::loadView('pdf.stok-barang', [
-                        'title' => 'Laporan Stok Barang',
+                        'title' => 'Warehouse Stock Report',
                         'groupedRecords' => $groupedRecords,
                         'tanggal' => now()->format('d F Y'),
                     ])->setPaper('a4', 'landscape');
@@ -55,7 +55,7 @@ class ListGudangs extends ListRecords
                 }),
                 
             Actions\CreateAction::make()
-                ->label('Tambah Stok')
+                ->label('Add Stock')
                 ->icon('heroicon-o-plus')
                 ->size('xl'),
         ];

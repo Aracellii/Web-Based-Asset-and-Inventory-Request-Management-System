@@ -7,7 +7,7 @@
 </div>
 
 <script>
-    // 1. Bersihkan interval lama jika ada (mencegah memory leak/lemot)
+    // Clear any previous interval to avoid duplicates
     if (window.clockInterval) {
         clearInterval(window.clockInterval);
     }
@@ -15,9 +15,9 @@
     function updateClock() {
         const now = new Date();
 
-        const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
 
         const dayName = days[now.getDay()];
         const day = now.getDate();
@@ -29,22 +29,22 @@
         const seconds = String(now.getSeconds()).padStart(2, '0');
 
         const formattedDate = `${dayName}, ${day} ${month} ${year}`;
-        const formattedTime = `${hours}:${minutes}:${seconds} WIB`;
+        const formattedTime = `${hours}:${minutes}:${seconds} UTC+7`;
 
         const dateEl = document.getElementById('realtime-date');
         const timeEl = document.getElementById('realtime-time');
 
-        // Jika elemen ada di layar, update isinya
+        // Update the clock only when the elements exist on the page
         if (dateEl && timeEl) {
             dateEl.textContent = formattedDate;
             timeEl.textContent = formattedTime;
         } else {
-            // Jika elemen hilang (pindah halaman tanpa reload), stop interval ini
+            // Stop the interval if the elements are no longer present
             clearInterval(window.clockInterval);
         }
     }
 
-    // 2. Jalankan langsung & set interval baru
+    // Start immediately and then update every second
     updateClock();
     window.clockInterval = setInterval(updateClock, 1000);
 </script>

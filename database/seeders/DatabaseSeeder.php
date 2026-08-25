@@ -9,32 +9,32 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      * 
-     * Urutan penting:
-     * 1. BagianSeeder - Karena User & Gudang butuh bagian_id
-     * 2. SimplePermissionSeeder - Karena User butuh roles
-     * 3. UserSeeder - Assign roles ke users
-     * 4. BarangSeeder - Master data barang
-     * 5. GudangSeeder - Stok barang per bagian (butuh barang_id dan bagian_id)
-     * 6. PermintaanSeeder - Sample permintaan (butuh user_id, barang_id, bagian_id)
-     * 7. LogAktivitasSeeder - Sample log (butuh user_id, gudang_id, barang_id)
+     * Important order:
+     * 1. DivisionSeeder - Users and warehouse stock need division_id
+     * 2. ShieldSeeder - Users need roles
+     * 3. UserSeeder - Assign roles to users
+     * 4. ItemSeeder - Master item data
+     * 5. WarehouseSeeder - Stock per division (needs item_id and division_id)
+     * 6. RequestSeeder - Sample requests (needs user_id, item_id, division_id)
+     * 7. ActivityLogSeeder - Sample logs (needs user_id, warehouse_id, item_id)
      */
     public function run(): void
     {
-        $this->command->info('🚀 Memulai Database Seeding...');
+        $this->command->info('🚀 Starting database seeding...');
         $this->command->newLine();
         
         $this->call([
-            BagianSeeder::class,              // 1. Setup 6 bagian
-            ShieldSeeder::class,              // 2. Setup roles & permissions (ganti dari SimplePermissionSeeder)  
-            UserSeeder::class,                // 3. Buat 13 users
-            BarangSeeder::class,              // 4. Buat 8 barang
-            GudangSeeder::class,              // 5. Buat 48 stok gudang
-            PermintaanSeeder::class,          // 6. Buat sample permintaan (5 permintaan)
-            LogAktivitasSeeder::class,        // 7. Buat sample log aktivitas (7 logs)
+            DivisionSeeder::class,              // 1. Set up 6 divisions
+            ShieldSeeder::class,                // 2. Set up roles and permissions
+            UserSeeder::class,                  // 3. Create 13 users
+            ItemSeeder::class,                  // 4. Create 8 items
+            WarehouseSeeder::class,             // 5. Create 48 warehouse stock records
+            RequestSeeder::class,               // 6. Create sample requests (5 requests)
+            ActivityLogSeeder::class,           // 7. Create sample activity logs (7 logs)
         ]);
         
         $this->command->newLine();
-        $this->command->info('✅ Database seeding selesai!');
+        $this->command->info('✅ Database seeding completed!');
         $this->command->info('📝 Login: admin@gmail.com / 12345678');
         $this->command->newLine();
     }

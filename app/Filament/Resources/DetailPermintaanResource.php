@@ -20,8 +20,8 @@ class DetailPermintaanResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Edit Item Barang')
-                    ->description('Silahkan ubah jumlah permintaan barang.')
+                Forms\Components\Section::make('Edit Requested Item')
+                    ->description('Update the requested quantity for this item.')
                     ->schema([
                         Forms\Components\Select::make('barang_id')
                             ->relationship('barang', 'nama_barang')
@@ -33,7 +33,7 @@ class DetailPermintaanResource extends Resource
                             ->numeric()
                             ->required()
                             ->minValue(1)
-                            ->label('Jumlah yang diminta'),
+                            ->label('Requested Quantity'),
                     ])->columns(2)
             ]);
     }

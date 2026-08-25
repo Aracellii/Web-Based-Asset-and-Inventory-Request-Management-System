@@ -29,30 +29,30 @@ class KeuanganActivityStats extends BaseWidget
         $startOfMonth = Carbon::now()->startOfMonth();
         $endOfMonth = Carbon::now()->endOfMonth();
         
-        Carbon::setLocale('id');
+        Carbon::setLocale('en');
 
-        // Hitung jumlah barang masuk bulan ini dari SEMUA bagian
-        $masukCount = LogAktivitas::where('tipe', 'Masuk')
+        // Count inbound items this month across all units
+        $masukCount = LogAktivitas::where('tipe', 'Inbound')
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
             ->count();
 
-        // Hitung jumlah barang keluar bulan ini dari SEMUA bagian
-        $keluarCount = LogAktivitas::where('tipe', 'Keluar')
+        // Count outbound items this month across all units
+        $keluarCount = LogAktivitas::where('tipe', 'Outbound')
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
             ->count();
 
         return [
-            Stat::make('Barang Masuk', $masukCount)
-                ->description('Bulan ' . Carbon::now()->translatedFormat('F Y'))
+            Stat::make('Inbound Items', $masukCount)
+                ->description('Month ' . Carbon::now()->translatedFormat('F Y'))
                 ->descriptionIcon('heroicon-m-arrow-down-tray')
                 ->color('success')
-                ->chart($this->getChartData('Masuk')),
+                ->chart($this->getChartData('Inbound')),
 
-            Stat::make('Barang Keluar', $keluarCount)
-                ->description('Bulan ' . Carbon::now()->translatedFormat('F Y'))
+            Stat::make('Outbound Items', $keluarCount)
+                ->description('Month ' . Carbon::now()->translatedFormat('F Y'))
                 ->descriptionIcon('heroicon-m-arrow-up-tray')
                 ->color('danger')
-                ->chart($this->getChartData('Keluar')),
+                ->chart($this->getChartData('Outbound')),
         ];
     }
 
@@ -60,7 +60,7 @@ class KeuanganActivityStats extends BaseWidget
     {
         $data = [];
 
-        // Ambil data 7 hari terakhir dari SEMUA bagian
+        // Collect the last 7 days across all units
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
             $count = LogAktivitas::where('tipe', $tipe)

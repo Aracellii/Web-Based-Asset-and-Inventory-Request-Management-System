@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'SIATK'),
+    'name' => env('APP_NAME', 'Asset and Inventory Management System'),
 
     /*
     |--------------------------------------------------------------------------

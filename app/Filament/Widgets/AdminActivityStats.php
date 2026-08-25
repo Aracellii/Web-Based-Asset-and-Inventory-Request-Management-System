@@ -33,30 +33,30 @@ class AdminActivityStats extends BaseWidget
         
         Carbon::setLocale('id');
 
-        // Hitung jumlah approve 
+        // Count outbound actions
         $approveCount = LogAktivitas::where('user_id', $user->id)
-            ->where('tipe', 'Keluar')
+            ->where('tipe', 'Outbound')
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
             ->count();
 
-        // Hitung jumlah barang masuk bulan ini 
+        // Count inbound items this month
         $masukCount = LogAktivitas::where('user_id', $user->id)
-            ->where('tipe', 'Masuk')
+            ->where('tipe', 'Inbound')
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
             ->count();
 
         return [
-            Stat::make('Approve Permintaan', $approveCount)
-                ->description('Bulan ' . Carbon::now()->translatedFormat('F Y'))
+            Stat::make('Request Approvals', $approveCount)
+                ->description('Month ' . Carbon::now()->translatedFormat('F Y'))
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success')
-                ->chart($this->getChartData('Keluar')),
+                ->chart($this->getChartData('Outbound')),
 
-            Stat::make('Barang Masuk', $masukCount)
-                ->description('Bulan ' . Carbon::now()->translatedFormat('F Y'))
+            Stat::make('Inbound Items', $masukCount)
+                ->description('Month ' . Carbon::now()->translatedFormat('F Y'))
                 ->descriptionIcon('heroicon-m-arrow-down-tray')
                 ->color('info')
-                ->chart($this->getChartData('Masuk')),
+                ->chart($this->getChartData('Inbound')),
         ];
     }
 
@@ -65,7 +65,7 @@ class AdminActivityStats extends BaseWidget
         $user = auth()->user();
         $data = [];
 
-        // Ambil data 
+        // Collect data
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
             $count = LogAktivitas::where('user_id', $user->id)
